@@ -1,0 +1,43 @@
+### 1. Tạo cây mới
+POST http://localhost:4000/api/trees
+Content-Type: application/json
+
+{
+  "name": "Xoài cát Hòa Lộc 01",
+  "species": "Xoài cát Hòa Lộc",
+  "location": "Lô A1 - Hàng 3 - Cây số 5",
+  "plantDate": "2023-10-01",
+  "currentHealth": "Tốt",
+  "notes": "Cây phát triển bình thường"
+}
+
+### 2. Tạo thêm cây thứ 2
+POST http://localhost:4000/api/trees
+Content-Type: application/json
+
+{
+  "name": "Sầu riêng Ri6 01",
+  "species": "Ri6",
+  "location": "Lô B2 - Hàng 1 - Cây 1",
+  "plantDate": "2024-03-10",
+  "currentHealth": "Bình thường",
+  "notes": "Mới trồng, cần theo dõi thêm"
+}
+
+### 3. Lấy danh sách tất cả cây
+GET http://localhost:4000/api/trees
+
+### 4. Xem chi tiết cây ID = 1
+GET http://localhost:4000/api/trees/1
+
+### 5. Cập nhật tình trạng sức khỏe cây ID = 1
+PATCH http://localhost:4000/api/trees/1/health
+Content-Type: application/json
+
+{
+  "currentHealth": "Yếu",
+  "notes": "Lá vàng, nghi thiếu dinh dưỡng, đã bón thêm NPK"
+}
+
+### 6. Xem lại cây ID = 1 sau khi cập nhật
+GET http://localhost:4000/api/trees/1
