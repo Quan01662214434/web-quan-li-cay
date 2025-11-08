@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const QRCode = require("qrcode");
-require("dotenv").config(); // đọc biến môi trường từ file .env
+require("dotenv").config();
 
 // ====== CẤU HÌNH APP ======
 const app = express();
@@ -14,197 +14,130 @@ app.use(express.json());
 
 // ====== KẾT NỐI MONGODB ======
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("✅ Đã kết nối MongoDB"))
   .catch((err) => console.error("❌ Lỗi kết nối MongoDB:", err));
 
 // ====== MÔ HÌNH DỮ LIỆU ======
-const treeSchema = new mongoose.Schema(
-  {
-    numericId: { type: Number, unique: true }, // ID số tự tăng
-    name: { type: String, required: true },
-    species: String,
-    location: String,
-    plantDate: String,
-    currentHealth: { type: String, default: "Tốt" },
-    notes: String,
-    qrCode: String, // ảnh QR (base64)
-  },
-  { timestamps: true }
-);
+const treeSchema = new mongoose.Schema({
+  id: { type: Number, unique: true }, // ID tự tăng
+  name: { type: String, required: true },
+  species: String,
+  location: String,
+  plantDate: String,
+  currentHealth: { type: String, default: "Tốt" },
+  notes: String,
+  qrCode: String,
+});
+
+// ====== TỰ TĂNG ID ======
+treeSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const lastTree = await Tree.findOne().sort({ id: -1 });
+    this.id = lastTree ? lastTree.id + 1 : 1;
+  }
+  next();
+});
 
 const Tree = mongoose.model("Tree", treeSchema);
 
-// ====== TẠO LINK PUBLIC CHO QR ======
-function getPublicTreeUrl(numericId) {
-  // ⚠️ Tạm dùng localhost để test.
-  // Sau này deploy Render thì sửa lại: return `https://TEN-APP.onrender.com/tree/${numericId}`;
-  return `http://localhost:${PORT}/tree/${numericId}`;
-}
-
-// ====== API ======
-
-// Check server
+// ====== API GỐC ======
 app.get("/", (req, res) => {
-  res.send("🌿 API quản lý cây đang hoạt động!");
+  res.send("<h2>🌿 API quản lý cây đang hoạt động!</h2>");
 });
 
-// 1️⃣ TẠO CÂY MỚI
+// ====== LẤY DANH SÁCH CÂY ======
+app.get("/api/trees", async (req, res) => {
+  try {
+    const trees = await Tree.find().sort({ id: 1 });
+    res.json(trees);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi tải danh sách cây", error });
+  }
+});
+
+// ====== THÊM CÂY MỚI ======
 app.post("/api/trees", async (req, res) => {
   try {
     const { name, species, location, plantDate, currentHealth, notes } = req.body;
 
-    if (!name) {
-      return res.status(400).json({ error: "Tên cây là bắt buộc" });
-    }
-
-    // tìm cây có numericId lớn nhất -> +1
-    const lastTree = await Tree.findOne().sort({ numericId: -1 });
-    const nextId = lastTree ? lastTree.numericId + 1 : 1;
-
-    // tạo QR chứa link public
-    const publicUrl = getPublicTreeUrl(nextId);
-    const qrCode = await QRCode.toDataURL(publicUrl);
-
-    const newTree = await Tree.create({
-      numericId: nextId,
+    const newTree = new Tree({
       name,
       species,
       location,
       plantDate,
       currentHealth,
       notes,
-      qrCode,
     });
 
-    res.status(201).json(newTree);
-  } catch (err) {
-    console.error("❌ Lỗi tạo cây:", err);
-    res.status(500).json({ error: "Không thể tạo cây mới" });
+    // Tạo QR code chứa đường dẫn xem cây
+    const qrData = `https://api.thefram.site/tree/${newTree._id}`;
+    newTree.qrCode = await QRCode.toDataURL(qrData);
+
+    await newTree.save();
+    res.json({ message: "✅ Đã thêm cây mới!", tree: newTree });
+  } catch (error) {
+    res.status(500).json({ message: "❌ Lỗi khi thêm cây", error });
   }
 });
 
-// 2️⃣ LẤY DANH SÁCH CÂY
-app.get("/api/trees", async (req, res) => {
+// ====== CẬP NHẬT SỨC KHỎE ======
+app.put("/api/trees/:id", async (req, res) => {
   try {
-    const trees = await Tree.find().sort({ numericId: 1 });
-    res.json(trees);
-  } catch (err) {
-    console.error("❌ Lỗi lấy danh sách cây:", err);
-    res.status(500).json({ error: "Không thể lấy danh sách cây" });
-  }
-});
-
-// 3️⃣ CẬP NHẬT TÌNH TRẠNG SỨC KHỎE
-app.patch("/api/trees/:id/health", async (req, res) => {
-  try {
+    const { id } = req.params;
     const { currentHealth, notes } = req.body;
-    const updatedTree = await Tree.findByIdAndUpdate(
-      req.params.id,
+
+    const updated = await Tree.findOneAndUpdate(
+      { id },
       { currentHealth, notes },
       { new: true }
     );
 
-    if (!updatedTree) {
-      return res.status(404).json({ error: "Không tìm thấy cây để cập nhật" });
-    }
-
-    res.json(updatedTree);
-  } catch (err) {
-    console.error("❌ Lỗi cập nhật cây:", err);
-    res.status(500).json({ error: "Không thể cập nhật cây" });
+    if (!updated) return res.status(404).json({ message: "Không tìm thấy cây" });
+    res.json({ message: "✅ Đã cập nhật cây", tree: updated });
+  } catch (error) {
+    res.status(500).json({ message: "❌ Lỗi khi cập nhật cây", error });
   }
 });
 
-// 4️⃣ XOÁ CÂY
+// ====== XOÁ CÂY ======
 app.delete("/api/trees/:id", async (req, res) => {
   try {
-    const deletedTree = await Tree.findByIdAndDelete(req.params.id);
-    if (!deletedTree) {
-      return res.status(404).json({ error: "Không tìm thấy cây để xoá" });
-    }
-    res.json({ message: `✅ Đã xoá cây ${deletedTree.name}` });
-  } catch (err) {
-    console.error("❌ Lỗi xoá cây:", err);
-    res.status(500).json({ error: "Không thể xoá cây" });
+    const { id } = req.params;
+    const deleted = await Tree.findOneAndDelete({ id });
+    if (!deleted) return res.status(404).json({ message: "Không tìm thấy cây" });
+    res.json({ message: "🗑️ Đã xoá cây thành công!" });
+  } catch (error) {
+    res.status(500).json({ message: "❌ Lỗi khi xoá cây", error });
   }
 });
 
-// 5️⃣ TRANG CÔNG KHAI KHI QUÉT QR
-app.get("/tree/:numericId", async (req, res) => {
+// ====== XEM THÔNG TIN CÂY (theo QR) ======
+app.get("/tree/:id", async (req, res) => {
   try {
-    const numericId = parseInt(req.params.numericId, 10);
-    if (isNaN(numericId)) return res.status(400).send("ID không hợp lệ");
+    const { id } = req.params;
+    const tree = await Tree.findById(id);
+    if (!tree) return res.status(404).send("<h3>Không tìm thấy cây này.</h3>");
 
-    const tree = await Tree.findOne({ numericId });
-    if (!tree) return res.status(404).send("Không tìm thấy cây");
-
-    const statusText = tree.currentHealth || "Chưa rõ";
-    let badgeColor = "#16a34a"; // xanh
-    if (statusText === "Bình thường") badgeColor = "#f59e0b"; // vàng
-    if (statusText === "Yếu" || statusText === "Nguy hiểm") badgeColor = "#dc2626"; // đỏ
-
-    res.send(`<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cây #${tree.numericId} - ${tree.name}</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: #f0f4f8;
-      margin: 0;
-      padding: 20px;
-      color: #111827;
-    }
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-      padding: 20px;
-      max-width: 480px;
-      margin: auto;
-    }
-    h1 {
-      font-size: 22px;
-      margin-bottom: 6px;
-    }
-    .status {
-      display: inline-block;
-      padding: 5px 12px;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 13px;
-      background: ${badgeColor};
-      margin-bottom: 10px;
-    }
-    .row { margin: 8px 0; font-size: 15px; }
-    .label { color: #555; font-weight: 600; }
-    .footer {
-      font-size: 12px;
-      text-align: center;
-      color: #9ca3af;
-      margin-top: 12px;
-    }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>${tree.name}</h1>
-    <div class="status">${statusText}</div>
-    <div class="row"><span class="label">Mã số:</span> #${tree.numericId}</div>
-    <div class="row"><span class="label">Giống:</span> ${tree.species || "—"}</div>
-    <div class="row"><span class="label">Vị trí:</span> ${tree.location || "—"}</div>
-    <div class="row"><span class="label">Ngày trồng:</span> ${tree.plantDate || "—"}</div>
-    <div class="row"><span class="label">Ghi chú:</span> ${tree.notes || "Không có"}</div>
-    <div class="footer">🌿 Quét từ hệ thống Quản lý cây | ID nội bộ: ${tree._id}</div>
-  </div>
-</body>
-</html>`);
-  } catch (err) {
-    console.error("❌ Lỗi render QR:", err);
-    res.status(500).send("Có lỗi xảy ra.");
+    res.send(`
+      <html>
+        <head><title>Thông tin cây</title></head>
+        <body style="font-family: sans-serif; background:#f6fff6; padding: 20px;">
+          <h2>🌳 ${tree.name}</h2>
+          <p><b>Giống:</b> ${tree.species || "Chưa có"}</p>
+          <p><b>Vị trí:</b> ${tree.location || "Chưa rõ"}</p>
+          <p><b>Ngày trồng:</b> ${tree.plantDate || "Không rõ"}</p>
+          <p><b>Tình trạng:</b> ${tree.currentHealth}</p>
+          <p><b>Ghi chú:</b> ${tree.notes || "Không có"}</p>
+          <img src="${tree.qrCode}" width="150"/>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    res.status(500).send("<h3>Lỗi khi tải thông tin cây.</h3>");
   }
 });
 
