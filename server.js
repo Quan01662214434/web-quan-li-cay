@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const QRCode = require("qrcode");
-require("dotenv").config(); // đọc biến môi trường từ .env
+require("dotenv").config();
 
 // ====== CẤU HÌNH APP ======
 const app = express();
@@ -18,10 +18,10 @@ mongoose
   .then(() => console.log("✅ Đã kết nối MongoDB"))
   .catch((err) => console.error("❌ Lỗi kết nối MongoDB:", err));
 
-// ====== MÔ HÌNH DỮ LIỆU ======
+// ====== SCHEMA & MODEL ======
 const treeSchema = new mongoose.Schema(
   {
-    numericId: { type: Number, unique: true }, // ID số tự tăng
+    numericId: { type: Number }, // ID số tự tăng để show cho người dùng
     name: { type: String, required: true },
     species: String,
     location: String,
@@ -35,13 +35,13 @@ const treeSchema = new mongoose.Schema(
 
 const Tree = mongoose.model("Tree", treeSchema);
 
-// ====== HÀM TẠO LINK PUBLIC ĐỂ GẮN VÀO QR ======
+// ====== HÀM TẠO LINK PUBLIC CHO QR ======
 function getPublicTreeUrl(numericId) {
-  // Dùng domain thật của bạn
+  // Dùng domain API thật
   return `https://api.thefram.site/tree/${numericId}`;
 }
 
-// ====== API CHECK SERVER ======
+// ====== CHECK SERVER ======
 app.get("/", (req, res) => {
   res.send("🌿 API quản lý cây đang hoạt động!");
 });
@@ -55,11 +55,10 @@ app.post("/api/trees", async (req, res) => {
       return res.status(400).json({ error: "Tên cây là bắt buộc" });
     }
 
-    // Tìm numericId lớn nhất, +1
+    // Lấy numericId lớn nhất rồi +1
     const lastTree = await Tree.findOne().sort({ numericId: -1 });
     const nextId = lastTree ? lastTree.numericId + 1 : 1;
 
-    // Tạo QR code chứa link public
     const publicUrl = getPublicTreeUrl(nextId);
     const qrCode = await QRCode.toDataURL(publicUrl);
 
@@ -92,8 +91,7 @@ app.get("/api/trees", async (req, res) => {
   }
 });
 
-// ====== 3. CẬP NHẬT TÌNH TRẠNG SỨC KHỎE ======
-// Frontend sẽ gọi theo _id của cây: /api/trees/:id/health
+// ====== 3. CẬP NHẬT SỨC KHỎE & GHI CHÚ ======
 app.patch("/api/trees/:id/health", async (req, res) => {
   try {
     const { currentHealth, notes } = req.body;
@@ -116,7 +114,6 @@ app.patch("/api/trees/:id/health", async (req, res) => {
 });
 
 // ====== 4. XOÁ CÂY ======
-// Frontend cũng truyền _id vào URL /api/trees/:id
 app.delete("/api/trees/:id", async (req, res) => {
   try {
     const deletedTree = await Tree.findByIdAndDelete(req.params.id);
@@ -130,8 +127,7 @@ app.delete("/api/trees/:id", async (req, res) => {
   }
 });
 
-// ====== 5. TRANG CÔNG KHAI KHI QUÉT QR ======
-// Dùng numericId để tra cây cho đẹp & dễ nhớ
+// ====== 5. TRANG PUBLIC KHI QUÉT QR (THEO numericId) ======
 app.get("/tree/:numericId", async (req, res) => {
   try {
     const numericId = parseInt(req.params.numericId, 10);
@@ -154,38 +150,52 @@ app.get("/tree/:numericId", async (req, res) => {
   <style>
     body {
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: #f0f4f8;
+      background: #0f172a;
       margin: 0;
       padding: 20px;
-      color: #111827;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
     }
     .card {
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-      padding: 20px;
-      max-width: 480px;
-      margin: auto;
+      background: #020617;
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+      padding: 18px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
     }
     h1 {
-      font-size: 22px;
-      margin-bottom: 6px;
+      font-size: 20px;
+      margin: 0 0 4px;
     }
     .status {
       display: inline-block;
-      padding: 5px 12px;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: #f9fafb;
+      font-size: 12px;
       background: ${badgeColor};
       margin-bottom: 10px;
     }
-    .row { margin: 8px 0; font-size: 15px; }
-    .label { color: #555; font-weight: 600; }
+    .row { margin: 6px 0; font-size: 14px; }
+    .label { color: #9ca3af; font-weight: 500; display:inline-block; min-width: 95px; }
+    .qr {
+      text-align:center;
+      margin-top: 14px;
+    }
+    .qr img {
+      width: 160px;
+      height: 160px;
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+      background:#020617;
+    }
     .footer {
-      font-size: 12px;
+      font-size: 11px;
       text-align: center;
-      color: #9ca3af;
+      color: #6b7280;
       margin-top: 12px;
     }
   </style>
@@ -194,12 +204,20 @@ app.get("/tree/:numericId", async (req, res) => {
   <div class="card">
     <h1>${tree.name}</h1>
     <div class="status">${statusText}</div>
+
     <div class="row"><span class="label">Mã số:</span> #${tree.numericId}</div>
     <div class="row"><span class="label">Giống:</span> ${tree.species || "—"}</div>
     <div class="row"><span class="label">Vị trí:</span> ${tree.location || "—"}</div>
     <div class="row"><span class="label">Ngày trồng:</span> ${tree.plantDate || "—"}</div>
     <div class="row"><span class="label">Ghi chú:</span> ${tree.notes || "Không có"}</div>
-    <div class="footer">🌿 Quét từ hệ thống Quản lý cây | ID nội bộ: ${tree._id}</div>
+
+    <div class="qr">
+      <img src="${tree.qrCode}" alt="QR" />
+    </div>
+
+    <div class="footer">
+      🌿 Hệ thống quản lý cây · thefram.site
+    </div>
   </div>
 </body>
 </html>`);
