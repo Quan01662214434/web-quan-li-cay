@@ -1,475 +1,1076 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quản lý vườn · thefram.site</title>
-  <link rel="stylesheet" href="./style.css" />
-</head>
-<body>
-  <div class="shell">
-    <header>
-      <div class="title">
-        <div class="logo-wrapper">
-          <span class="logo" id="farm-logo-letter">F</span>
-          <img id="farm-logo-img" style="display:none;" />
-        </div>
-        <div>
-          <div id="farm-title-text">Quản lý cây trong vườn</div>
-          <div class="subtitle">
-            <span id="farm-name-display">Chưa chọn vườn</span> · thefram.site
-          </div>
-        </div>
-      </div>
-      <div class="pill" id="user-display">Chưa đăng nhập</div>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hệ thống quản lý vườn · thefram.site</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
 
-    <main>
-      <!-- THÔNG BÁO CÂY CẦN CHĂM SÓC -->
-      <section class="card alert-card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Thông báo cây cần chăm sóc</div>
-            <div class="card-desc">
-              Cây ở trạng thái <b>Yếu</b> hoặc <b>Nguy hiểm</b> sẽ xuất hiện tại đây.
-            </div>
+  <body>
+    <div class="shell">
+      <!-- HEADER CHUNG -->
+      <header>
+        <div class="title">
+          <div class="logo-wrapper">
+            <span class="logo" id="farm-logo-letter">F</span>
+            <img id="farm-logo-img" />
           </div>
           <div>
-            <span class="small-badge danger" id="alert-count">0 cây</span>
-          </div>
-        </div>
-
-        <div id="alert-empty" class="muted" style="font-size:13px;">
-          ✅ Hiện tại tất cả cây đều đang trong tình trạng ổn.
-        </div>
-        <ul id="alert-list" class="alert-list"></ul>
-      </section>
-
-      <!-- THỐNG KÊ NHANH -->
-      <section class="stats-row">
-        <div class="stat-card">
-          <div class="stat-label">Tổng số cây</div>
-          <div class="stat-value" id="total-trees">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Cây đang yếu / nguy hiểm</div>
-          <div class="stat-value" id="bad-trees">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Lần cập nhật gần nhất</div>
-          <div class="stat-value" id="last-updated">—</div>
-        </div>
-      </section>
-
-      <!-- FORM TẠO CÂY -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Thêm cây mới vào vườn</div>
-            <div class="card-desc">Chủ vườn có thể thêm cây, nhân viên chỉ cập nhật tình trạng.</div>
-          </div>
-        </div>
-
-        <form id="create-tree-form">
-          <div class="field-row">
-            <div>
-              <label>Tên cây</label>
-              <input id="tree-name" placeholder="VD: Sầu riêng A01" />
-            </div>
-            <div>
-              <label>Giống</label>
-              <input id="tree-species" placeholder="VD: Ri6, Thái..." />
-            </div>
-            <div>
-              <label>Vị trí trong vườn</label>
-              <input id="tree-location" placeholder="VD: Lô A1 - Hàng 3" />
-            </div>
-            <div>
-              <label>Ngày trồng</label>
-              <input id="tree-plant-date" placeholder="VD: 2024-05-12" />
+            <div id="farm-title-text">Hệ thống quản lý vườn thefram.site</div>
+            <div class="subtitle" id="subtitle-text">
+              Trang thông tin & làm việc · Admin / Chủ vườn / Nhân viên
             </div>
           </div>
-          <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-            <span class="muted" style="font-size:12px;">
-              Khi tạo cây mới, hệ thống sẽ tự sinh mã QR kèm ID số.
+        </div>
+        <div class="pill" id="user-display">Chưa đăng nhập</div>
+      </header>
+
+      <main>
+        <!-- VIEW CHỜ: DANH SÁCH CÁC VƯỜN (PUBLIC) -->
+        <section id="view-wait" class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Hệ thống quản lý vườn thefram.site</div>
+              <div class="card-desc">
+                Trang thông tin công khai hiển thị các vườn đang sử dụng hệ thống.
+                Admin có thể tạo chủ vườn &amp; nhân viên; chủ vườn và nhân viên đăng nhập để
+                quản lý cây, QR, tình trạng chăm sóc.
+              </div>
+            </div>
+            <button class="btn btn-primary" id="btn-open-login">Đăng nhập hệ thống</button>
+          </div>
+
+          <div
+            style="
+              margin-top: 10px;
+              display: flex;
+              justify-content: space-between;
+              gap: 8px;
+              flex-wrap: wrap;
+            "
+          >
+            <span class="muted" style="font-size: 12px">
+              Danh sách các vườn mới nhất được admin tạo.
             </span>
-            <button type="submit" class="btn btn-primary" id="create-tree-btn">Tạo cây</button>
+            <span class="muted" style="font-size: 12px">
+              Tổng: <span id="public-farm-count">0</span> vườn
+            </span>
           </div>
-        </form>
-      </section>
 
-      <!-- DANH SÁCH CÂY -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Danh sách cây trong vườn</div>
-            <div class="card-desc">Cập nhật tình trạng, ghi chú và xem mã QR của từng cây.</div>
+          <div
+            id="public-farms-grid"
+            style="
+              margin-top: 10px;
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+              gap: 10px;
+            "
+          ></div>
+
+          <div
+            id="public-farms-empty"
+            class="muted"
+            style="font-size: 13px; margin-top: 10px; display: none"
+          >
+            Chưa có vườn nào được cấu hình. Khi admin tạo chủ vườn, danh sách sẽ hiển thị tại đây.
           </div>
-        </div>
+        </section>
 
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Mã</th>
-                <th>Tên</th>
-                <th>Giống</th>
-                <th>Vị trí</th>
-                <th>Ngày trồng</th>
-                <th>Tình trạng</th>
-                <th>Ghi chú</th>
-                <th>QR + thông tin</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody id="tree-tbody"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </div>
+        <!-- VIEW ĐĂNG NHẬP -->
+        <section id="view-login" class="card" style="display: none">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Đăng nhập hệ thống</div>
+              <div class="card-desc">
+                Dùng cho admin, chủ vườn và nhân viên. Tài khoản được cấp bởi admin.
+              </div>
+            </div>
+          </div>
+          <form id="login-form">
+            <label>Tài khoản</label>
+            <input id="login-username" placeholder="vd: admin hoặc vuon-long-an" />
 
-  <div class="toast" id="toast"></div>
+            <label>Mật khẩu</label>
+            <input id="login-password" type="password" placeholder="••••••" />
 
-  <script>
-    const API_BASE = "https://api.thefram.site";
+            <div
+              style="
+                margin-top: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+              "
+            >
+              <span class="muted" id="login-status" style="font-size: 12px">
+                Nhập tài khoản và mật khẩu để bắt đầu.
+              </span>
+              <button type="submit" class="btn btn-primary" id="login-btn">Đăng nhập</button>
+            </div>
+          </form>
+        </section>
 
-    let allTrees = [];
-    let alertTrees = [];
+        <!-- VIEW ADMIN: TẠO USER & XEM DANH SÁCH -->
+        <section id="view-admin" style="display: none; margin-top: 10px">
+          <!-- Banner admin -->
+          <section class="card alert-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Bảng điều khiển Admin</div>
+                <div class="card-desc">Quản lý tài khoản chủ vườn &amp; nhân viên toàn hệ thống.</div>
+              </div>
+              <span class="small-badge" id="admin-name-pill">Admin</span>
+            </div>
+          </section>
 
-    function showToast(msg, type = "success") {
-      const toast = document.getElementById("toast");
-      toast.textContent = msg;
-      toast.className = "toast" + (type === "error" ? " error" : "");
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 2200);
-    }
+          <!-- Grid 2 cột: form tạo user + bảng user -->
+          <div class="admin-grid">
+            <!-- Form tạo user -->
+            <section class="card">
+              <div class="card-header" style="margin-bottom: 6px">
+                <div>
+                  <div class="card-title">Tạo tài khoản chủ vườn / nhân viên</div>
+                  <div class="card-desc">
+                    Chỉ sử dụng sau khi đăng nhập bằng tài khoản admin.
+                  </div>
+                </div>
+              </div>
 
-    // Áp dụng giao diện theo user / vườn
-    (function applyFarmTheme() {
-      try {
-        const raw = localStorage.getItem("user");
-        if (!raw) return;
-        const user = JSON.parse(raw);
+              <form id="admin-create-form">
+                <div class="field-row">
+                  <div>
+                    <label>Tài khoản</label>
+                    <input id="new-username" placeholder="vd: vuon-long-an" />
+                  </div>
+                  <div>
+                    <label>Mật khẩu</label>
+                    <input id="new-password" type="password" placeholder="••••••" />
+                  </div>
+                </div>
+
+                <div class="field-row" style="margin-top: 6px">
+                  <div>
+                    <label>Vai trò</label>
+                    <select id="new-role">
+                      <option value="owner">Chủ vườn (owner)</option>
+                      <option value="staff">Nhân viên (staff)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label>Tên vườn (nếu là chủ vườn)</label>
+                    <input id="new-farm-name" placeholder="VD: Vườn sầu riêng Long An" />
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    margin-top: 8px;
+                    display: flex;
+                    gap: 10px;
+                    align-items: flex-start;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <div>
+                    <label>Logo vườn</label>
+                    <input type="file" id="new-farm-logo" accept="image/*" />
+                    <div class="muted" style="font-size: 11px">
+                      Logo vuông, dung lượng nhỏ để tải nhanh.
+                    </div>
+                  </div>
+                  <div>
+                    <label>Preview logo</label>
+                    <div class="logo-preview-sm" id="new-logo-preview">Chưa chọn logo</div>
+                  </div>
+                </div>
+
+                <div style="margin-top: 8px">
+                  <label>Màu chủ đạo</label>
+                  <input id="new-farm-color" value="#22c55e" />
+                  <div class="muted" style="font-size: 11px">
+                    VD: #22c55e (xanh lá), #eab308 (vàng), #0ea5e9 (xanh dương).
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    margin-top: 12px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 8px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <span class="muted" id="create-user-status" style="font-size: 12px">
+                    Chỉ admin mới tạo được tài khoản.
+                  </span>
+                  <button type="submit" class="btn btn-primary" id="create-user-btn" disabled>
+                    Tạo tài khoản
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <!-- Danh sách user -->
+            <section class="card">
+              <div class="card-header" style="margin-bottom: 6px">
+                <div>
+                  <div class="card-title">Danh sách tài khoản</div>
+                  <div class="card-desc">
+                    Admin có thể xem toàn bộ chủ vườn &amp; nhân viên đang sử dụng hệ thống.
+                  </div>
+                </div>
+                <div style="font-size: 12px; color: #9ca3af">
+                  Tổng: <span id="user-count">0</span> tài khoản
+                </div>
+              </div>
+
+              <div style="margin-bottom: 6px">
+                <button class="pill-filter active" data-role="owner" id="filter-owner">
+                  Chủ vườn
+                </button>
+                <button class="pill-filter" data-role="staff" id="filter-staff">Nhân viên</button>
+                <button class="pill-filter" data-role="all" id="filter-all">Tất cả</button>
+              </div>
+
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Tài khoản</th>
+                      <th>Vai trò</th>
+                      <th>Tên vườn</th>
+                      <th>Ngày tạo</th>
+                    </tr>
+                  </thead>
+                  <tbody id="user-tbody">
+                    <tr>
+                      <td
+                        colspan="4"
+                        style="text-align: center; font-size: 12px; color: #9ca3af"
+                      >
+                        Đăng nhập admin để xem dữ liệu.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- VIEW VƯỜN (CHỦ VƯỜN / NHÂN VIÊN) -->
+        <section id="view-farm" style="display: none">
+          <!-- Thông báo cây cần chăm sóc -->
+          <section class="card alert-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Thông báo cây cần chăm sóc</div>
+                <div class="card-desc">
+                  Cây ở trạng thái <b>Yếu</b> hoặc <b>Nguy hiểm</b> sẽ xuất hiện tại đây.
+                </div>
+              </div>
+              <div>
+                <span class="small-badge danger" id="alert-count">0 cây</span>
+              </div>
+            </div>
+
+            <div id="alert-empty" class="muted" style="font-size: 13px">
+              ✅ Hiện tại tất cả cây đều đang trong tình trạng ổn.
+            </div>
+            <ul id="alert-list" class="alert-list"></ul>
+          </section>
+
+          <!-- Thống kê nhanh -->
+          <section class="stats-row">
+            <div class="stat-card">
+              <div class="stat-label">Tổng số cây</div>
+              <div class="stat-value" id="total-trees">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Cây đang yếu / nguy hiểm</div>
+              <div class="stat-value" id="bad-trees">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Lần cập nhật gần nhất</div>
+              <div class="stat-value" id="last-updated">—</div>
+            </div>
+          </section>
+
+          <!-- Form thêm cây -->
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Thêm cây mới vào vườn</div>
+                <div class="card-desc">
+                  Chủ vườn có thể thêm cây, nhân viên chỉ cập nhật tình trạng và ghi chú.
+                </div>
+              </div>
+            </div>
+
+            <form id="create-tree-form">
+              <div class="field-row">
+                <div>
+                  <label>Tên cây</label>
+                  <input id="tree-name" placeholder="VD: Sầu riêng A01" />
+                </div>
+                <div>
+                  <label>Giống</label>
+                  <input id="tree-species" placeholder="VD: Ri6, Thái..." />
+                </div>
+                <div>
+                  <label>Vị trí trong vườn</label>
+                  <input id="tree-location" placeholder="VD: Lô A1 - Hàng 3" />
+                </div>
+                <div>
+                  <label>Ngày trồng</label>
+                  <input id="tree-plant-date" placeholder="VD: 2024-05-12" />
+                </div>
+              </div>
+              <div
+                style="
+                  margin-top: 10px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 8px;
+                  flex-wrap: wrap;
+                "
+              >
+                <span class="muted" style="font-size: 12px">
+                  Khi tạo cây mới, hệ thống sẽ tự sinh mã QR kèm ID số.
+                </span>
+                <button type="submit" class="btn btn-primary" id="create-tree-btn">
+                  Tạo cây
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <!-- Danh sách cây -->
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Danh sách cây trong vườn</div>
+                <div class="card-desc">
+                  Cập nhật tình trạng, ghi chú và xem mã QR của từng cây.
+                </div>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã</th>
+                    <th>Tên</th>
+                    <th>Giống</th>
+                    <th>Vị trí</th>
+                    <th>Ngày trồng</th>
+                    <th>Tình trạng</th>
+                    <th>Ghi chú</th>
+                    <th>QR + thông tin</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody id="tree-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const API_BASE = "https://api.thefram.site";
+
+      let allTrees = [];
+      let adminToken = null;
+      let logoDataUrlNewUser = null;
+      let currentUser = null;
+      let currentRoleFilter = "owner";
+
+      /* ================== COMMON UI ================== */
+
+      function showToast(msg, type = "success") {
+        const toast = document.getElementById("toast");
+        toast.textContent = msg;
+        toast.className = "toast" + (type === "error" ? " error" : "");
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2200);
+      }
+
+      function showView(name) {
+        document.getElementById("view-wait").style.display =
+          name === "wait" ? "block" : "none";
+        document.getElementById("view-login").style.display =
+          name === "login" ? "block" : "none";
+        document.getElementById("view-admin").style.display =
+          name === "admin" ? "block" : "none";
+        document.getElementById("view-farm").style.display =
+          name === "farm" ? "block" : "none";
+      }
+
+      // Nút "Đăng nhập hệ thống" trên trang chờ
+      document
+        .getElementById("btn-open-login")
+        .addEventListener("click", () => showView("login"));
+
+      // Click pill để đăng xuất
+      (function setupLogout() {
+        const pill = document.getElementById("user-display");
+        pill.style.cursor = "pointer";
+        pill.title = "Nhấp để đăng xuất";
+        pill.addEventListener("click", () => {
+          if (!currentUser) return;
+          if (!confirm("Bạn có chắc muốn đăng xuất?")) return;
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          currentUser = null;
+          adminToken = null;
+          document.getElementById("user-display").textContent = "Chưa đăng nhập";
+          showView("wait");
+          loadPublicFarms();
+        });
+      })();
+
+      function applyThemeByUser(user) {
+        if (!user) return;
+        currentUser = user;
 
         if (user.farmPrimaryColor) {
-          document.documentElement.style.setProperty("--accent", user.farmPrimaryColor);
+          document.documentElement.style.setProperty(
+            "--accent",
+            user.farmPrimaryColor
+          );
         }
 
         const img = document.getElementById("farm-logo-img");
         const letter = document.getElementById("farm-logo-letter");
-        if (user.farmLogo && img && letter) {
+        if (user.farmLogo) {
           img.src = user.farmLogo;
           img.style.display = "block";
           letter.style.display = "none";
+        } else {
+          img.style.display = "none";
+          letter.style.display = "inline-flex";
         }
 
-        const farmNameEl = document.getElementById("farm-name-display");
         const farmTitleEl = document.getElementById("farm-title-text");
+        const subtitle = document.getElementById("subtitle-text");
         const userDisplay = document.getElementById("user-display");
 
-        if (farmNameEl && user.farmName) {
-          farmNameEl.textContent = user.farmName;
-        }
-        if (farmTitleEl && user.role) {
-          farmTitleEl.textContent =
-            user.role === "owner"
-              ? "Bảng điều khiển chủ vườn"
-              : user.role === "staff"
-              ? "Bảng công việc nhân viên vườn"
-              : "Quản lý cây trong vườn";
-        }
-        if (userDisplay && user.username) {
-          userDisplay.textContent = `${user.username} (${user.role})`;
-        }
+        if (userDisplay) userDisplay.textContent = `${user.username} (${user.role})`;
 
-        // Nếu là staff => ẩn nút tạo cây
+        if (user.role === "admin") {
+          farmTitleEl.textContent = "Admin Portal · thefram.site";
+          subtitle.textContent = "Quản lý tài khoản chủ vườn & nhân viên";
+        } else {
+          farmTitleEl.textContent = user.farmName || "Bảng điều khiển vườn";
+          subtitle.textContent =
+            user.role === "owner"
+              ? "Chủ vườn · quản lý cây, QR và công việc"
+              : "Nhân viên · cập nhật tình trạng cây và công việc";
+        }
+      }
+
+      /* ================== PUBLIC FARMS (TRANG CHỜ) ================== */
+
+      async function loadPublicFarms() {
+        try {
+          const res = await fetch(API_BASE + "/public/farms");
+          const data = await res.json();
+
+          const grid = document.getElementById("public-farms-grid");
+          const empty = document.getElementById("public-farms-empty");
+          const countEl = document.getElementById("public-farm-count");
+
+          if (!Array.isArray(data) || !data.length) {
+            grid.innerHTML = "";
+            empty.style.display = "block";
+            countEl.textContent = "0";
+            return;
+          }
+
+          empty.style.display = "none";
+          countEl.textContent = data.length;
+          grid.innerHTML = "";
+
+          data.forEach((farm) => {
+            const card = document.createElement("div");
+            card.className = "public-farm-card";
+
+            const logoHtml = farm.farmLogo
+              ? `<div class="public-farm-logo"><img src="${farm.farmLogo}" alt="${farm.farmName ||
+                  farm.username}" /></div>`
+              : `<div class="public-farm-logo">${(farm.farmName ||
+                  farm.username ||
+                  "?"
+                )
+                  .charAt(0)
+                  .toUpperCase()}</div>`;
+
+            const createdText = farm.createdAt
+              ? new Date(farm.createdAt).toLocaleDateString("vi-VN")
+              : "—";
+
+            card.innerHTML = `
+              ${logoHtml}
+              <div class="public-farm-main">
+                <div class="public-farm-name">${farm.farmName || "Vườn chưa đặt tên"}</div>
+                <div class="public-farm-meta">
+                  Chủ vườn: <b>${farm.username}</b><br/>
+                  Ngày tham gia: ${createdText}
+                </div>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+        } catch (err) {
+          console.error("Lỗi tải danh sách vườn công khai:", err);
+        }
+      }
+
+      /* ================== LOGIN CHUNG ================== */
+
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const username = document
+            .getElementById("login-username")
+            .value.trim();
+          const password = document
+            .getElementById("login-password")
+            .value.trim();
+          const status = document.getElementById("login-status");
+          const btn = document.getElementById("login-btn");
+
+          if (!username || !password) {
+            status.textContent =
+              "❌ Vui lòng nhập đủ tài khoản và mật khẩu.";
+            showToast("Thiếu tài khoản / mật khẩu", "error");
+            return;
+          }
+
+          try {
+            btn.disabled = true;
+            status.textContent = "⏳ Đang đăng nhập...";
+
+            const res = await fetch(API_BASE + "/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Không thể đăng nhập");
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            applyThemeByUser(data.user);
+
+            status.textContent = "✅ Đăng nhập thành công.";
+
+            if (data.user.role === "admin") {
+              adminToken = data.token;
+              showView("admin");
+              document.getElementById(
+                "admin-name-pill"
+              ).textContent = `${data.user.username} (admin)`;
+              document.getElementById("create-user-btn").disabled = false;
+              loadUsers(currentRoleFilter);
+            } else {
+              showView("farm");
+              setupFarmRoleUI(data.user);
+              loadTrees();
+            }
+
+            showToast("Đăng nhập thành công!");
+          } catch (err) {
+            console.error(err);
+            status.textContent = "❌ " + err.message;
+            showToast(err.message, "error");
+          } finally {
+            btn.disabled = false;
+          }
+        });
+
+      function setupFarmRoleUI(user) {
         if (user.role === "staff") {
           const form = document.getElementById("create-tree-form");
           const btn = document.getElementById("create-tree-btn");
           if (btn) btn.disabled = true;
-          if (form) form.querySelectorAll("input").forEach(i => i.disabled = true);
+          if (form)
+            form.querySelectorAll("input").forEach((i) => (i.disabled = true));
         }
-      } catch (e) {
-        console.warn("Không áp dụng được theme vườn:", e);
-      }
-    })();
-
-    function setLastUpdated() {
-      const el = document.getElementById("last-updated");
-      el.textContent = new Date().toLocaleString("vi-VN");
-    }
-
-    function updateSummary(trees) {
-      const total = trees.length;
-      const bad = trees.filter(
-        (t) => t.currentHealth === "Yếu" || t.currentHealth === "Nguy hiểm"
-      ).length;
-
-      document.getElementById("total-trees").textContent = total;
-      document.getElementById("bad-trees").textContent = bad;
-    }
-
-    function renderAlerts(trees) {
-      const alertCountEl = document.getElementById("alert-count");
-      const alertListEl = document.getElementById("alert-list");
-      const alertEmptyEl = document.getElementById("alert-empty");
-
-      if (!trees.length) {
-        alertCountEl.textContent = "0 cây";
-        alertEmptyEl.style.display = "block";
-        alertListEl.style.display = "none";
-        alertListEl.innerHTML = "";
-        return;
       }
 
-      alertCountEl.textContent = `${trees.length} cây`;
-      alertEmptyEl.style.display = "none";
-      alertListEl.style.display = "block";
-      alertListEl.innerHTML = "";
+      /* ================== ADMIN: TẠO USER ================== */
 
-      trees.forEach((t) => {
-        const li = document.createElement("li");
-        li.className = "alert-item";
-        const statusClass =
-          t.currentHealth === "Nguy hiểm" ? "danger" : "weak";
+      document
+        .getElementById("new-farm-logo")
+        .addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          const preview = document.getElementById("new-logo-preview");
+          if (!file) {
+            logoDataUrlNewUser = null;
+            preview.textContent = "Chưa chọn logo";
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            logoDataUrlNewUser = reader.result;
+            preview.innerHTML = `<img src="${logoDataUrlNewUser}" alt="Logo vườn" />`;
+          };
+          reader.readAsDataURL(file);
+        });
 
-        li.innerHTML = `
-          <div class="alert-main">
-            <div class="alert-title">${t.name || "Cây không tên"}</div>
-            <div class="alert-meta">
-              ID #${t.numericId ?? "—"} · Giống: ${t.species || "—"} · Vị trí: ${
-          t.location || "—"
-        }
-            </div>
-          </div>
-          <div class="alert-status ${statusClass}">
-            ${t.currentHealth || "Chưa rõ"}
-          </div>
-        `;
-        alertListEl.appendChild(li);
-      });
-    }
+      document
+        .getElementById("admin-create-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!adminToken) {
+            showToast("Bạn phải đăng nhập bằng tài khoản admin trước", "error");
+            return;
+          }
 
-    function renderTreeTable(trees) {
-      const tbody = document.getElementById("tree-tbody");
-      tbody.innerHTML = "";
+          const username = document
+            .getElementById("new-username")
+            .value.trim();
+          const password = document
+            .getElementById("new-password")
+            .value.trim();
+          const role = document.getElementById("new-role").value;
+          const farmName = document
+            .getElementById("new-farm-name")
+            .value.trim();
+          const farmColor = document
+            .getElementById("new-farm-color")
+            .value.trim();
+          const status = document.getElementById("create-user-status");
 
-      if (!trees.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="9" style="text-align:center; font-size:13px; color:#9ca3af;">
-              Chưa có cây nào trong vườn.
-            </td>
-          </tr>
-        `;
-        return;
-      }
+          if (!username || !password) {
+            showToast("Nhập tài khoản & mật khẩu", "error");
+            return;
+          }
+          if (role === "owner" && !farmName) {
+            showToast("Chủ vườn phải có tên vườn", "error");
+            return;
+          }
 
-      const rawUser = localStorage.getItem("user");
-      let userRole = null;
-      if (rawUser) {
+          try {
+            status.textContent = "⏳ Đang tạo tài khoản...";
+            const res = await fetch(API_BASE + "/admin/users", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + adminToken,
+              },
+              body: JSON.stringify({
+                username,
+                password,
+                role,
+                farmName: farmName || undefined,
+                farmLogo: logoDataUrlNewUser,
+                farmPrimaryColor: farmColor || "#22c55e",
+              }),
+            });
+
+            const data = await res.json();
+            if (!res.ok)
+              throw new Error(data.error || "Tạo tài khoản thất bại");
+
+            status.textContent = `✅ Đã tạo ${data.user.username} (${data.user.role})`;
+            showToast("Tạo tài khoản thành công!");
+
+            e.target.reset();
+            logoDataUrlNewUser = null;
+            document.getElementById("new-logo-preview").textContent =
+              "Chưa chọn logo";
+            document.getElementById("new-farm-color").value = "#22c55e";
+
+            loadUsers(currentRoleFilter);
+          } catch (err) {
+            console.error(err);
+            status.textContent = "❌ " + err.message;
+            showToast(err.message, "error");
+          }
+        });
+
+      /* ================== ADMIN: XEM DANH SÁCH USER ================== */
+
+      async function loadUsers(roleFilter = "owner") {
+        if (!adminToken) return;
         try {
-          userRole = JSON.parse(rawUser).role;
-        } catch (e) {}
+          currentRoleFilter = roleFilter;
+          let url = API_BASE + "/admin/users";
+          if (roleFilter === "owner" || roleFilter === "staff") {
+            url += "?role=" + roleFilter;
+          }
+
+          const res = await fetch(url, {
+            headers: { Authorization: "Bearer " + adminToken },
+          });
+          const data = await res.json();
+          if (!res.ok)
+            throw new Error(data.error || "Không thể tải danh sách user");
+
+          const tbody = document.getElementById("user-tbody");
+          const countEl = document.getElementById("user-count");
+          tbody.innerHTML = "";
+          countEl.textContent = data.length;
+
+          if (!data.length) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="4" style="text-align:center; font-size:12px; color:#9ca3af;">
+                  Chưa có tài khoản nào với bộ lọc hiện tại.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          data.forEach((u) => {
+            const tr = document.createElement("tr");
+            const created = u.createdAt
+              ? new Date(u.createdAt).toLocaleString("vi-VN")
+              : "—";
+            tr.innerHTML = `
+              <td>${u.username}</td>
+              <td>
+                <span class="badge-role ${u.role}">
+                  ${
+                    u.role === "owner"
+                      ? "Chủ vườn"
+                      : u.role === "staff"
+                      ? "Nhân viên"
+                      : u.role
+                  }
+                </span>
+              </td>
+              <td>${u.farmName || "—"}</td>
+              <td>${created}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error(err);
+          showToast("Lỗi khi tải danh sách user", "error");
+        }
       }
 
-      trees.forEach((tree) => {
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-          <td>#${tree.numericId ?? "—"}</td>
-          <td>${tree.name || "—"}</td>
-          <td>${tree.species || "—"}</td>
-          <td>${tree.location || "—"}</td>
-          <td>${tree.plantDate || "—"}</td>
-          <td>
-            <select class="health-select" data-id="${tree._id}">
-              <option value="Tốt" ${tree.currentHealth === "Tốt" ? "selected" : ""}>Tốt</option>
-              <option value="Bình thường" ${
-                tree.currentHealth === "Bình thường" ? "selected" : ""
-              }>Bình thường</option>
-              <option value="Yếu" ${tree.currentHealth === "Yếu" ? "selected" : ""}>Yếu</option>
-              <option value="Nguy hiểm" ${
-                tree.currentHealth === "Nguy hiểm" ? "selected" : ""
-              }>Nguy hiểm</option>
-            </select>
-          </td>
-          <td>
-            <textarea class="note-input" data-id="${tree._id}" rows="2"
-              placeholder="Ghi chú chăm sóc...">${tree.notes || ""}</textarea>
-          </td>
-          <td>
-            ${
-              tree.qrCode
-                ? `
-                <div class="qr-cell">
-                  <img src="${tree.qrCode}" class="qr-thumb" alt="QR" title="Nhấp để mở lớn" />
-                  <div class="qr-meta">
-                    <div class="qr-meta-name">${tree.name || "Cây không tên"}</div>
-                    <div class="muted">Giống: ${tree.species || "—"}</div>
-                    <div class="muted">Vị trí: ${tree.location || "—"}</div>
-                  </div>
-                </div>
-                `
-                : `<span class="qr-thumb-empty">Chưa có QR</span>`
-            }
-          </td>
-          <td>
-            <button class="btn-table save-btn" data-id="${tree._id}">Lưu</button>
-            <button class="btn-table danger-btn delete-btn" data-id="${tree._id}">Xoá</button>
-          </td>
-        `;
-
-        tbody.appendChild(tr);
+      ["owner", "staff", "all"].forEach((role) => {
+        const btn = document.getElementById("filter-" + role);
+        if (!btn) return;
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".pill-filter")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          loadUsers(role);
+        });
       });
 
-      // Nếu là staff, ẩn nút xoá
-      if (userRole === "staff") {
-        document.querySelectorAll(".delete-btn").forEach((btn) => {
-          btn.style.display = "none";
+      /* ================== FARM: HỖ TRỢ UI ================== */
+
+      function setLastUpdated() {
+        const el = document.getElementById("last-updated");
+        if (el) el.textContent = new Date().toLocaleString("vi-VN");
+      }
+
+      function updateSummary(trees) {
+        document.getElementById("total-trees").textContent = trees.length;
+        document.getElementById("bad-trees").textContent = trees.filter(
+          (t) => t.currentHealth === "Yếu" || t.currentHealth === "Nguy hiểm"
+        ).length;
+      }
+
+      function renderAlerts(trees) {
+        const alertCountEl = document.getElementById("alert-count");
+        const alertListEl = document.getElementById("alert-list");
+        const alertEmptyEl = document.getElementById("alert-empty");
+
+        if (!trees.length) {
+          alertCountEl.textContent = "0 cây";
+          alertEmptyEl.style.display = "block";
+          alertListEl.style.display = "none";
+          alertListEl.innerHTML = "";
+          return;
+        }
+
+        alertCountEl.textContent = `${trees.length} cây`;
+        alertEmptyEl.style.display = "none";
+        alertListEl.style.display = "block";
+        alertListEl.innerHTML = "";
+
+        trees.forEach((t) => {
+          const li = document.createElement("li");
+          li.className = "alert-item";
+          const statusClass = t.currentHealth === "Nguy hiểm" ? "danger" : "weak";
+          li.innerHTML = `
+            <div class="alert-main">
+              <div class="alert-title">${t.name || "Cây không tên"}</div>
+              <div class="alert-meta">
+                ID #${t.numericId ?? "—"} · Giống: ${
+            t.species || "—"
+          } · Vị trí: ${t.location || "—"}
+              </div>
+            </div>
+            <div class="alert-status ${statusClass}">
+              ${t.currentHealth || "Chưa rõ"}
+            </div>
+          `;
+          alertListEl.appendChild(li);
         });
       }
 
-      // Gán sự kiện Lưu
-      document.querySelectorAll(".save-btn").forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-          const id = e.target.getAttribute("data-id");
-          const healthSelect = document.querySelector(
-            `.health-select[data-id="${id}"]`
-          );
-          const noteInput = document.querySelector(
-            `.note-input[data-id="${id}"]`
+      function renderTreeTable(trees) {
+        const tbody = document.getElementById("tree-tbody");
+        tbody.innerHTML = "";
+
+        if (!trees.length) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="9" style="text-align:center; font-size:13px; color:#9ca3af;">
+                Chưa có cây nào trong vườn.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const userRole = currentUser?.role || null;
+
+        trees.forEach((tree) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>#${tree.numericId ?? "—"}</td>
+            <td>${tree.name || "—"}</td>
+            <td>${tree.species || "—"}</td>
+            <td>${tree.location || "—"}</td>
+            <td>${tree.plantDate || "—"}</td>
+            <td>
+              <select class="health-select" data-id="${tree._id}">
+                <option value="Tốt" ${
+                  tree.currentHealth === "Tốt" ? "selected" : ""
+                }>Tốt</option>
+                <option value="Bình thường" ${
+                  tree.currentHealth === "Bình thường" ? "selected" : ""
+                }>Bình thường</option>
+                <option value="Yếu" ${
+                  tree.currentHealth === "Yếu" ? "selected" : ""
+                }>Yếu</option>
+                <option value="Nguy hiểm" ${
+                  tree.currentHealth === "Nguy hiểm" ? "selected" : ""
+                }>Nguy hiểm</option>
+              </select>
+            </td>
+            <td>
+              <textarea class="note-input" data-id="${tree._id}" rows="2"
+                placeholder="Ghi chú chăm sóc...">${tree.notes || ""}</textarea>
+            </td>
+            <td>
+              ${
+                tree.qrCode
+                  ? `
+                  <div class="qr-cell">
+                    <img src="${tree.qrCode}" class="qr-thumb" alt="QR" />
+                    <div class="qr-meta">
+                      <div class="qr-meta-name">${tree.name || "Cây không tên"}</div>
+                      <div class="muted">Giống: ${tree.species || "—"}</div>
+                      <div class="muted">Vị trí: ${tree.location || "—"}</div>
+                    </div>
+                  </div>
+                  `
+                  : `<span class="qr-thumb-empty">Chưa có QR</span>`
+              }
+            </td>
+            <td>
+              <button class="btn-table save-btn" data-id="${tree._id}">Lưu</button>
+              <button class="btn-table danger-btn delete-btn" data-id="${tree._id}">Xoá</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        if (userRole === "staff") {
+          document.querySelectorAll(".delete-btn").forEach((btn) => {
+            btn.style.display = "none";
+          });
+        }
+
+        document.querySelectorAll(".save-btn").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const id = e.target.getAttribute("data-id");
+            const healthSelect = document.querySelector(
+              `.health-select[data-id="${id}"]`
+            );
+            const noteInput = document.querySelector(
+              `.note-input[data-id="${id}"]`
+            );
+
+            const body = {
+              currentHealth: healthSelect.value,
+              notes: noteInput.value,
+            };
+
+            try {
+              const token = localStorage.getItem("token") || "";
+              const res = await fetch(`${API_BASE}/api/trees/${id}/health`, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: "Bearer " + token,
+                },
+                body: JSON.stringify(body),
+              });
+              if (!res.ok) throw new Error("Không thể cập nhật cây");
+              showToast("Đã lưu tình trạng / ghi chú");
+              loadTrees();
+            } catch (err) {
+              console.error(err);
+              showToast("Lỗi khi lưu cây", "error");
+            }
+          });
+        });
+
+        document.querySelectorAll(".delete-btn").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const id = e.target.getAttribute("data-id");
+            if (!confirm("Bạn chắc chắn muốn xoá cây này?")) return;
+
+            try {
+              const token = localStorage.getItem("token") || "";
+              const res = await fetch(`${API_BASE}/api/trees/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: "Bearer " + token },
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error || "Không thể xoá cây");
+              showToast(data.message || "Đã xoá cây");
+              loadTrees();
+            } catch (err) {
+              console.error(err);
+              showToast("Lỗi khi xoá cây", "error");
+            }
+          });
+        });
+      }
+
+      async function loadTrees() {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            showToast("Chưa có token đăng nhập, vui lòng đăng nhập lại.", "error");
+            showView("wait");
+            loadPublicFarms();
+            return;
+          }
+          const res = await fetch(`${API_BASE}/api/trees`, {
+            headers: { Authorization: "Bearer " + token },
+          });
+          if (!res.ok) throw new Error("Không thể tải danh sách cây");
+          const data = await res.json();
+          allTrees = data;
+
+          const alertTrees = data.filter(
+            (t) => t.currentHealth === "Yếu" || t.currentHealth === "Nguy hiểm"
           );
 
-          const body = {
-            currentHealth: healthSelect.value,
-            notes: noteInput.value,
-          };
+          updateSummary(data);
+          renderAlerts(alertTrees);
+          renderTreeTable(data);
+          setLastUpdated();
+        } catch (err) {
+          console.error(err);
+          showToast("Không thể tải danh sách cây", "error");
+        }
+      }
+
+      /* ================== KHỞI ĐỘNG ================== */
+
+      window.addEventListener("load", () => {
+        const token = localStorage.getItem("token");
+        const userRaw = localStorage.getItem("user");
+
+        if (token && userRaw) {
+          try {
+            const user = JSON.parse(userRaw);
+            applyThemeByUser(user);
+
+            if (user.role === "admin") {
+              adminToken = token;
+              document.getElementById(
+                "admin-name-pill"
+              ).textContent = `${user.username} (admin)`;
+              document.getElementById("create-user-btn").disabled = false;
+              showView("admin");
+              loadUsers(currentRoleFilter);
+            } else {
+              showView("farm");
+              setupFarmRoleUI(user);
+              loadTrees();
+            }
+          } catch {
+            showView("wait");
+            loadPublicFarms();
+          }
+        } else {
+          showView("wait");
+          loadPublicFarms();
+        }
+      });
+
+      /* ================== TẠO CÂY MỚI ================== */
+
+      document
+        .getElementById("create-tree-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = document.getElementById("tree-name").value.trim();
+          const species = document.getElementById("tree-species").value.trim();
+          const location = document.getElementById("tree-location").value.trim();
+          const plantDate = document
+            .getElementById("tree-plant-date")
+            .value.trim();
+
+          if (!name) {
+            showToast("Vui lòng nhập tên cây", "error");
+            return;
+          }
 
           try {
-            const token = localStorage.getItem("token") || "";
-            const res = await fetch(`${API_BASE}/api/trees/${id}/health`, {
-              method: "PATCH",
+            const token = localStorage.getItem("token");
+            if (!token) throw new Error("Chưa đăng nhập");
+
+            const res = await fetch(`${API_BASE}/api/trees`, {
+              method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + token,
               },
-              body: JSON.stringify(body),
+              body: JSON.stringify({ name, species, location, plantDate }),
             });
-            if (!res.ok) throw new Error("Không thể cập nhật cây");
-            showToast("Đã lưu tình trạng / ghi chú");
-            loadTrees();
-          } catch (err) {
-            console.error(err);
-            showToast("Lỗi khi lưu cây", "error");
-          }
-        });
-      });
 
-      // Gán sự kiện Xoá
-      document.querySelectorAll(".delete-btn").forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-          const id = e.target.getAttribute("data-id");
-          if (!confirm("Bạn chắc chắn muốn xoá cây này?")) return;
-
-          try {
-            const token = localStorage.getItem("token") || "";
-            const res = await fetch(`${API_BASE}/api/trees/${id}`, {
-              method: "DELETE",
-              headers: {
-                Authorization: "Bearer " + token,
-              },
-            });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Không thể xoá cây");
-            showToast(data.message || "Đã xoá cây");
+            if (!res.ok) throw new Error(data.error || "Không thể tạo cây");
+
+            showToast("Đã thêm cây mới!");
+            e.target.reset();
             loadTrees();
           } catch (err) {
             console.error(err);
-            showToast("Lỗi khi xoá cây", "error");
+            showToast(err.message || "Lỗi khi tạo cây", "error");
           }
         });
-      });
-    }
-
-    async function loadTrees() {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          showToast("Chưa có token đăng nhập, vui lòng login từ hệ thống.", "error");
-          return;
-        }
-        const res = await fetch(`${API_BASE}/api/trees`, {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-        if (!res.ok) throw new Error("Không thể tải danh sách cây");
-        const data = await res.json();
-        allTrees = data;
-
-        alertTrees = data.filter(
-          (t) => t.currentHealth === "Yếu" || t.currentHealth === "Nguy hiểm"
-        );
-
-        updateSummary(data);
-        renderAlerts(alertTrees);
-        renderTreeTable(data);
-        setLastUpdated();
-      } catch (err) {
-        console.error(err);
-        showToast("Không thể tải danh sách cây", "error");
-      }
-    }
-
-    // Tạo cây mới
-    document.getElementById("create-tree-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("tree-name").value.trim();
-      const species = document.getElementById("tree-species").value.trim();
-      const location = document.getElementById("tree-location").value.trim();
-      const plantDate = document.getElementById("tree-plant-date").value.trim();
-
-      if (!name) {
-        showToast("Tên cây là bắt buộc", "error");
-        return;
-      }
-
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          showToast("Chưa có token đăng nhập", "error");
-          return;
-        }
-
-        const res = await fetch(`${API_BASE}/api/trees`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          },
-          body: JSON.stringify({ name, species, location, plantDate }),
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Không thể tạo cây mới");
-        }
-
-        showToast("Đã thêm cây mới!");
-        e.target.reset();
-        loadTrees();
-      } catch (err) {
-        console.error(err);
-        showToast(err.message, "error");
-      }
-    });
-
-    // Lần đầu load
-    window.addEventListener("load", () => {
-      loadTrees();
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
