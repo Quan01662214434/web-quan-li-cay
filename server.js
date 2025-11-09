@@ -1,177 +1,180 @@
-// ====== IMPORT THƯ VIỆN ======
+// server.js - API cho hệ thống quản lý vườn thefram.site
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const QRCode = require("qrcode");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const path = require("path");
 require("dotenv").config();
 
-// ====== CẤU HÌNH APP ======
 const app = express();
 const PORT = process.env.PORT || 4000;
-
-app.use(cors());
-app.use(express.json());
+const JWT_SECRET = process.env.JWT_SECRET || "very-secret-key-change-me";
 
 // ====== KẾT NỐI MONGODB ======
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  "mongodb+srv://admin:12345@cluster0.p12idid.mongodb.net/web-quan-li-cay?retryWrites=true&w=majority&appName=Cluster0";
+
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Đã kết nối MongoDB"))
-  .catch((err) => console.error("❌ Lỗi kết nối MongoDB:", err));
+  .connect(MONGO_URI)
+  .then(() => console.log("✅ MongoDB đã kết nối thành công"))
+  .catch((err) => {
+    console.error("❌ Lỗi kết nối MongoDB:", err.message);
+  });
+
+// ====== MIDDLEWARE ======
+app.use(
+  cors({
+    origin: "*", // có thể thu hẹp sau: ["https://thefram.site", "http://localhost:5173"]
+  })
+);
+app.use(express.json({ limit: "10mb" }));
+
+// Serve frontend (cho chạy local / trên Render nếu cần)
+app.use(express.static(path.join(__dirname, "frontend")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "index.html"));
+});
 
 // ====== SCHEMA & MODEL ======
 
-// User: admin, chủ vườn (owner), nhân viên (staff)
+// Đếm số tăng dần cho numericId của cây
+const counterSchema = new mongoose.Schema({
+  name: { type: String, unique: true },
+  seq: { type: Number, default: 0 },
+});
+const Counter = mongoose.model("Counter", counterSchema);
+
+async function getNextSequence(name) {
+  const doc = await Counter.findOneAndUpdate(
+    { name },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return doc.seq;
+}
+
+// User: admin / owner / staff
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true, unique: true },
+    username: { type: String, unique: true, required: true, trim: true },
     passwordHash: { type: String, required: true },
     role: {
       type: String,
       enum: ["admin", "owner", "staff"],
-      default: "staff",
+      default: "owner",
     },
-
-    // Thông tin vườn
     farmName: { type: String },
-    farmLogo: { type: String }, // base64
-    farmPrimaryColor: { type: String }, // vd "#22c55e"
+    farmLogo: { type: String }, // base64 hoặc URL
+    farmPrimaryColor: { type: String }, // vd: #22c55e
   },
   { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);
 
-// Cây
+// Cây trong vườn
 const treeSchema = new mongoose.Schema(
   {
-    numericId: { type: Number }, // ID số tự tăng
+    numericId: { type: Number, unique: true }, // ID số
     name: { type: String, required: true },
-    species: String,
-    location: String,
-    plantDate: String,
-    currentHealth: { type: String, default: "Tốt" },
-    notes: String,
-    qrCode: String,
-
-    farmOwnerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    species: { type: String },
+    location: { type: String },
+    plantDate: { type: String }, // lưu chuỗi cho đơn giản (YYYY-MM-DD)
+    currentHealth: {
+      type: String,
+      enum: ["Tốt", "Bình thường", "Yếu", "Nguy hiểm"],
+      default: "Bình thường",
+    },
+    notes: { type: String },
+    qrCode: { type: String }, // dataURL từ QRCode
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );
 
 const Tree = mongoose.model("Tree", treeSchema);
 
-// Task – công việc nhân viên
-const taskSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    description: String,
+// ====== AUTH MIDDLEWARE ======
+function authMiddleware(req, res, next) {
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
 
-    status: {
-      type: String,
-      enum: ["Mới", "Đang làm", "Hoàn thành"],
-      default: "Mới",
-    },
-
-    priority: {
-      type: String,
-      enum: ["Thấp", "Trung bình", "Cao"],
-      default: "Trung bình",
-    },
-
-    dueDate: String,
-
-    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    farmOwnerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    farmName: String,
-
-    treeId: { type: mongoose.Schema.Types.ObjectId, ref: "Tree" },
-
-    resultNotes: String,
-  },
-  { timestamps: true }
-);
-
-const Task = mongoose.model("Task", taskSchema);
-
-// ====== HÀM TẠO LINK PUBLIC QR ======
-function getPublicTreeUrl(numericId) {
-  return `https://api.thefram.site/tree/${numericId}`;
-}
-
-// ====== MIDDLEWARE AUTH ======
-function auth(req, res, next) {
-  const header = req.headers["authorization"];
-  if (!header) return res.status(401).json({ error: "Thiếu token" });
-
-  const [type, token] = header.split(" ");
-  if (type !== "Bearer" || !token)
-    return res.status(401).json({ error: "Token không hợp lệ" });
+  if (!token) {
+    return res.status(401).json({ error: "Thiếu token. Vui lòng đăng nhập." });
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // { id, username, role, farmName }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded; // { id, username, role, farmName, farmLogo, farmPrimaryColor }
     next();
   } catch (err) {
-    return res.status(401).json({ error: "Token hết hạn hoặc không hợp lệ" });
+    console.error("❌ Lỗi verify token:", err.message);
+    return res.status(401).json({ error: "Token không hợp lệ" });
   }
 }
 
 function requireAdmin(req, res, next) {
-  if (req.user?.role !== "admin") {
-    return res.status(403).json({ error: "Chỉ admin mới được dùng chức năng này" });
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(403).json({ error: "Chỉ admin mới được phép thao tác" });
   }
   next();
 }
 
-function requireOwnerOrAdmin(req, res, next) {
-  if (req.user?.role === "admin" || req.user?.role === "owner") {
-    return next();
-  }
-  return res
-    .status(403)
-    .json({ error: "Chỉ chủ vườn hoặc admin được dùng chức năng này" });
-}
+// ====== AUTH ROUTES ======
 
-// ====== ROUTE CHECK SERVER ======
-app.get("/", (req, res) => {
-  res.send("🌿 API quản lý vườn + công việc nhân viên đang hoạt động!");
-});
-
-// ====== AUTH ======
-
-/**
- * /auth/register – chỉ dùng để tạo admin ban đầu (sau có thể xoá / khoá lại)
- */
+// Đăng ký (dùng chủ yếu để tạo admin ban đầu)
 app.post("/auth/register", async (req, res) => {
   try {
-    const { username, password, role } = req.body;
+    const { username, password, role = "admin" } = req.body;
+
     if (!username || !password) {
-      return res.status(400).json({ error: "Cần username và password" });
+      return res
+        .status(400)
+        .json({ error: "Vui lòng nhập đầy đủ username & password" });
     }
 
-    const existed = await User.findOne({ username });
-    if (existed) {
-      return res.status(400).json({ error: "Username đã tồn tại" });
+    if (!["admin", "owner", "staff"].includes(role)) {
+      return res.status(400).json({ error: "Role không hợp lệ" });
+    }
+
+    // Nếu tạo admin mà đã có admin rồi thì không cho
+    if (role === "admin") {
+      const adminCount = await User.countDocuments({ role: "admin" });
+      if (adminCount > 0) {
+        return res
+          .status(403)
+          .json({ error: "Đã có admin trong hệ thống, không thể tạo thêm bằng API này" });
+      }
+    }
+
+    const existing = await User.findOne({ username });
+    if (existing) {
+      return res.status(409).json({ error: "Tài khoản đã tồn tại" });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-
     const user = await User.create({
       username,
       passwordHash,
-      role: role === "admin" ? "admin" : "owner",
+      role,
     });
 
     res.status(201).json({
       message: "Đã tạo user",
-      user: { id: user._id, username: user.username, role: user.role },
+      user: {
+        id: user._id.toString(),
+        username: user.username,
+        role: user.role,
+      },
     });
   } catch (err) {
-    console.error("❌ Lỗi register:", err);
-    res.status(500).json({ error: "Không thể tạo user mới" });
+    console.error("❌ Lỗi /auth/register:", err);
+    res.status(500).json({ error: "Lỗi server khi đăng ký" });
   }
 });
 
@@ -179,438 +182,251 @@ app.post("/auth/register", async (req, res) => {
 app.post("/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ error: "Vui lòng nhập đầy đủ username & password" });
+    }
 
     const user = await User.findOne({ username });
-    if (!user)
-      return res.status(400).json({ error: "Sai tài khoản hoặc mật khẩu" });
+    if (!user) {
+      return res.status(401).json({ error: "Tài khoản hoặc mật khẩu không đúng" });
+    }
 
     const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok)
-      return res.status(400).json({ error: "Sai tài khoản hoặc mật khẩu" });
+    if (!ok) {
+      return res.status(401).json({ error: "Tài khoản hoặc mật khẩu không đúng" });
+    }
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        username: user.username,
-        role: user.role,
-        farmName: user.farmName,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
-    );
+    const payload = {
+      id: user._id.toString(),
+      username: user.username,
+      role: user.role,
+      farmName: user.farmName || null,
+      farmLogo: user.farmLogo || null,
+      farmPrimaryColor: user.farmPrimaryColor || null,
+    };
 
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        role: user.role,
-        farmName: user.farmName || null,
-        farmLogo: user.farmLogo || null,
-        farmPrimaryColor: user.farmPrimaryColor || "#22c55e",
-      },
-    });
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+
+    res.json({ token, user: payload });
   } catch (err) {
-    console.error("❌ Lỗi login:", err);
-    res.status(500).json({ error: "Không thể đăng nhập" });
+    console.error("❌ Lỗi /auth/login:", err);
+    res.status(500).json({ error: "Lỗi server khi đăng nhập" });
   }
 });
 
-// Admin tạo user owner / staff
-app.post("/admin/users", auth, requireAdmin, async (req, res) => {
+// ====== ADMIN ROUTES ======
+
+// Tạo user (admin)
+app.post("/admin/users", authMiddleware, requireAdmin, async (req, res) => {
   try {
     const {
       username,
       password,
-      role,
+      role = "owner",
       farmName,
       farmLogo,
       farmPrimaryColor,
     } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ error: "Cần username và password" });
+      return res
+        .status(400)
+        .json({ error: "Vui lòng nhập đầy đủ username & password" });
     }
-
     if (!["owner", "staff"].includes(role)) {
-      return res
-        .status(400)
-        .json({ error: "role phải là 'owner' (chủ vườn) hoặc 'staff' (nhân viên)" });
+      return res.status(400).json({ error: "Vai trò chỉ được owner hoặc staff" });
     }
-
     if (role === "owner" && !farmName) {
-      return res
-        .status(400)
-        .json({ error: "Chủ vườn phải có tên vườn (farmName)" });
+      return res.status(400).json({ error: "Chủ vườn bắt buộc phải có tên vườn" });
     }
 
-    const existed = await User.findOne({ username });
-    if (existed) {
-      return res.status(400).json({ error: "Username đã tồn tại" });
+    const existing = await User.findOne({ username });
+    if (existing) {
+      return res.status(409).json({ error: "Tài khoản đã tồn tại" });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-
     const user = await User.create({
       username,
       passwordHash,
       role,
-      farmName: role === "owner" ? farmName : farmName || null,
-      farmLogo: role === "owner" ? farmLogo || null : farmLogo || null,
+      farmName: farmName || undefined,
+      farmLogo: farmLogo || undefined,
       farmPrimaryColor: farmPrimaryColor || "#22c55e",
     });
 
     res.status(201).json({
-      message: "Đã tạo user mới",
+      message: "Đã tạo user",
       user: {
-        id: user._id,
+        id: user._id.toString(),
         username: user.username,
         role: user.role,
-        farmName: user.farmName || null,
-        farmLogo: user.farmLogo || null,
-        farmPrimaryColor: user.farmPrimaryColor || "#22c55e",
+        farmName: user.farmName,
+        farmLogo: user.farmLogo,
+        farmPrimaryColor: user.farmPrimaryColor,
+        createdAt: user.createdAt,
       },
     });
   } catch (err) {
-    console.error("❌ Lỗi admin tạo user:", err);
-    res.status(500).json({ error: "Không thể tạo user mới" });
+    console.error("❌ Lỗi POST /admin/users:", err);
+    res.status(500).json({ error: "Lỗi server khi tạo user" });
   }
 });
 
-// ====== CÂY ======
-
-// Tạo cây (owner + admin)
-app.post("/api/trees", auth, requireOwnerOrAdmin, async (req, res) => {
+// Danh sách user (admin)
+app.get("/admin/users", authMiddleware, requireAdmin, async (req, res) => {
   try {
-    const { name, species, location, plantDate, currentHealth, notes } = req.body;
+    const { role } = req.query;
+    const filter = {};
+    if (role && ["owner", "staff", "admin"].includes(role)) {
+      filter.role = role;
+    }
+
+    const users = await User.find(filter)
+      .sort({ createdAt: -1 })
+      .select("-passwordHash");
+
+    res.json(users);
+  } catch (err) {
+    console.error("❌ Lỗi GET /admin/users:", err);
+    res.status(500).json({ error: "Không thể tải danh sách user" });
+  }
+});
+
+// ====== PUBLIC ROUTE: DANH SÁCH VƯỜN ======
+
+app.get("/public/farms", async (req, res) => {
+  try {
+    const farms = await User.find({ role: "owner" })
+      .select("username farmName farmLogo farmPrimaryColor createdAt")
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    res.json(farms);
+  } catch (err) {
+    console.error("❌ Lỗi GET /public/farms:", err);
+    res.status(500).json({ error: "Không thể tải danh sách vườn" });
+  }
+});
+
+// ====== TREES API ======
+
+// Lấy danh sách cây của user hiện tại
+app.get("/api/trees", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    let filter = {};
+    if (req.user.role === "admin") {
+      // admin xem tất cả (nếu muốn thu hẹp sau thì chỉnh ở đây)
+      filter = {};
+    } else {
+      filter = { owner: userId };
+    }
+
+    const trees = await Tree.find(filter).sort({ createdAt: -1 });
+    res.json(trees);
+  } catch (err) {
+    console.error("❌ Lỗi GET /api/trees:", err);
+    res.status(500).json({ error: "Không thể tải danh sách cây" });
+  }
+});
+
+// Tạo cây mới
+app.post("/api/trees", authMiddleware, async (req, res) => {
+  try {
+    const { name, species, location, plantDate } = req.body;
     if (!name) {
       return res.status(400).json({ error: "Tên cây là bắt buộc" });
     }
 
-    const lastTree = await Tree.findOne().sort({ numericId: -1 });
-    const nextId =
-      lastTree && typeof lastTree.numericId === "number"
-        ? lastTree.numericId + 1
-        : 1;
+    const numericId = await getNextSequence("tree");
 
-    const publicUrl = getPublicTreeUrl(nextId);
-
-    let qrCode = "";
-    try {
-      qrCode = await QRCode.toDataURL(publicUrl);
-    } catch (qrErr) {
-      console.error("⚠️ Lỗi tạo QR:", qrErr);
-    }
-
-    const newTree = await Tree.create({
-      numericId: nextId,
+    // Nội dung để encode vào QR
+    const qrPayload = JSON.stringify({
+      id: numericId,
       name,
       species,
       location,
-      plantDate,
-      currentHealth,
-      notes,
-      qrCode,
-      farmOwnerId: req.user.role === "owner" ? req.user.id : undefined,
     });
 
-    res.status(201).json(newTree);
+    const qrCodeDataUrl = await QRCode.toDataURL(qrPayload);
+
+    const tree = await Tree.create({
+      numericId,
+      name,
+      species: species || "",
+      location: location || "",
+      plantDate: plantDate || "",
+      currentHealth: "Bình thường",
+      notes: "",
+      qrCode: qrCodeDataUrl,
+      owner: req.user.id,
+    });
+
+    res.status(201).json(tree);
   } catch (err) {
-    console.error("❌ Lỗi tạo cây:", err);
-    res
-      .status(500)
-      .json({ error: "Không thể tạo cây mới", detail: String(err) });
+    console.error("❌ Lỗi POST /api/trees:", err);
+    res.status(500).json({ error: "Không thể tạo cây mới" });
   }
 });
 
-// Lấy danh sách cây (phải đăng nhập)
-app.get("/api/trees", auth, async (req, res) => {
+// Cập nhật tình trạng sức khỏe / ghi chú
+app.patch("/api/trees/:id/health", authMiddleware, async (req, res) => {
   try {
-    let query = {};
-    if (req.user.role === "owner") {
-      query.farmOwnerId = req.user.id;
-    }
-    const trees = await Tree.find(query).sort({ numericId: 1 });
-    res.json(trees);
-  } catch (err) {
-    console.error("❌ Lỗi lấy danh sách cây:", err);
-    res.status(500).json({
-      error: "Không thể lấy danh sách cây",
-      detail: String(err),
-    });
-  }
-});
-
-// Cập nhật tình trạng & ghi chú (owner + staff)
-app.patch("/api/trees/:id/health", auth, async (req, res) => {
-  try {
+    const { id } = req.params;
     const { currentHealth, notes } = req.body;
 
-    const updatedTree = await Tree.findByIdAndUpdate(
-      req.params.id,
-      { currentHealth, notes },
-      { new: true }
-    );
-
-    if (!updatedTree) {
-      return res.status(404).json({ error: "Không tìm thấy cây để cập nhật" });
+    const tree = await Tree.findById(id);
+    if (!tree) {
+      return res.status(404).json({ error: "Không tìm thấy cây" });
     }
 
-    res.json(updatedTree);
+    // Chỉ chủ (owner) của cây hoặc admin mới được sửa
+    if (req.user.role !== "admin" && tree.owner.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Bạn không có quyền sửa cây này" });
+    }
+
+    if (currentHealth) tree.currentHealth = currentHealth;
+    if (typeof notes === "string") tree.notes = notes;
+
+    await tree.save();
+    res.json({ message: "Đã cập nhật cây", tree });
   } catch (err) {
-    console.error("❌ Lỗi cập nhật cây:", err);
+    console.error("❌ Lỗi PATCH /api/trees/:id/health:", err);
     res.status(500).json({ error: "Không thể cập nhật cây" });
   }
 });
 
-// Xoá cây (owner + admin)
-app.delete("/api/trees/:id", auth, requireOwnerOrAdmin, async (req, res) => {
+// Xóa cây
+app.delete("/api/trees/:id", authMiddleware, async (req, res) => {
   try {
-    const deletedTree = await Tree.findByIdAndDelete(req.params.id);
-    if (!deletedTree) {
-      return res.status(404).json({ error: "Không tìm thấy cây để xoá" });
+    const { id } = req.params;
+    const tree = await Tree.findById(id);
+    if (!tree) {
+      return res.status(404).json({ error: "Không tìm thấy cây" });
     }
-    res.json({ message: `✅ Đã xoá cây ${deletedTree.name}` });
+
+    if (req.user.role !== "admin" && tree.owner.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Bạn không có quyền xoá cây này" });
+    }
+
+    await tree.deleteOne();
+    res.json({ message: "Đã xoá cây" });
   } catch (err) {
-    console.error("❌ Lỗi xoá cây:", err);
+    console.error("❌ Lỗi DELETE /api/trees/:id:", err);
     res.status(500).json({ error: "Không thể xoá cây" });
   }
 });
 
-// ====== TASK ======
-
-// Tạo task (owner + admin)
-app.post("/api/tasks", auth, requireOwnerOrAdmin, async (req, res) => {
-  try {
-    const {
-      title,
-      description,
-      priority,
-      dueDate,
-      assignedTo,
-      treeId,
-    } = req.body;
-
-    if (!title) {
-      return res.status(400).json({ error: "Tiêu đề công việc là bắt buộc" });
-    }
-
-    const creator = await User.findById(req.user.id);
-    if (!creator) {
-      return res.status(400).json({ error: "Không tìm thấy user tạo task" });
-    }
-
-    let assignedUser = null;
-    if (assignedTo) {
-      assignedUser = await User.findById(assignedTo);
-      if (!assignedUser) {
-        return res.status(400).json({ error: "Không tìm thấy nhân viên được giao" });
-      }
-    }
-
-    let tree = null;
-    if (treeId) {
-      tree = await Tree.findById(treeId);
-      if (!tree) {
-        return res.status(400).json({ error: "Không tìm thấy cây được gắn với task" });
-      }
-    }
-
-    const task = await Task.create({
-      title,
-      description,
-      priority: priority || "Trung bình",
-      dueDate,
-      assignedTo: assignedUser ? assignedUser._id : null,
-      createdBy: creator._id,
-      farmOwnerId: creator.role === "owner" ? creator._id : undefined,
-      farmName: creator.farmName || null,
-      treeId: tree ? tree._id : null,
-    });
-
-    res.status(201).json(task);
-  } catch (err) {
-    console.error("❌ Lỗi tạo task:", err);
-    res.status(500).json({ error: "Không thể tạo công việc mới" });
-  }
+// ====== HEALTH CHECK ======
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", time: new Date().toISOString() });
 });
 
-// Nhân viên / chủ vườn xem task của mình
-app.get("/api/tasks/me", auth, async (req, res) => {
-  try {
-    const tasks = await Task.find({ assignedTo: req.user.id })
-      .sort({ status: 1, dueDate: 1, createdAt: -1 })
-      .populate("treeId", "numericId name species location currentHealth");
-
-    res.json(tasks);
-  } catch (err) {
-    console.error("❌ Lỗi lấy task của user:", err);
-    res.status(500).json({ error: "Không thể lấy danh sách task" });
-  }
-});
-
-// Chủ vườn xem task theo vườn
-app.get("/api/tasks/farm", auth, async (req, res) => {
-  try {
-    if (req.user.role === "owner") {
-      const tasks = await Task.find({ farmOwnerId: req.user.id })
-        .sort({ createdAt: -1 })
-        .populate("assignedTo", "username role")
-        .populate("treeId", "numericId name");
-      return res.json(tasks);
-    }
-
-    if (req.user.role === "admin") {
-      const { ownerId } = req.query;
-      const query = ownerId ? { farmOwnerId: ownerId } : {};
-      const tasks = await Task.find(query)
-        .sort({ createdAt: -1 })
-        .populate("assignedTo", "username role")
-        .populate("treeId", "numericId name");
-      return res.json(tasks);
-    }
-
-    return res
-      .status(403)
-      .json({ error: "Chỉ chủ vườn hoặc admin mới xem task theo vườn" });
-  } catch (err) {
-    console.error("❌ Lỗi lấy task theo vườn:", err);
-    res.status(500).json({ error: "Không thể lấy danh sách task" });
-  }
-});
-
-// Nhân viên cập nhật trạng thái task
-app.patch("/api/tasks/:id/status", auth, async (req, res) => {
-  try {
-    const { status, resultNotes } = req.body;
-    const allowedStatus = ["Mới", "Đang làm", "Hoàn thành"];
-    if (status && !allowedStatus.includes(status)) {
-      return res.status(400).json({ error: "Trạng thái không hợp lệ" });
-    }
-
-    const task = await Task.findById(req.params.id);
-    if (!task) return res.status(404).json({ error: "Không tìm thấy task" });
-
-    const isAssigned = task.assignedTo?.toString() === req.user.id;
-    if (!isAssigned && req.user.role === "staff") {
-      return res
-        .status(403)
-        .json({ error: "Bạn không được phép cập nhật task này" });
-    }
-
-    if (status) task.status = status;
-    if (typeof resultNotes === "string") task.resultNotes = resultNotes;
-
-    await task.save();
-
-    res.json(task);
-  } catch (err) {
-    console.error("❌ Lỗi cập nhật trạng thái task:", err);
-    res.status(500).json({ error: "Không thể cập nhật task" });
-  }
-});
-
-// ====== TRANG PUBLIC QUÉT QR ======
-app.get("/tree/:numericId", async (req, res) => {
-  try {
-    const numericId = parseInt(req.params.numericId, 10);
-    if (isNaN(numericId)) return res.status(400).send("ID không hợp lệ");
-
-    const tree = await Tree.findOne({ numericId });
-    if (!tree) return res.status(404).send("Không tìm thấy cây");
-
-    const statusText = tree.currentHealth || "Chưa rõ";
-    let badgeColor = "#16a34a";
-    if (statusText === "Bình thường") badgeColor = "#f59e0b";
-    if (statusText === "Yếu" || statusText === "Nguy hiểm") badgeColor = "#dc2626";
-
-    res.send(`<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cây #${tree.numericId} - ${tree.name}</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: #0f172a;
-      margin: 0;
-      padding: 20px;
-      color: #e5e7eb;
-      display: flex;
-      justify-content: center;
-    }
-    .card {
-      background: #020617;
-      border-radius: 16px;
-      border: 1px solid #1f2937;
-      padding: 18px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
-    }
-    h1 {
-      font-size: 20px;
-      margin: 0 0 4px;
-    }
-    .status {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      color: #f9fafb;
-      font-size: 12px;
-      background: ${badgeColor};
-      margin-bottom: 10px;
-    }
-    .row { margin: 6px 0; font-size: 14px; }
-    .label { color: #9ca3af; font-weight: 500; display:inline-block; min-width: 95px; }
-    .qr {
-      text-align:center;
-      margin-top: 14px;
-    }
-    .qr img {
-      width: 160px;
-      height: 160px;
-      border-radius: 16px;
-      border: 1px solid #1f2937;
-      background:#020617;
-    }
-    .footer {
-      font-size: 11px;
-      text-align: center;
-      color: #6b7280;
-      margin-top: 12px;
-    }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>${tree.name}</h1>
-    <div class="status">${statusText}</div>
-
-    <div class="row"><span class="label">Mã số:</span> #${tree.numericId}</div>
-    <div class="row"><span class="label">Giống:</span> ${tree.species || "—"}</div>
-    <div class="row"><span class="label">Vị trí:</span> ${tree.location || "—"}</div>
-    <div class="row"><span class="label">Ngày trồng:</span> ${tree.plantDate || "—"}</div>
-    <div class="row"><span class="label">Ghi chú:</span> ${tree.notes || "Không có"}</div>
-
-    <div class="qr">
-      <img src="${tree.qrCode}" alt="QR" />
-    </div>
-
-    <div class="footer">
-      🌿 Hệ thống quản lý cây · thefram.site
-    </div>
-  </div>
-</body>
-</html>`);
-  } catch (err) {
-    console.error("❌ Lỗi render QR:", err);
-    res.status(500).send("Có lỗi xảy ra.");
-  }
-});
-
-// ====== KHỞI ĐỘNG SERVER ======
+// ====== START SERVER ======
 app.listen(PORT, () => {
-  console.log(`✅ Server đang chạy ở http://localhost:${PORT}`);
+  console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
 });
