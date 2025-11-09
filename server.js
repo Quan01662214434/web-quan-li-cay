@@ -21,7 +21,7 @@ mongoose
 // ====== SCHEMA & MODEL ======
 const treeSchema = new mongoose.Schema(
   {
-    numericId: { type: Number }, // ID số tự tăng để show cho người dùng
+    numericId: { type: Number }, // ID số tự tăng để show trên UI
     name: { type: String, required: true },
     species: String,
     location: String,
@@ -50,17 +50,29 @@ app.get("/", (req, res) => {
 app.post("/api/trees", async (req, res) => {
   try {
     const { name, species, location, plantDate, currentHealth, notes } = req.body;
+    console.log("📩 Nhận yêu cầu tạo cây:", req.body);
 
     if (!name) {
+      console.log("❌ Thiếu tên cây");
       return res.status(400).json({ error: "Tên cây là bắt buộc" });
     }
 
     // Lấy numericId lớn nhất rồi +1
     const lastTree = await Tree.findOne().sort({ numericId: -1 });
-    const nextId = lastTree ? lastTree.numericId + 1 : 1;
+    const nextId =
+      lastTree && typeof lastTree.numericId === "number" ? lastTree.numericId + 1 : 1;
+
+    console.log("👉 numericId mới:", nextId);
 
     const publicUrl = getPublicTreeUrl(nextId);
-    const qrCode = await QRCode.toDataURL(publicUrl);
+
+    let qrCode = "";
+    try {
+      qrCode = await QRCode.toDataURL(publicUrl);
+    } catch (qrErr) {
+      console.error("⚠️ Lỗi tạo QR, vẫn lưu cây không có QR:", qrErr);
+      // Không throw, vẫn lưu cây, chỉ thiếu QR
+    }
 
     const newTree = await Tree.create({
       numericId: nextId,
@@ -73,10 +85,13 @@ app.post("/api/trees", async (req, res) => {
       qrCode,
     });
 
+    console.log("✅ Đã tạo cây mới:", newTree._id);
     res.status(201).json(newTree);
   } catch (err) {
-    console.error("❌ Lỗi tạo cây:", err);
-    res.status(500).json({ error: "Không thể tạo cây mới" });
+    console.error("❌ Lỗi tạo cây (server.js):", err);
+    res
+      .status(500)
+      .json({ error: "Không thể tạo cây mới", detail: String(err) });
   }
 });
 

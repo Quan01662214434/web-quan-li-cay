@@ -184,7 +184,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
-    // ================= CẤU HÌNH API =================
     const API_BASE = "https://api.thefram.site";
 
     const createForm = document.getElementById("create-form");
@@ -197,7 +196,6 @@
     const searchInput = document.getElementById("search-input");
     const lastUpdatedText = document.getElementById("last-updated-text");
 
-    // Stats elements
     const statTotal = document.getElementById("stat-total");
     const statGood  = document.getElementById("stat-good");
     const statMid   = document.getElementById("stat-mid");
@@ -233,7 +231,7 @@
     async function loadTrees() {
       try {
         treeCount.textContent = "Đang tải...";
-        const res = await fetch(\`\${API_BASE}/api/trees\`);
+        const res = await fetch(`${API_BASE}/api/trees`);
         if (!res.ok) throw new Error("Không thể tải danh sách cây");
         const data = await res.json();
         allTrees = data;
@@ -262,7 +260,6 @@
     }
 
     function updateCharts(trees) {
-      // ---- Chart 1: Health distribution ----
       const labelsHealth = ["Tốt", "Bình thường", "Yếu", "Nguy hiểm"];
       const countsHealth = labelsHealth.map(label =>
         trees.filter(t => (t.currentHealth || "") === label).length
@@ -274,9 +271,7 @@
           type: "doughnut",
           data: {
             labels: labelsHealth,
-            datasets: [{
-              data: countsHealth,
-            }]
+            datasets: [{ data: countsHealth }]
           },
           options: {
             plugins: {
@@ -291,7 +286,6 @@
         healthChart.update();
       }
 
-      // ---- Chart 2: Species distribution ----
       const speciesMap = {};
       trees.forEach(t => {
         const key = (t.species && t.species.trim()) || "Chưa nhập giống";
@@ -307,14 +301,10 @@
           type: "bar",
           data: {
             labels: labelsSpecies,
-            datasets: [{
-              data: countsSpecies,
-            }]
+            datasets: [{ data: countsSpecies }]
           },
           options: {
-            plugins: {
-              legend: { display: false }
-            },
+            plugins: { legend: { display: false } },
             scales: {
               x: {
                 ticks: { color: "#e5e7eb", font: { size: 11 } },
@@ -343,53 +333,54 @@
       }
 
       emptyState.style.display = "none";
-      treeCount.textContent = \`\${trees.length} cây\`;
+      treeCount.textContent = `${trees.length} cây`;
 
       for (const tree of trees) {
         const tr = document.createElement("tr");
         tr.dataset.id = tree._id;
-        tr.innerHTML = \`
-          <td>#\${tree.numericId ?? "—"}</td>
+        tr.innerHTML = `
+          <td>#${tree.numericId ?? "—"}</td>
           <td>
-            <div style="font-weight:500;">\${tree.name}</div>
-            <div class="muted">Giống: \${tree.species || "—"}</div>
-            <div class="muted">Vị trí: \${tree.location || "—"}</div>
-            <div class="muted">Ngày trồng: \${formatDate(tree.plantDate)}</div>
+            <div style="font-weight:500;">${tree.name}</div>
+            <div class="muted">Giống: ${tree.species || "—"}</div>
+            <div class="muted">Vị trí: ${tree.location || "—"}</div>
+            <div class="muted">Ngày trồng: ${formatDate(tree.plantDate)}</div>
           </td>
           <td>
-            <span class="\${healthBadgeClass(tree.currentHealth)}">\${tree.currentHealth || "Chưa rõ"}</span>
+            <span class="${healthBadgeClass(tree.currentHealth)}">${tree.currentHealth || "Chưa rõ"}</span>
             <div class="muted" style="margin-top:4px; max-width:160px;">
-              \${tree.notes ? tree.notes : "<i>Chưa có ghi chú</i>"}
+              ${tree.notes ? tree.notes : "<i>Chưa có ghi chú</i>"}
             </div>
           </td>
           <td>
-            \${tree.qrCode
-              ? \`<img src="\${tree.qrCode}" class="qr-thumb" alt="QR" title="Nhấp để mở lớn" />\`
-              : \`<span class="qr-thumb-empty">Chưa có QR</span>\`}
+            ${
+              tree.qrCode
+                ? `<img src="${tree.qrCode}" class="qr-thumb" alt="QR" title="Nhấp để mở lớn" />`
+                : `<span class="qr-thumb-empty">Chưa có QR</span>`
+            }
           </td>
           <td>
             <div style="margin-bottom:6px;">
               <select class="health-select">
-                <option value="Tốt" \${tree.currentHealth === "Tốt" ? "selected" : ""}>Tốt</option>
-                <option value="Bình thường" \${tree.currentHealth === "Bình thường" ? "selected" : ""}>Bình thường</option>
-                <option value="Yếu" \${tree.currentHealth === "Yếu" ? "selected" : ""}>Yếu</option>
-                <option value="Nguy hiểm" \${tree.currentHealth === "Nguy hiểm" ? "selected" : ""}>Nguy hiểm</option>
+                <option value="Tốt" ${tree.currentHealth === "Tốt" ? "selected" : ""}>Tốt</option>
+                <option value="Bình thường" ${tree.currentHealth === "Bình thường" ? "selected" : ""}>Bình thường</option>
+                <option value="Yếu" ${tree.currentHealth === "Yếu" ? "selected" : ""}>Yếu</option>
+                <option value="Nguy hiểm" ${tree.currentHealth === "Nguy hiểm" ? "selected" : ""}>Nguy hiểm</option>
               </select>
             </div>
             <div style="margin-bottom:6px;">
-              <textarea class="notes-input" placeholder="Ghi chú thêm cho đợt kiểm tra này...">\${tree.notes || ""}</textarea>
+              <textarea class="notes-input" placeholder="Ghi chú thêm cho đợt kiểm tra này...">${tree.notes || ""}</textarea>
             </div>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
               <button class="primary sm save-btn" type="button">💾 Lưu</button>
               <button class="danger sm delete-btn" type="button">🗑 Xoá</button>
             </div>
           </td>
-        \`;
+        `;
         treeTableBody.appendChild(tr);
       }
     }
 
-    // Lọc theo từ khoá
     searchInput.addEventListener("input", () => {
       const q = searchInput.value.trim().toLowerCase();
       if (!q) return renderTreeTable(allTrees);
@@ -399,7 +390,6 @@
       renderTreeTable(filtered);
     });
 
-    // Xử lý click trong bảng (save / delete / xem QR)
     treeTableBody.addEventListener("click", async (e) => {
       const tr = e.target.closest("tr");
       if (!tr) return;
@@ -408,7 +398,7 @@
       if (e.target.classList.contains("qr-thumb")) {
         const src = e.target.getAttribute("src");
         const win = window.open();
-        win.document.write(\`<img src="\${src}" style="max-width:100%;"/>\`);
+        win.document.write(`<img src="${src}" style="max-width:100%;"/>`);
         return;
       }
 
@@ -421,7 +411,7 @@
         try {
           e.target.disabled = true;
           e.target.textContent = "Đang lưu...";
-          const res = await fetch(\`\${API_BASE}/api/trees/\${id}/health\`, {
+          const res = await fetch(`${API_BASE}/api/trees/${id}/health`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ currentHealth, notes }),
@@ -440,11 +430,11 @@
 
       if (e.target.classList.contains("delete-btn")) {
         const tree = allTrees.find(t => t._id === id);
-        if (!confirm(\`Bạn chắc chắn muốn xoá cây "\${tree ? tree.name : ""}"?\`)) return;
+        if (!confirm(`Bạn chắc chắn muốn xoá cây "${tree ? tree.name : ""}"?`)) return;
         try {
           e.target.disabled = true;
           e.target.textContent = "Đang xoá...";
-          const res = await fetch(\`\${API_BASE}/api/trees/\${id}\`, { method: "DELETE" });
+          const res = await fetch(`${API_BASE}/api/trees/${id}`, { method: "DELETE" });
           if (!res.ok) throw new Error("Xoá thất bại");
           showToast("Đã xoá cây khỏi hệ thống", "success");
           await loadTrees();
@@ -457,7 +447,6 @@
       }
     });
 
-    // Tạo cây mới
     createForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
@@ -471,7 +460,7 @@
       try {
         createBtn.disabled = true;
         statusText.textContent = "Đang tạo cây...";
-        const res = await fetch(\`\${API_BASE}/api/trees\`, {
+        const res = await fetch(`${API_BASE}/api/trees`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, species, location, plantDate, currentHealth, notes }),
@@ -491,7 +480,6 @@
       }
     });
 
-    // Khởi động
     loadTrees();
   </script>
 </body>
