@@ -28,12 +28,12 @@ mongoose
 // ====== MIDDLEWARE ======
 app.use(
   cors({
-    origin: "*", // có thể thu hẹp sau: ["https://thefram.site", ...]
+    origin: "*", // có thể thu hẹp sau thành ['https://thefram.site']
   })
 );
 app.use(express.json({ limit: "10mb" }));
 
-// Serve frontend (static)
+// Serve frontend
 app.use(express.static(path.join(__dirname, "frontend")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "index.html"));
@@ -41,6 +41,7 @@ app.get("/", (req, res) => {
 
 // ====== SCHEMA & MODEL ======
 
+// Counter dùng để tạo numericId tăng dần cho cây
 const counterSchema = new mongoose.Schema({
   name: { type: String, unique: true },
   seq: { type: Number, default: 0 },
@@ -67,13 +68,17 @@ const userSchema = new mongoose.Schema(
       default: "owner",
     },
 
-    // Thông tin vườn (để hiển thị + theme)
+    // Thông tin vườn
     farmName: { type: String },
     farmLogo: { type: String }, // base64 hoặc URL
     farmPrimaryColor: { type: String },
 
     // Với staff: thuộc chủ vườn nào
-    farmOwner: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    farmOwner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -88,15 +93,21 @@ const treeSchema = new mongoose.Schema(
     species: { type: String },
     location: { type: String },
     plantDate: { type: String },
+
     currentHealth: {
       type: String,
       enum: ["Tốt", "Bình thường", "Yếu", "Nguy hiểm"],
       default: "Bình thường",
     },
     notes: { type: String },
-    qrCode: { type: String },
-    // Chủ vườn thật sự sở hữu vườn
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
+    qrCode: { type: String }, // dataURL base64
+
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
@@ -114,8 +125,7 @@ function authMiddleware(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    // decoded: { id, username, role, farmName, farmLogo, farmPrimaryColor, farmOwner }
-    req.user = decoded;
+    req.user = decoded; // { id, username, role, farmName,... }
     next();
   } catch (err) {
     console.error("❌ Lỗi verify token:", err.message);
@@ -132,7 +142,7 @@ function requireAdmin(req, res, next) {
 
 // ====== AUTH ROUTES ======
 
-// Đăng ký - dùng tạo admin ban đầu
+// Đăng ký (chủ yếu dùng tạo admin lần đầu)
 app.post("/auth/register", async (req, res) => {
   try {
     const { username, password, role = "admin" } = req.body;
@@ -147,6 +157,7 @@ app.post("/auth/register", async (req, res) => {
       return res.status(400).json({ error: "Role không hợp lệ" });
     }
 
+    // Chặn tạo nhiều admin nếu muốn
     if (role === "admin") {
       const adminCount = await User.countDocuments({ role: "admin" });
       if (adminCount > 0) {
@@ -223,7 +234,7 @@ app.post("/auth/login", async (req, res) => {
 
 // ====== ADMIN ROUTES ======
 
-// Admin tạo user (chủ yếu là tạo chủ vườn, cũng có thể tạo staff cho 1 owner nếu muốn)
+// Admin tạo user (owner/staff)
 app.post("/admin/users", authMiddleware, requireAdmin, async (req, res) => {
   try {
     const {
@@ -233,7 +244,7 @@ app.post("/admin/users", authMiddleware, requireAdmin, async (req, res) => {
       farmName,
       farmLogo,
       farmPrimaryColor,
-      farmOwnerId, // nếu tạo staff và muốn gán cho owner nào
+      farmOwnerId,
     } = req.body;
 
     if (!username || !password) {
@@ -306,7 +317,8 @@ app.get("/admin/users", authMiddleware, requireAdmin, async (req, res) => {
 
     const users = await User.find(filter)
       .sort({ createdAt: -1 })
-      .select("-passwordHash");
+      .select("-passwordHash")
+      .populate("farmOwner", "username farmName");
 
     res.json(users);
   } catch (err) {
@@ -315,7 +327,128 @@ app.get("/admin/users", authMiddleware, requireAdmin, async (req, res) => {
   }
 });
 
-// Admin xem tất cả cây trong hệ thống (màn admin-tree)
+// Admin cập nhật thông tin user
+app.patch("/admin/users/:id", authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      username,
+      role,
+      farmName,
+      farmLogo,
+      farmPrimaryColor,
+      farmOwnerId,
+    } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "Không tìm thấy tài khoản." });
+    }
+
+    // Đổi username
+    if (username && username !== user.username) {
+      const existing = await User.findOne({ username });
+      if (existing && existing._id.toString() !== id) {
+        return res.status(409).json({ error: "Tài khoản này đã tồn tại." });
+      }
+      user.username = username;
+    }
+
+    // Đổi role
+    if (role) {
+      if (!["owner", "staff", "admin"].includes(role)) {
+        return res.status(400).json({ error: "Role không hợp lệ." });
+      }
+      user.role = role;
+    }
+
+    // Chủ vườn: cập nhật info vườn
+    if ((user.role === "owner" || role === "owner") && farmName) {
+      user.farmName = farmName;
+    }
+    if (typeof farmPrimaryColor === "string" && farmPrimaryColor.trim() !== "") {
+      user.farmPrimaryColor = farmPrimaryColor;
+    }
+    if (typeof farmLogo === "string" && farmLogo.trim() !== "") {
+      user.farmLogo = farmLogo;
+    }
+
+    // Staff: gán chủ vườn
+    if (user.role === "staff" && farmOwnerId) {
+      const ownerDoc = await User.findOne({ _id: farmOwnerId, role: "owner" });
+      if (!ownerDoc) {
+        return res
+          .status(400)
+          .json({ error: "Không tìm thấy chủ vườn tương ứng farmOwnerId." });
+      }
+      user.farmOwner = ownerDoc._id;
+      user.farmName = ownerDoc.farmName;
+      user.farmLogo = ownerDoc.farmLogo;
+      user.farmPrimaryColor = ownerDoc.farmPrimaryColor;
+    }
+
+    await user.save();
+
+    res.json({
+      message: "Đã cập nhật thông tin tài khoản",
+      user: {
+        id: user._id.toString(),
+        username: user.username,
+        role: user.role,
+        farmName: user.farmName,
+        farmLogo: user.farmLogo,
+        farmPrimaryColor: user.farmPrimaryColor,
+        farmOwner: user.farmOwner,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Lỗi PATCH /admin/users/:id:", err);
+    res.status(500).json({ error: "Không thể cập nhật tài khoản" });
+  }
+});
+
+// Admin đổi mật khẩu user
+app.patch(
+  "/admin/users/:id/password",
+  authMiddleware,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { password } = req.body;
+
+      if (!password || password.length < 4) {
+        return res
+          .status(400)
+          .json({ error: "Mật khẩu mới phải có ít nhất 4 ký tự." });
+      }
+
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "Không tìm thấy tài khoản." });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      user.passwordHash = passwordHash;
+      await user.save();
+
+      res.json({
+        message: "Đã đổi mật khẩu cho tài khoản " + user.username,
+        user: {
+          id: user._id.toString(),
+          username: user.username,
+          role: user.role,
+        },
+      });
+    } catch (err) {
+      console.error("❌ Lỗi PATCH /admin/users/:id/password:", err);
+      res.status(500).json({ error: "Không thể đổi mật khẩu" });
+    }
+  }
+);
+
+// Admin xem tất cả cây
 app.get("/admin/trees", authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { health, ownerId } = req.query;
@@ -338,9 +471,9 @@ app.get("/admin/trees", authMiddleware, requireAdmin, async (req, res) => {
   }
 });
 
-// ====== CHỦ VƯỜN TẠO / QUẢN LÝ NHÂN VIÊN VƯỜN MÌNH ======
+// ====== CHỦ VƯỜN TẠO / XEM NHÂN VIÊN ======
 
-// Chủ vườn tạo nhân viên của vườn mình
+// Chủ vườn tạo nhân viên
 app.post("/owner/staff", authMiddleware, async (req, res) => {
   try {
     if (req.user.role !== "owner") {
@@ -370,7 +503,7 @@ app.post("/owner/staff", authMiddleware, async (req, res) => {
       farmName: req.user.farmName || null,
       farmLogo: req.user.farmLogo || null,
       farmPrimaryColor: req.user.farmPrimaryColor || "#22c55e",
-      farmOwner: req.user.id, // staff thuộc về chủ vườn này
+      farmOwner: req.user.id,
     });
 
     res.status(201).json({
@@ -389,7 +522,7 @@ app.post("/owner/staff", authMiddleware, async (req, res) => {
   }
 });
 
-// Chủ vườn xem danh sách nhân viên của vườn mình
+// Chủ vườn xem nhân viên của mình
 app.get("/owner/staff", authMiddleware, async (req, res) => {
   try {
     if (req.user.role !== "owner") {
@@ -411,7 +544,6 @@ app.get("/owner/staff", authMiddleware, async (req, res) => {
 });
 
 // ====== PUBLIC: DANH SÁCH VƯỜN ======
-
 app.get("/public/farms", async (req, res) => {
   try {
     const farms = await User.find({ role: "owner" })
@@ -426,17 +558,17 @@ app.get("/public/farms", async (req, res) => {
   }
 });
 
-// ====== TREES API ======
+// ====== TREES API (OWNER / STAFF / ADMIN) ======
 
-// Lấy danh sách cây (theo quyền)
+// Lấy danh sách cây theo quyền
 app.get("/api/trees", authMiddleware, async (req, res) => {
   try {
     let filter = {};
 
     if (req.user.role === "admin") {
-      filter = {}; // admin thấy HẾT
+      filter = {}; // admin xem tất cả
     } else if (req.user.role === "owner") {
-      filter = { owner: req.user.id }; // chủ vườn chỉ thấy vườn mình
+      filter = { owner: req.user.id };
     } else if (req.user.role === "staff") {
       if (!req.user.farmOwner) {
         return res.status(403).json({
@@ -444,7 +576,7 @@ app.get("/api/trees", authMiddleware, async (req, res) => {
             "Nhân viên chưa được gán chủ vườn (farmOwner). Hãy liên hệ chủ vườn hoặc admin.",
         });
       }
-      filter = { owner: req.user.farmOwner }; // nhân viên chỉ thấy vườn chủ mình
+      filter = { owner: req.user.farmOwner };
     } else {
       return res.status(403).json({ error: "Vai trò không được phép xem cây" });
     }
@@ -501,7 +633,7 @@ app.post("/api/trees", authMiddleware, async (req, res) => {
   }
 });
 
-// Cập nhật tình trạng / ghi chú (admin + chủ vườn + nhân viên đúng vườn)
+// Cập nhật tình trạng / ghi chú cây
 app.patch("/api/trees/:id/health", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -536,7 +668,7 @@ app.patch("/api/trees/:id/health", authMiddleware, async (req, res) => {
   }
 });
 
-// Xoá cây (admin + chủ vườn của cây đó)
+// Xoá cây (admin hoặc chủ vườn)
 app.delete("/api/trees/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -562,12 +694,7 @@ app.delete("/api/trees/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// ====== HEALTH CHECK ======
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", time: new Date().toISOString() });
-});
-
 // ====== START SERVER ======
 app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại cổng ${PORT}`);
+  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
 });
