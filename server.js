@@ -1,5 +1,5 @@
 // =======================================================
-// 🌿 THANH HUYỀN FARM - SERVER 4.0
+// 🌿 THANH HUYỀN FARM - SERVER 4.0 (FULL + seed-owner)
 // =======================================================
 import express from "express";
 import mongoose from "mongoose";
@@ -21,7 +21,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 4000;
-const JWT_SECRET = "THANH_HUYÊN_FARM_SECRET_KEY";
+const JWT_SECRET = "THANH_HUYEN_FARM_SECRET_KEY";
 // URL dùng để nhúng vào QR => trỏ đến trang public HTML
 const PUBLIC_BASE_URL = `http://localhost:${PORT}/public`;
 
@@ -159,6 +159,35 @@ app.post("/auth/login", async (req, res) => {
   if (!valid) return res.status(400).json({ error: "Sai mật khẩu" });
   const token = generateToken(user);
   res.json({ token, user });
+});
+
+// Tạo tài khoản chủ vườn mặc định bằng URL
+app.get("/auth/seed-owner", async (req, res) => {
+  try {
+    let user = await User.findOne({ username: "thanhhuyen" });
+    if (!user) {
+      const hashed = await bcrypt.hash("12345", 10);
+      user = await User.create({
+        username: "thanhhuyen",
+        password: hashed,
+        role: "owner",
+        farmName: "Vườn sầu riêng Thanh Huyền",
+      });
+      return res.json({
+        message: "✅ Đã tạo tài khoản chủ vườn mặc định",
+        username: "thanhhuyen",
+        password: "12345",
+      });
+    } else {
+      return res.json({
+        message: "ℹ️ Tài khoản đã tồn tại",
+        username: "thanhhuyen",
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Lỗi khi tạo tài khoản mặc định" });
+  }
 });
 
 // =======================================================
