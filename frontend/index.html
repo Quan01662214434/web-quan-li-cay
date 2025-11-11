@@ -56,8 +56,9 @@
         </form>
         <p class="hint">
           Tài khoản mặc định: <b>thanhhuyen</b> / <b>12345</b><br />
-          (Trước đó gọi <code>https://api.thefram.site/auth/seed-owner</code> 1
-          lần để tạo/reset)
+          (Trước đó gọi
+          <code>https://api.thefram.site/auth/seed-owner</code> 1 lần để
+          tạo/reset)
         </p>
       </section>
 
@@ -68,6 +69,7 @@
           <p id="user-info"></p>
         </section>
 
+        <!-- QUẢN LÝ CÂY -->
         <section class="card">
           <h3>Thêm cây mới</h3>
           <form id="create-tree-form">
@@ -121,6 +123,39 @@
           <h3>Danh sách cây</h3>
           <div id="tree-list" class="tree-list"></div>
         </section>
+
+        <!-- QUẢN LÝ NHÂN VIÊN (chỉ chủ vườn thấy) -->
+        <section id="staff-section" class="card hidden">
+          <h3>Nhân viên vườn</h3>
+          <form id="staff-form">
+            <div class="field-group">
+              <span class="field-label">Tạo tài khoản nhân viên</span>
+              <input
+                type="text"
+                id="staff-username"
+                placeholder="Tên đăng nhập nhân viên"
+                required
+              />
+              <input
+                type="password"
+                id="staff-password"
+                placeholder="Mật khẩu"
+                required
+              />
+              <button type="submit" class="btn-primary small">
+                Tạo nhân viên
+              </button>
+            </div>
+          </form>
+          <div class="staff-list" id="staff-list"></div>
+        </section>
+
+        <!-- LỊCH SỬ HOẠT ĐỘNG (chỉ chủ vườn thấy) -->
+        <section id="activity-section" class="card hidden">
+          <h3>Lịch sử hoạt động</h3>
+          <p class="sub">50 hoạt động gần nhất trong vườn.</p>
+          <div id="activity-list" class="activity-list"></div>
+        </section>
       </section>
     </main>
 
@@ -138,7 +173,7 @@
       </div>
     </div>
 
-    <!-- MODAL YIELD -->
+    <!-- MODAL NĂNG SUẤT -->
     <div id="yield-modal" class="modal hidden">
       <div class="modal-content">
         <h3>Năng suất cây theo năm</h3>
@@ -182,6 +217,42 @@
         <button
           class="btn-secondary small"
           onclick="closeModal('disease-modal')"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL TÌNH TRẠNG (DROPDOWN + THÊM MỚI) -->
+    <div id="status-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Cập nhật tình trạng</h3>
+        <div class="field-group">
+          <label class="field-label">Tình trạng</label>
+          <div class="field-inline">
+            <select id="status-select"></select>
+            <button
+              type="button"
+              class="btn-secondary small"
+              id="add-status-btn"
+            >
+              + Thêm
+            </button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Ghi chú</label>
+          <textarea
+            id="status-notes"
+            placeholder="Nhập ghi chú thêm (tuỳ chọn)"
+          ></textarea>
+        </div>
+        <button class="btn-primary small" id="save-status-btn">
+          Lưu tình trạng
+        </button>
+        <button
+          class="btn-secondary small"
+          onclick="closeModal('status-modal')"
         >
           Đóng
         </button>
@@ -267,8 +338,14 @@
       let lastTrees = [];
       let currentYieldTreeId = null;
       let chartInstance = null;
+
       let diseaseMaster = [];
       let currentDiseaseTreeId = null;
+
+      let statusMaster = [];
+      let currentStatusTreeId = null;
+      let currentStatusNotes = "";
+
       let displayConfig = null;
 
       // =============== LOGIN ===============
@@ -310,6 +387,18 @@
 
             await loadDisplayConfig();
             loadTrees();
+
+            // nếu chủ vườn thì hiện nhân viên + lịch sử
+            if (currentUser.role === "owner") {
+              document
+                .getElementById("staff-section")
+                .classList.remove("hidden");
+              document
+                .getElementById("activity-section")
+                .classList.remove("hidden");
+              loadStaff();
+              loadActivity();
+            }
           } catch (err) {
             console.error(err);
             alert("Không kết nối được server (API).");
@@ -462,7 +551,7 @@
                 <button class="btn-secondary small" onclick="openYield('${
                   t._id
                 }')">Năng suất</button>
-                <button class="btn-secondary small" onclick="editHealth('${
+                <button class="btn-secondary small" onclick="openStatusModal('${
                   t._id
                 }','${(t.currentHealth || "")
               .replace(/'/g, "\\'")
@@ -492,39 +581,7 @@
         document.getElementById(id).classList.add("hidden");
       }
 
-      // =============== TÌNH TRẠNG / GHI CHÚ ===============
-      async function editHealth(id, currentHealth, notes) {
-        const health = prompt(
-          "Nhập tình trạng (VD: Bình thường, Cần chăm sóc, Bị sâu bệnh):",
-          currentHealth || "Bình thường"
-        );
-        if (health === null) return;
-        const note = prompt("Ghi chú thêm (có thể bỏ trống):", notes || "");
-        try {
-          const res = await fetch(`${API_BASE}/api/trees/${id}/health`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              currentHealth: health,
-              notes: note,
-            }),
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            alert(data.error || "Không thể cập nhật");
-            return;
-          }
-          loadTrees();
-        } catch (err) {
-          console.error(err);
-          alert("Lỗi khi cập nhật");
-        }
-      }
-
-      // =============== BỆNH ===============
+      // =============== DANH SÁCH BỆNH ===============
       function loadDiseaseMaster() {
         try {
           diseaseMaster = JSON.parse(
@@ -633,6 +690,93 @@
         } catch (err) {
           console.error(err);
           alert("Lỗi khi lưu bệnh");
+        }
+      }
+
+      // =============== TÌNH TRẠNG (DROPDOWN) ===============
+      function loadStatusMaster() {
+        try {
+          statusMaster = JSON.parse(
+            localStorage.getItem("statusMaster") || "[]"
+          );
+        } catch {
+          statusMaster = [];
+        }
+        if (!statusMaster.length) {
+          statusMaster = ["Bình thường", "Cần chăm sóc", "Bệnh nặng"];
+          localStorage.setItem("statusMaster", JSON.stringify(statusMaster));
+        }
+      }
+
+      function renderStatusOptions(selected) {
+        const sel = document.getElementById("status-select");
+        if (!sel) return;
+        sel.innerHTML = "";
+        statusMaster.forEach((s) => {
+          const opt = document.createElement("option");
+          opt.value = s;
+          opt.textContent = s;
+          if (s === selected) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+
+      function openStatusModal(treeId, currentHealth, notes) {
+        currentStatusTreeId = treeId;
+        currentStatusNotes = notes || "";
+        loadStatusMaster();
+        renderStatusOptions(currentHealth || "Bình thường");
+        document.getElementById("status-notes").value =
+          currentStatusNotes || "";
+        document.getElementById("status-modal").classList.remove("hidden");
+      }
+
+      function addNewStatus() {
+        loadStatusMaster();
+        const name = prompt(
+          "Nhập tên tình trạng mới (VD: Sắp thu hoạch, Cây chết...):"
+        );
+        if (!name) return;
+        const trimmed = name.trim();
+        if (!trimmed) return;
+        if (!statusMaster.includes(trimmed)) {
+          statusMaster.push(trimmed);
+          localStorage.setItem("statusMaster", JSON.stringify(statusMaster));
+        }
+        renderStatusOptions(trimmed);
+      }
+
+      async function saveStatusForTree() {
+        if (!currentStatusTreeId) return;
+        const status = document.getElementById("status-select").value;
+        const notes = document.getElementById("status-notes").value;
+
+        try {
+          const res = await fetch(
+            `${API_BASE}/api/trees/${currentStatusTreeId}/health`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                currentHealth: status,
+                notes,
+              }),
+            }
+          );
+          const data = await res.json();
+          if (!res.ok) {
+            alert(data.error || "Không thể cập nhật tình trạng");
+            return;
+          }
+          alert("✅ Đã lưu tình trạng cây");
+          closeModal("status-modal");
+          loadTrees();
+        } catch (err) {
+          console.error(err);
+          alert("Lỗi khi lưu tình trạng");
         }
       }
 
@@ -792,10 +936,142 @@
         }
       }
 
+      // =============== STAFF (NHÂN VIÊN) ===============
+      async function loadStaff() {
+        try {
+          const res = await fetch(`${API_BASE}/api/staff`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          const list = document.getElementById("staff-list");
+          if (!res.ok) {
+            list.innerHTML =
+              "<p>Không tải được danh sách nhân viên.</p>";
+            return;
+          }
+          if (!data.length) {
+            list.innerHTML =
+              "<p>Chưa có nhân viên. Hãy tạo mới bên trên.</p>";
+            return;
+          }
+          list.innerHTML = "";
+          data.forEach((u) => {
+            const row = document.createElement("div");
+            row.className = "staff-row";
+            row.innerHTML = `
+              <span>${u.username}</span>
+              <button class="btn-secondary small" onclick="deleteStaff('${u._id}')">
+                Xoá
+              </button>
+            `;
+            list.appendChild(row);
+          });
+        } catch (err) {
+          console.error(err);
+          document.getElementById("staff-list").innerHTML =
+            "<p>Lỗi khi tải nhân viên.</p>";
+        }
+      }
+
+      async function createStaff(e) {
+        e.preventDefault();
+        const username = document
+          .getElementById("staff-username")
+          .value.trim();
+        const password = document
+          .getElementById("staff-password")
+          .value.trim();
+        if (!username || !password) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/api/staff`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            alert(data.error || "Không thể tạo nhân viên");
+            return;
+          }
+          alert("✅ Đã tạo nhân viên");
+          document.getElementById("staff-form").reset();
+          loadStaff();
+        } catch (err) {
+          console.error(err);
+          alert("Lỗi khi tạo nhân viên");
+        }
+      }
+
+      async function deleteStaff(id) {
+        if (!confirm("Bạn chắc chắn muốn xoá nhân viên này?")) return;
+        try {
+          const res = await fetch(`${API_BASE}/api/staff/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            alert(data.error || "Không thể xoá nhân viên");
+            return;
+          }
+          alert("✅ Đã xoá nhân viên");
+          loadStaff();
+        } catch (err) {
+          console.error(err);
+          alert("Lỗi khi xoá nhân viên");
+        }
+      }
+
+      // =============== ACTIVITY LOG (CHỈ CHỦ VƯỜN) ===============
+      async function loadActivity() {
+        try {
+          const res = await fetch(`${API_BASE}/api/activity`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          const list = document.getElementById("activity-list");
+          if (!res.ok) {
+            list.innerHTML =
+              "<p>Không tải được lịch sử hoạt động.</p>";
+            return;
+          }
+          if (!data.length) {
+            list.innerHTML = "<p>Chưa có hoạt động nào.</p>";
+            return;
+          }
+          list.innerHTML = "";
+          data.forEach((log) => {
+            const div = document.createElement("div");
+            div.className = "activity-item";
+            const time = new Date(log.at);
+            const timeText = time.toLocaleString("vi-VN");
+            div.innerHTML = `
+              <div><b>${log.user}</b> (${log.role}) – ${log.action}</div>
+              ${
+                log.tree
+                  ? `<div class="activity-meta">Cây: ${log.tree}</div>`
+                  : ""
+              }
+              <div class="activity-meta">${timeText}</div>
+            `;
+            list.appendChild(div);
+          });
+        } catch (err) {
+          console.error(err);
+          document.getElementById("activity-list").innerHTML =
+            "<p>Lỗi khi tải lịch sử.</p>";
+        }
+      }
+
       // =============== DOM READY ===============
       document.addEventListener("DOMContentLoaded", () => {
         loadAreas();
         loadDiseaseMaster();
+        loadStatusMaster();
 
         const addAreaBtn = document.getElementById("add-area-btn");
         if (addAreaBtn) addAreaBtn.addEventListener("click", addNewArea);
@@ -803,7 +1079,15 @@
         const addDisBtn = document.getElementById("add-disease-btn");
         const saveDisBtn = document.getElementById("save-disease-btn");
         if (addDisBtn) addDisBtn.addEventListener("click", addNewDisease);
-        if (saveDisBtn) saveDisBtn.addEventListener("click", saveDiseaseForTree);
+        if (saveDisBtn)
+          saveDisBtn.addEventListener("click", saveDiseaseForTree);
+
+        const addStatusBtn = document.getElementById("add-status-btn");
+        const saveStatusBtn = document.getElementById("save-status-btn");
+        if (addStatusBtn)
+          addStatusBtn.addEventListener("click", addNewStatus);
+        if (saveStatusBtn)
+          saveStatusBtn.addEventListener("click", saveStatusForTree);
 
         const displayBtn = document.getElementById("display-config-btn");
         const saveDisplayBtn = document.getElementById(
@@ -813,14 +1097,18 @@
           displayBtn.addEventListener("click", openDisplayConfigModal);
         if (saveDisplayBtn)
           saveDisplayBtn.addEventListener("click", saveDisplayConfig);
+
+        const staffForm = document.getElementById("staff-form");
+        if (staffForm) staffForm.addEventListener("submit", createStaff);
       });
 
       // GLOBAL
       window.openQrModal = openQrModal;
       window.openYield = openYield;
       window.closeModal = closeModal;
-      window.editHealth = editHealth;
       window.openDiseaseModal = openDiseaseModal;
+      window.openStatusModal = openStatusModal;
+      window.deleteStaff = deleteStaff;
     </script>
   </body>
 </html>

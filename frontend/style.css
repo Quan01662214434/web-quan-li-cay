@@ -145,6 +145,18 @@ select {
   font-size: 14px;
 }
 
+/* textarea dùng trong modal tình trạng */
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  border: 1px solid #d4d4d8;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 70px;
+}
+
 /* FIELD GROUP */
 
 .field-group {
@@ -275,6 +287,43 @@ select {
   border-radius: 999px;
   padding: 8px 10px;
   border: 1px solid #d4d4d8;
+}
+
+/* danh sách nhân viên */
+
+.staff-list {
+  text-align: left;
+  font-size: 13px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.staff-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* lịch sử hoạt động */
+
+.activity-list {
+  text-align: left;
+  font-size: 12px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 6px;
+}
+
+.activity-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.activity-meta {
+  color: #6b7280;
+  font-size: 11px;
 }
 
 footer {
