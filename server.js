@@ -6,10 +6,11 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const QRCode = require("qrcode");
+const path = require("path");
 
 const app = express();
 
-// CORS – cho phép frontend của anh truy cập
+// CORS – cho phép frontend truy cập
 app.use(
   cors({
     origin: true,
@@ -17,6 +18,9 @@ app.use(
   })
 );
 app.use(express.json({ limit: "2mb" }));
+
+// PHỤC VỤ FILE TĨNH (index.html, public.html, css, logo,...)
+app.use(express.static(path.join(__dirname, "public")));
 
 // KẾT NỐI MONGODB
 const MONGODB_URI =
@@ -58,7 +62,7 @@ const treeSchema = new mongoose.Schema(
     location: String,
     plantDate: Date,
     imageURL: String,
-    vietGapCode: String, // Mã VietGAP cấp cho cây (dùng luôn để hiển thị farm VietGAP)
+    vietGapCode: String, // Mã VietGAP cấp cho cây
     currentHealth: String,
     notes: String,
     diseases: [String],
@@ -125,7 +129,8 @@ function auth(req, res, next) {
   const token = parts[1];
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    req.user = payload; // { id, username, role, farmName }
+    // payload: { id, username, role, farmName, ownerId? }
+    req.user = payload;
     next();
   } catch (err) {
     return res.status(401).json({ error: "Token hết hạn hoặc không hợp lệ" });
@@ -145,6 +150,17 @@ async function logActivity({ ownerId, user, role, action, tree }) {
   } catch (err) {
     console.error("Lỗi ghi activity:", err);
   }
+}
+
+// Lấy ownerId thật (staff → owner, owner → chính nó)
+async function getOwnerIdFromUser(userPayload) {
+  if (userPayload.role === "staff") {
+    // Ưu tiên dùng ownerId trong token (nhanh hơn)
+    if (userPayload.ownerId) return userPayload.ownerId;
+    const staff = await User.findById(userPayload.id).lean();
+    return staff?.owner;
+  }
+  return userPayload.id;
 }
 
 // ===================
@@ -176,6 +192,7 @@ app.post("/auth/register", async (req, res) => {
         username: user.username,
         role: user.role,
         farmName: user.farmName,
+        ownerId: user._id.toString(),
       },
       JWT_SECRET,
       { expiresIn: "7d" }
@@ -209,13 +226,16 @@ app.post("/auth/login", async (req, res) => {
     if (!ok)
       return res.status(400).json({ error: "Sai tài khoản hoặc mật khẩu" });
 
+    const ownerId =
+      user.role === "staff" && user.owner ? user.owner.toString() : user._id.toString();
+
     const token = jwt.sign(
       {
         id: user._id.toString(),
         username: user.username,
         role: user.role,
         farmName: user.farmName,
-        ownerId: user.role === "staff" && user.owner ? user.owner : user._id,
+        ownerId,
       },
       JWT_SECRET,
       { expiresIn: "7d" }
@@ -239,15 +259,6 @@ app.post("/auth/login", async (req, res) => {
 // ===================
 //  TREES API
 // ===================
-
-// Lấy ownerId thật (nếu là staff thì dùng owner, nếu owner thì chính nó)
-async function getOwnerIdFromUser(userPayload) {
-  if (userPayload.role === "staff") {
-    const staff = await User.findById(userPayload.id);
-    return staff.owner;
-  }
-  return userPayload.id;
-}
 
 // Lấy danh sách cây
 app.get("/api/trees", auth, async (req, res) => {
@@ -646,6 +657,20 @@ app.get("/public/tree/:id", async (req, res) => {
     console.error("Lỗi GET /public/tree/:id", err);
     res.status(500).json({ error: "Lỗi server" });
   }
+});
+
+// ===================
+// ROUTES TĨNH CƠ BẢN
+// ===================
+
+// Trang chính (quản lý vườn)
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Trang public (khách quét QR)
+app.get("/public.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "public.html"));
 });
 
 // ===================

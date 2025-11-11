@@ -571,7 +571,11 @@
 
     <!-- SCRIPT CHÍNH -->
     <script>
-      const API_BASE = "https://api.thefram.site";
+      // ✅ API_BASE TỰ ĐỘNG: localhost thì dùng server local, còn lại dùng domain
+      const API_BASE =
+        window.location.hostname === "localhost"
+          ? "http://localhost:4000"
+          : "https://api.thefram.site";
 
       let token = localStorage.getItem("th_token") || null;
       let currentUser = null;
@@ -644,8 +648,19 @@
               alert(data.error || "Đăng nhập thất bại");
               return;
             }
+
+            // ✅ HỖ TRỢ HAI KIỂU TRẢ VỀ:
+            // 1) { token, user: { username, role, farmName } }
+            // 2) { token, role }  => tự build currentUser
             token = data.token;
-            currentUser = data.user;
+            currentUser =
+              data.user ||
+              ({
+                username,
+                role: data.role || "owner",
+                farmName: data.farmName || "Thanh Huyền Farm",
+              });
+
             localStorage.setItem("th_token", token);
             localStorage.setItem("th_user", JSON.stringify(currentUser));
             setupAfterLogin();
@@ -753,7 +768,7 @@
           }
         });
 
-      // RENDER DANH SÁCH CÂY
+      // VIETGAP CARD
       function updateFarmVietGapBadge() {
         const wrapper = document.getElementById("farm-vietgap-wrapper");
         const codeSpan = document.getElementById("farm-vietgap-code");
@@ -1159,14 +1174,14 @@
           }
         });
 
-      // CẤU HÌNH HIỂN THỊ QR (CÓ VIETGAP)
+      // CẤU HÌNH HIỂN THỊ QR
       const DISPLAY_FIELDS = [
         { key: "showName", checkboxId: "cfg-name" },
         { key: "showSpecies", checkboxId: "cfg-species" },
         { key: "showArea", checkboxId: "cfg-area" },
         { key: "showLocation", checkboxId: "cfg-location" },
         { key: "showPlantDate", checkboxId: "cfg-plantDate" },
-        { key: "showVietGap", checkboxId: "cfg-vietgap" }, // ✅ VietGAP
+        { key: "showVietGap", checkboxId: "cfg-vietgap" }, // VietGAP
         { key: "showImage", checkboxId: "cfg-image" },
         { key: "showCurrentHealth", checkboxId: "cfg-health" },
         { key: "showNotes", checkboxId: "cfg-notes" },

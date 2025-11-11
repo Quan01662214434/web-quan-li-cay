@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Thông tin cây – Thanh Huyền Farm</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Dùng chung style.css với trang chính -->
     <link rel="stylesheet" href="style.css" />
     <style>
       body {
@@ -114,7 +115,7 @@
       </div>
     </div>
 
-    <!-- Nút nổi liên hệ -->
+    <!-- Nút nổi liên hệ chỉ dùng cho trang QR -->
     <div class="floating-contact">
       <a
         href="https://zalo.me/0912345678"
@@ -135,7 +136,11 @@
     </div>
 
     <script>
-      const API_BASE = "https://api.thefram.site";
+      // Cho phép chạy cả trên domain thật lẫn localhost
+      const API_BASE =
+        window.location.hostname === "thefram.site"
+          ? "https://api.thefram.site"
+          : "http://localhost:4000";
 
       function getTreeIdFromUrl() {
         const params = new URLSearchParams(window.location.search);
@@ -181,6 +186,7 @@
             </div>
           `;
 
+          // Banner VietGAP của vườn (dùng mã VietGAP lấy từ cây, tùy config)
           if (farmVietGapCode && cfg.showVietGap !== false) {
             html += `
               <div class="vg-banner">
@@ -228,7 +234,11 @@
             html += `<p><b>Ghi chú:</b> ${tree.notes}</p>`;
           }
 
-          if (cfg.showDiseases !== false && tree.diseases && tree.diseases.length) {
+          if (
+            cfg.showDiseases !== false &&
+            tree.diseases &&
+            tree.diseases.length
+          ) {
             html += `<p><b>Bệnh:</b> ${tree.diseases.join(", ")}</p>`;
           }
 
@@ -254,6 +264,7 @@
 
           html += `</div>`;
 
+          // Khối thông tin liên hệ dưới cùng
           html += `
             <div class="farm-contact">
               <h3>📞 Liên hệ chủ vườn – Thanh Huyền Farm</h3>
