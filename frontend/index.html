@@ -56,7 +56,8 @@
         </form>
         <p class="hint">
           Tài khoản mặc định: <b>thanhhuyen</b> / <b>12345</b><br />
-          (Trước đó gọi <code>/auth/seed-owner</code> một lần để tạo/reset)
+          (Trước đó gọi <code>https://api.thefram.site/auth/seed-owner</code> 1
+          lần để tạo/reset)
         </p>
       </section>
 
@@ -152,16 +153,13 @@
           />
           <button type="submit" class="btn-primary small">Lưu năng suất</button>
         </form>
-        <button
-          class="btn-secondary small"
-          onclick="closeModal('yield-modal')"
-        >
+        <button class="btn-secondary small" onclick="closeModal('yield-modal')">
           Đóng
         </button>
       </div>
     </div>
 
-    <!-- MODAL DANH SÁCH BỆNH -->
+    <!-- MODAL BỆNH -->
     <div id="disease-modal" class="modal hidden">
       <div class="modal-content">
         <h3>Danh sách bệnh 🌱</h3>
@@ -261,8 +259,8 @@
     </footer>
 
     <script>
-      // Dùng cùng host: backend & frontend chạy cùng domain (localhost:4000)
-      const API_BASE = "";
+      // 🔧 BACKEND Render:
+      const API_BASE = "https://api.thefram.site";
 
       let token = null;
       let currentUser = null;
@@ -273,7 +271,7 @@
       let currentDiseaseTreeId = null;
       let displayConfig = null;
 
-      // ================== LOGIN ==================
+      // =============== LOGIN ===============
       document
         .getElementById("login-form")
         .addEventListener("submit", async (e) => {
@@ -306,17 +304,15 @@
 
             document.getElementById(
               "user-info"
-            ).innerText = `Xin chào ${currentUser.username} – Vai trò: ${currentUser.role} – Vườn: ${
-              currentUser.farmName || "Thanh Huyền Farm"
-            }`;
+            ).innerText = `Xin chào ${currentUser.username} – Vai trò: ${
+              currentUser.role
+            } – Vườn: ${currentUser.farmName || "Thanh Huyền Farm"}`;
 
             await loadDisplayConfig();
             loadTrees();
           } catch (err) {
             console.error(err);
-            alert(
-              "Không kết nối được server. Hãy đảm bảo đã chạy npm start và truy cập http://localhost:4000"
-            );
+            alert("Không kết nối được server (API).");
           }
         });
 
@@ -324,7 +320,7 @@
         .getElementById("logout-btn")
         .addEventListener("click", () => location.reload());
 
-      // ================== KHU VỰC (AREA) ==================
+      // =============== KHU VỰC ===============
       function loadAreas() {
         const select = document.getElementById("tree-area");
         if (!select) return;
@@ -332,7 +328,7 @@
         let areas = [];
         try {
           areas = JSON.parse(localStorage.getItem("farmAreas") || "[]");
-        } catch (e) {
+        } catch {
           areas = [];
         }
 
@@ -354,7 +350,7 @@
         let areas = [];
         try {
           areas = JSON.parse(localStorage.getItem("farmAreas") || "[]");
-        } catch (e) {
+        } catch {
           areas = [];
         }
 
@@ -373,13 +369,15 @@
         if (select) select.value = trimmed;
       }
 
-      // ================== TẠO CÂY MỚI ==================
+      // =============== TẠO CÂY ===============
       document
         .getElementById("create-tree-form")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
           const name = document.getElementById("tree-name").value.trim();
-          const species = document.getElementById("tree-species").value.trim();
+          const species = document
+            .getElementById("tree-species")
+            .value.trim();
           const area = document.getElementById("tree-area").value;
           const location = document
             .getElementById("tree-location")
@@ -417,7 +415,7 @@
           }
         });
 
-      // ================== DANH SÁCH CÂY ==================
+      // =============== DANH SÁCH CÂY ===============
       async function loadTrees() {
         try {
           const res = await fetch(`${API_BASE}/api/trees`, {
@@ -484,7 +482,7 @@
         }
       }
 
-      // ================== QR MODAL ==================
+      // =============== QR MODAL ===============
       function openQrModal(dataUrl) {
         document.getElementById("qr-image").src = dataUrl;
         document.getElementById("qr-modal").classList.remove("hidden");
@@ -494,7 +492,7 @@
         document.getElementById(id).classList.add("hidden");
       }
 
-      // ================== TÌNH TRẠNG / GHI CHÚ ==================
+      // =============== TÌNH TRẠNG / GHI CHÚ ===============
       async function editHealth(id, currentHealth, notes) {
         const health = prompt(
           "Nhập tình trạng (VD: Bình thường, Cần chăm sóc, Bị sâu bệnh):",
@@ -526,7 +524,7 @@
         }
       }
 
-      // ================== DANH SÁCH BỆNH (MASTER + CÂY) ==================
+      // =============== BỆNH ===============
       function loadDiseaseMaster() {
         try {
           diseaseMaster = JSON.parse(
@@ -638,7 +636,7 @@
         }
       }
 
-      // ================== NĂNG SUẤT ==================
+      // =============== NĂNG SUẤT ===============
       async function openYield(id) {
         currentYieldTreeId = id;
         document.getElementById("yield-modal").classList.remove("hidden");
@@ -713,7 +711,7 @@
           }
         });
 
-      // ================== CẤU HÌNH HIỂN THỊ QR ==================
+      // =============== CẤU HÌNH HIỂN THỊ QR ===============
       const DISPLAY_FIELDS = [
         { key: "showName", checkboxId: "cfg-name" },
         { key: "showSpecies", checkboxId: "cfg-species" },
@@ -749,13 +747,12 @@
         DISPLAY_FIELDS.forEach(({ key, checkboxId }) => {
           const cb = document.getElementById(checkboxId);
           if (!cb) return;
-          cb.checked = displayConfig[key] !== false; // mặc định true
+          cb.checked = displayConfig[key] !== false;
         });
       }
 
       function openDisplayConfigModal() {
         if (!displayConfig) {
-          // nếu chưa load xong thì cứ mở và dùng default
           displayConfig = {};
         }
         applyDisplayConfigToModal();
@@ -795,7 +792,7 @@
         }
       }
 
-      // ================== DOM READY ==================
+      // =============== DOM READY ===============
       document.addEventListener("DOMContentLoaded", () => {
         loadAreas();
         loadDiseaseMaster();
@@ -818,7 +815,7 @@
           saveDisplayBtn.addEventListener("click", saveDisplayConfig);
       });
 
-      // ================== GLOBAL ==================
+      // GLOBAL
       window.openQrModal = openQrModal;
       window.openYield = openYield;
       window.closeModal = closeModal;

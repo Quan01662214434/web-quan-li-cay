@@ -12,7 +12,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
-app.use(cors());
+app.use(cors());               // cho phép CORS từ Vercel
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -22,8 +22,12 @@ const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = "THANH_HUYEN_FARM_SECRET_KEY";
 
+// Nếu anh muốn QR trỏ về thefram.site thì set env FRONTEND_BASE_URL trên Render
+const FRONTEND_BASE_URL =
+  process.env.FRONTEND_BASE_URL || "https://thefram.site";
+
 // =======================================================
-// SERVE FRONTEND
+// SERVE STATIC (chạy local thì dùng, trên Render API-only cũng không sao)
 // =======================================================
 app.use(express.static(path.join(__dirname, "frontend")));
 
@@ -31,17 +35,12 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
-// Trang public cho QR
-app.get("/public/:numericId", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "public.html"));
-});
-
 // =======================================================
 // DATABASE
 // =======================================================
 mongoose
   .connect(
-    "mongodb+srv://admin:12345@cluster0.p12idid.mongodb.net/thanhhuyen_farm_final"
+    "mongodb+srv://admin:12345@cluster0.p12idid.mongodb.net/thanhhuyen_farm_full"
   )
   .then(() => console.log("✅ MongoDB đã kết nối"))
   .catch((err) => console.error("❌ Lỗi MongoDB:", err));
@@ -62,7 +61,7 @@ const treeSchema = new mongoose.Schema(
     numericId: Number, // ID số cố định
     name: String,
     species: String,
-    area: String, // khu vực
+    area: String,
     location: String,
     plantDate: String,
     currentHealth: { type: String, default: "Bình thường" },
@@ -82,7 +81,7 @@ const treeSchema = new mongoose.Schema(
 );
 const Tree = mongoose.model("Tree", treeSchema);
 
-// Cấu hình hiển thị QR
+// cấu hình hiển thị QR
 const displayConfigSchema = new mongoose.Schema({
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true },
   showName: { type: Boolean, default: true },
@@ -125,7 +124,7 @@ function authMiddleware(req, res, next) {
 async function getOrCreateDisplayConfig(ownerId) {
   let cfg = await DisplayConfig.findOne({ owner: ownerId });
   if (!cfg) {
-    cfg = await DisplayConfig.create({ owner: ownerId }); // dùng default
+    cfg = await DisplayConfig.create({ owner: ownerId });
   }
   return cfg;
 }
@@ -134,7 +133,7 @@ async function getOrCreateDisplayConfig(ownerId) {
 // AUTH
 // =======================================================
 
-// Tạo user (có thể dùng sau này nếu muốn thêm nhân viên)
+// Tạo user (sau này dùng nếu cần thêm nhân viên)
 app.post("/auth/register", async (req, res) => {
   try {
     const { username, password, role, farmName } = req.body;
@@ -163,7 +162,7 @@ app.post("/auth/login", async (req, res) => {
   res.json({ token, user });
 });
 
-// Tạo hoặc reset tài khoản mặc định cho chủ vườn
+// tạo / reset tài khoản mặc định
 app.get("/auth/seed-owner", async (req, res) => {
   try {
     const hashed = await bcrypt.hash("12345", 10);
@@ -199,10 +198,8 @@ app.get("/auth/seed-owner", async (req, res) => {
 });
 
 // =======================================================
-// CẤU HÌNH HIỂN THỊ QR
+// DISPLAY CONFIG
 // =======================================================
-
-// Lấy cấu hình
 app.get("/api/display-config", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -214,7 +211,6 @@ app.get("/api/display-config", authMiddleware, async (req, res) => {
   }
 });
 
-// Cập nhật cấu hình
 app.patch("/api/display-config", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -235,9 +231,7 @@ app.patch("/api/display-config", authMiddleware, async (req, res) => {
     ];
 
     fields.forEach((f) => {
-      if (typeof req.body[f] === "boolean") {
-        cfg[f] = req.body[f];
-      }
+      if (typeof req.body[f] === "boolean") cfg[f] = req.body[f];
     });
 
     await cfg.save();
@@ -252,7 +246,7 @@ app.patch("/api/display-config", authMiddleware, async (req, res) => {
 // TREES
 // =======================================================
 
-// Lấy danh sách cây của chủ vườn
+// Danh sách cây của chủ vườn
 app.get("/api/trees", authMiddleware, async (req, res) => {
   const user = await User.findById(req.user.id);
   const trees = await Tree.find({ owner: user._id }).sort({ createdAt: -1 });
@@ -270,8 +264,8 @@ app.post("/api/trees", authMiddleware, async (req, res) => {
 
     const { name, species, area, location, plantDate, imageURL } = req.body;
 
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
-    const qrUrl = `${baseUrl}/public/${numericId}`;
+    // link QR trỏ về frontend (thefram.site)
+    const qrUrl = `${FRONTEND_BASE_URL}/public.html?id=${numericId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(qrUrl);
 
     const tree = await Tree.create({
@@ -303,7 +297,6 @@ app.patch("/api/trees/:id/health", authMiddleware, async (req, res) => {
   const { currentHealth, notes } = req.body;
   const tree = await Tree.findById(id);
   if (!tree) return res.status(404).json({ error: "Không tìm thấy cây" });
-
   if (tree.owner.toString() !== req.user.id)
     return res.status(403).json({ error: "Không có quyền" });
 
@@ -319,7 +312,6 @@ app.patch("/api/trees/:id/diseases", authMiddleware, async (req, res) => {
   const { diseases } = req.body;
   const tree = await Tree.findById(id);
   if (!tree) return res.status(404).json({ error: "Không tìm thấy cây" });
-
   if (tree.owner.toString() !== req.user.id)
     return res.status(403).json({ error: "Không có quyền" });
 
@@ -334,7 +326,6 @@ app.post("/api/trees/:id/yield", authMiddleware, async (req, res) => {
   const { year, quantity } = req.body;
   const tree = await Tree.findById(id);
   if (!tree) return res.status(404).json({ error: "Không tìm thấy cây" });
-
   if (tree.owner.toString() !== req.user.id)
     return res.status(403).json({ error: "Không có quyền" });
 

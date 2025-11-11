@@ -67,10 +67,10 @@
     </footer>
 
     <script>
-      const API_BASE = "";
+      const API_BASE = "https://api.thefram.site";
 
-      const path = window.location.pathname; // /public/3
-      const numericId = path.split("/").pop();
+      const params = new URLSearchParams(window.location.search);
+      const numericId = params.get("id");
 
       function setRowVisible(rowId, visible) {
         const el = document.getElementById(rowId);
@@ -103,7 +103,6 @@
           const showYield = cfg.showYield !== false;
           const showOwnerName = cfg.showOwnerName !== false;
 
-          // SET TEXT
           document.getElementById("tree-name").textContent = tree.name || "-";
           document.getElementById("tree-species").textContent =
             tree.species || "-";
@@ -124,7 +123,6 @@
             tree.owner?.username ||
             "Thanh Huyền Farm";
 
-          // Ảnh
           const imgEl = document.getElementById("tree-image");
           if (tree.imageURL && showImage) {
             imgEl.src = tree.imageURL;
@@ -133,7 +131,6 @@
             imgEl.classList.add("hidden");
           }
 
-          // ẨN/HIỆN TỪNG DÒNG THEO CONFIG
           setRowVisible("row-name", showName);
           setRowVisible("row-species", showSpecies);
           setRowVisible("row-area", showArea);
@@ -144,7 +141,6 @@
           setRowVisible("row-diseases", showDiseases);
           setRowVisible("row-owner", showOwnerName);
 
-          // NĂNG SUẤT
           if (!showYield) {
             document.getElementById("yield-card").style.display = "none";
           } else {
