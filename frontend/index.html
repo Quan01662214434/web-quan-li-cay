@@ -1,360 +1,229 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thanh Huyền Farm 🌿</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
-  <body>
-    <!-- HEADER -->
-    <header class="topbar">
-      <div class="logo-area">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 512 512"
-          class="logo-icon"
-        >
-          <circle cx="256" cy="256" r="240" fill="#16a34a" />
-          <path
-            d="M256 128c-64 48-80 144 0 240 80-96 64-192 0-240z"
-            fill="#bbf7d0"
-          />
-        </svg>
-        <div class="logo-text">
-          <div class="farm-name">THANH HUYỀN FARM</div>
-          <div class="farm-sub">
-            Vườn sầu riêng hữu cơ – Phú Vinh, Đồng Nai
-          </div>
-        </div>
-      </div>
-      <button id="logout-btn" class="btn-primary small hidden">Đăng xuất</button>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thanh Huyền Farm 🌿</title>
+  <style>
+    :root {
+      --main-green: #3fa34d;
+      --light-green: #dff6e1;
+      --dark-green: #2a7a35;
+      --white: #fff;
+    }
 
-    <main class="app-shell">
-      <!-- LOGIN -->
-      <section id="login-section" class="card center">
-        <h2>Đăng nhập hệ thống 🌿</h2>
-        <form id="login-form">
-          <input
-            type="text"
-            id="username"
-            placeholder="Tài khoản"
-            required
-          /><br />
-          <input
-            type="password"
-            id="password"
-            placeholder="Mật khẩu"
-            required
-          /><br />
-          <button type="submit" class="btn-primary">Đăng nhập</button>
-        </form>
-      </section>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, var(--light-green), var(--white));
+      color: var(--dark-green);
+      margin: 0;
+      padding: 0;
+    }
 
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="hidden">
-        <aside class="sidebar">
-          <ul>
-            <li class="active">🏡 Tổng quan</li>
-            <li>🌳 Quản lý cây</li>
-            <li>👨‍🌾 Nhân viên</li>
-            <li>📊 Năng suất</li>
-          </ul>
-        </aside>
+    header {
+      background: var(--main-green);
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
 
-        <div class="dashboard-content">
-          <h2 class="page-title">Bảng điều khiển vườn Thanh Huyền</h2>
-          <p id="user-role-text"></p>
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      letter-spacing: 0.5px;
+    }
 
-          <!-- CREATE TREE -->
-          <div id="create-tree-section" class="card">
-            <h3>Thêm cây mới</h3>
-            <form id="create-tree-form">
-              <input
-                type="text"
-                id="tree-name"
-                placeholder="Tên cây"
-                required
-              />
-              <input
-                type="text"
-                id="tree-species"
-                placeholder="Giống cây"
-                required
-              />
-              <input
-                type="text"
-                id="tree-location"
-                placeholder="Vị trí (VD: Lô A3)"
-                required
-              />
-              <input type="date" id="tree-date" required />
-              <input
-                type="text"
-                id="tree-image"
-                placeholder="URL ảnh cây (tùy chọn)"
-              />
-              <button type="submit" class="btn-primary">Tạo cây & QR</button>
-            </form>
-          </div>
+    .container {
+      max-width: 420px;
+      margin: 60px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
 
-          <!-- TREE LIST -->
-          <div id="tree-list-section" class="card">
-            <h3>Danh sách cây 🌳</h3>
-            <table id="tree-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tên cây</th>
-                  <th>Giống</th>
-                  <th>Vị trí</th>
-                  <th>Tình trạng</th>
-                  <th>Bệnh</th>
-                  <th>Năng suất</th>
-                  <th>QR</th>
-                  <th>Lịch sử</th>
-                </tr>
-              </thead>
-              <tbody id="tree-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+    .container h2 {
+      color: var(--dark-green);
+      margin-bottom: 20px;
+    }
 
-      <!-- MODALS -->
-      <div id="qr-modal" class="modal hidden">
-        <div class="modal-content">
-          <h3>Mã QR của cây</h3>
-          <img id="qr-image" alt="QR" />
-          <button class="btn-secondary" onclick="closeModal('qr-modal')">
-            Đóng
-          </button>
-        </div>
-      </div>
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
 
-      <div id="yield-modal" class="modal hidden">
-        <div class="modal-content">
-          <h3>Năng suất cây 🌾</h3>
-          <canvas id="yield-chart"></canvas>
-          <form id="yield-form">
-            <input type="number" id="yield-year" placeholder="Năm" required />
-            <input
-              type="number"
-              id="yield-quantity"
-              placeholder="Sản lượng (kg)"
-              required
-            />
-            <button type="submit" class="btn-primary small">
-              Lưu năng suất
-            </button>
-          </form>
-          <button class="btn-secondary" onclick="closeModal('yield-modal')">
-            Đóng
-          </button>
-        </div>
-      </div>
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--main-green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-      <div id="logs-modal" class="modal hidden">
-        <div class="modal-content">
-          <h3>Lịch sử hoạt động 🌿</h3>
-          <div id="logs-container"></div>
-          <button class="btn-secondary" onclick="closeModal('logs-modal')">
-            Đóng
-          </button>
-        </div>
-      </div>
-    </main>
+    button:hover {
+      background-color: var(--dark-green);
+    }
 
-    <footer>
-      🌿 <b>Thanh Huyền Farm</b> | Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng
-      <br />
-      Hotline: 0909.123.456 | Facebook: /thanhhuyenfarm | Zalo: @thanhhuyenfarm
-    </footer>
+    .hidden {
+      display: none;
+    }
 
-    <script>
-      // Dùng relative path vì index.html được serve cùng domain với API
-      const API_BASE = "";
+    #logout-btn {
+      background-color: #b22222;
+      margin-top: 15px;
+    }
 
-      let currentUser = null;
-      let token = null;
+    #dashboard {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
 
-      // LOGIN
-      document
-        .getElementById("login-form")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const username = document.getElementById("username").value;
-          const password = document.getElementById("password").value;
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+      padding: 20px;
+    }
 
-          const res = await fetch(`${API_BASE}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-          });
-          const data = await res.json();
-          if (data.token) {
-            token = data.token;
-            currentUser = data.user;
-            document.getElementById("login-section").classList.add("hidden");
-            document.getElementById("dashboard").classList.remove("hidden");
-            document
-              .getElementById("logout-btn")
-              .classList.remove("hidden");
-            document.getElementById(
-              "user-role-text"
-            ).innerText = `Xin chào ${currentUser.username} – Vai trò: ${currentUser.role}`;
-            loadTrees();
-          } else alert("Sai tài khoản hoặc mật khẩu");
+    @media (max-width: 600px) {
+      .container, #dashboard {
+        margin: 20px;
+        padding: 20px;
+      }
+      header h1 {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌿 Thanh Huyền Farm – Quản lý vườn sầu riêng</h1>
+  </header>
+
+  <main>
+    <!-- Đăng nhập -->
+    <section id="login-section" class="container">
+      <h2>Đăng nhập hệ thống 🌱</h2>
+      <form id="login-form">
+        <input type="text" id="username" placeholder="Tên đăng nhập" required />
+        <input type="password" id="password" placeholder="Mật khẩu" required />
+        <button type="submit">Đăng nhập</button>
+      </form>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="dashboard" class="hidden">
+      <h2>Chào mừng đến với hệ thống quản lý 🌳</h2>
+      <p id="user-role-text"></p>
+      <button id="logout-btn">Đăng xuất</button>
+      <div id="tree-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    Thanh Huyền Farm | Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng 🌿
+  </footer>
+
+  <script>
+    // ====== Cấu hình API backend ======
+    const API_BASE = "http://localhost:4000"; // <== Địa chỉ backend (khi chạy local)
+
+    let token = null;
+    let currentUser = null;
+
+    // ====== Đăng nhập ======
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
         });
 
-      // LOGOUT
-      document
-        .getElementById("logout-btn")
-        .addEventListener("click", () => location.reload());
+        let data;
+        try {
+          data = await res.json();
+        } catch (err) {
+          alert("❌ Server trả về dữ liệu không hợp lệ (không phải JSON).");
+          return;
+        }
 
-      // CREATE TREE
-      document
-        .getElementById("create-tree-form")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const name = document.getElementById("tree-name").value;
-          const species = document.getElementById("tree-species").value;
-          const location = document.getElementById("tree-location").value;
-          const plantDate = document.getElementById("tree-date").value;
-          const imageURL = document.getElementById("tree-image").value;
+        if (!res.ok) {
+          alert(data.error || "❌ Đăng nhập thất bại (server báo lỗi).");
+          return;
+        }
 
-          const res = await fetch(`${API_BASE}/api/trees`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              name,
-              species,
-              location,
-              plantDate,
-              imageURL,
-            }),
-          });
-          const data = await res.json();
-          if (data.tree) {
-            alert("✅ Đã thêm cây mới");
-            loadTrees();
-          } else alert("Lỗi tạo cây!");
-        });
+        if (data.token) {
+          token = data.token;
+          currentUser = data.user;
+          document.getElementById("login-section").classList.add("hidden");
+          document.getElementById("dashboard").classList.remove("hidden");
+          document.getElementById("user-role-text").innerText =
+            `🌿 Xin chào ${currentUser.username} – Vai trò: ${currentUser.role}`;
+          loadTrees();
+        } else {
+          alert(data.error || "❌ Không nhận được token từ server.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("⚠️ Không kết nối được tới server.\nHãy chắc chắn rằng bạn đang mở http://localhost:4000 và đã chạy npm start.");
+      }
+    });
 
-      // LOAD TREES
-      async function loadTrees() {
+    // ====== Đăng xuất ======
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      token = null;
+      currentUser = null;
+      document.getElementById("dashboard").classList.add("hidden");
+      document.getElementById("login-section").classList.remove("hidden");
+      document.getElementById("logout-btn").classList.add("hidden");
+    });
+
+    // ====== Tải danh sách cây ======
+    async function loadTrees() {
+      try {
         const res = await fetch(`${API_BASE}/api/trees`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const trees = await res.json();
-        const tbody = document.getElementById("tree-table-body");
-        tbody.innerHTML = "";
-        trees.forEach((t) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${t.numericId}</td>
-            <td>${t.name}</td>
-            <td>${t.species}</td>
-            <td>${t.location}</td>
-            <td>${t.currentHealth}</td>
-            <td><button class="btn-secondary small" onclick="updateDiseases('${t._id}')">Bệnh</button></td>
-            <td><button class="btn-secondary small" onclick="openYieldModal('${t._id}')">Xem</button></td>
-            <td><button class="btn-secondary small" onclick="openQrModal('${t.qrCode}')">QR</button></td>
-            <td><button class="btn-secondary small" onclick="openLogs('${t._id}')">Xem</button></td>
-          `;
-          tbody.appendChild(row);
-        });
-      }
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Không thể tải danh sách cây");
 
-      // MODALS
-      function openQrModal(qr) {
-        document.getElementById("qr-image").src = qr;
-        document.getElementById("qr-modal").classList.remove("hidden");
-      }
-      function closeModal(id) {
-        document.getElementById(id).classList.add("hidden");
-      }
-
-      async function updateDiseases(id) {
-        const diseases = prompt("Nhập các bệnh (phân tách dấu phẩy):");
-        if (!diseases) return;
-        await fetch(`${API_BASE}/api/trees/${id}/diseases`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            diseases: diseases.split(",").map((d) => d.trim()),
-          }),
+        const container = document.getElementById("tree-list");
+        container.innerHTML = "";
+        data.forEach((t) => {
+          const div = document.createElement("div");
+          div.style.border = "1px solid #ccc";
+          div.style.padding = "10px";
+          div.style.margin = "10px 0";
+          div.style.borderRadius = "8px";
+          div.innerHTML = `<b>${t.name}</b> (${t.species}) - ${t.location}`;
+          container.appendChild(div);
         });
-        loadTrees();
+      } catch (err) {
+        console.error(err);
+        alert("❌ Không thể tải danh sách cây.");
       }
-
-      let chartInstance = null;
-      async function openYieldModal(treeId) {
-        document.getElementById("yield-modal").classList.remove("hidden");
-        const res = await fetch(`${API_BASE}/api/trees`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const trees = await res.json();
-        const tree = trees.find((t) => t._id === treeId);
-        const ctx = document.getElementById("yield-chart").getContext("2d");
-        if (chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: tree.yieldHistory.map((y) => y.year),
-            datasets: [
-              {
-                label: "Năng suất (kg)",
-                data: tree.yieldHistory.map((y) => y.quantity),
-                backgroundColor: "#16a34a",
-              },
-            ],
-          },
-          options: { responsive: true, scales: { y: { beginAtZero: true } } },
-        });
-        document
-          .getElementById("yield-form")
-          .addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const year = document.getElementById("yield-year").value;
-            const quantity = document.getElementById("yield-quantity").value;
-            await fetch(`${API_BASE}/api/trees/${treeId}/yield`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ year, quantity }),
-            });
-            alert("Đã lưu năng suất");
-            closeModal("yield-modal");
-            loadTrees();
-          });
-      }
-
-      async function openLogs(treeId) {
-        document.getElementById("logs-modal").classList.remove("hidden");
-        const res = await fetch(`${API_BASE}/api/trees/${treeId}/logs`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const logs = await res.json();
-        document.getElementById("logs-container").innerHTML = logs
-          .map(
-            (l) =>
-              `<div class='log-item'><b>${l.username}</b> – ${l.action}<br>${l.details}<br><span>${new Date(
-                l.createdAt
-              ).toLocaleString()}</span></div>`
-          )
-          .join("");
-      }
-    </script>
-  </body>
+    }
+  </script>
+</body>
 </html>
