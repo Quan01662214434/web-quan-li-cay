@@ -2,1394 +2,359 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <title>Vườn sầu riêng Thanh Huyền</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
-    />
-    <link rel="stylesheet" href="./style.css" />
-    <!-- Chart.js cho biểu đồ năng suất -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thanh Huyền Farm 🌿</title>
+    <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <div class="app-shell">
-      <!-- BACKGROUND VƯỜN SẦU RIÊNG ĐÃ ĐẶT TRONG CSS -->
-
-      <!-- SIDEBAR -->
-      <aside class="sidebar">
-        <div class="sidebar-logo">
-          <!-- Logo kiểu chữ + lá -->
-          <div class="logo-mark">
-            <div class="logo-leaf"></div>
-            <div class="logo-durian"></div>
-          </div>
-          <div class="sidebar-logo-text">
-            <div class="sidebar-title">THANH HUYỀN FARM</div>
-            <div class="sidebar-subtitle">
-              Vườn sầu riêng – Lâm Đồng
-            </div>
-          </div>
-        </div>
-
-        <nav class="sidebar-nav">
-          <div class="nav-section">
-            <div class="nav-label">Điều hướng</div>
-            <button
-              class="nav-item nav-item-active"
-              id="nav-public"
-              type="button"
-            >
-              <span>Trang giới thiệu</span>
-            </button>
-            <button class="nav-item" id="nav-farm" type="button">
-              <span>Bảng điều khiển vườn</span>
-            </button>
-          </div>
-        </nav>
-
-        <div class="sidebar-footer">
-          <div class="sidebar-footer-text">
-            <div class="sf-title">Thanh Huyền Smart Farm</div>
-            <div class="sf-sub">Quản lý sầu riêng bằng mã QR</div>
-          </div>
-        </div>
-      </aside>
-
-      <!-- MAIN -->
-      <div class="main-area">
-        <!-- TOPBAR -->
-        <header class="topbar">
-          <div>
-            <div class="topbar-title">Vườn sầu riêng Thanh Huyền</div>
-            <div class="topbar-subtitle" id="topbar-subtitle">
-              Quản lý cây, nhân viên và năng suất theo năm.
-            </div>
-          </div>
-          <div class="topbar-right">
-            <button class="btn-ghost small" id="logout-btn" style="display: none">
-              Đăng xuất
-            </button>
-            <div class="user-chip" id="user-chip" style="display: none">
-              Đang đăng nhập: <span id="user-chip-name"></span>
-            </div>
-          </div>
-        </header>
-
-        <!-- CONTENT -->
-        <main class="main-content">
-          <!-- VIEW: PUBLIC (chưa đăng nhập / khách quét QR) -->
-          <section id="public-view" class="view">
-            <div class="card hero-public">
-              <div class="hero-public-main">
-                <div>
-                  <div class="hero-kicker">VƯỜN SẦU RIÊNG</div>
-                  <h1 class="hero-heading">
-                    Thanh Huyền Farm – Quản lý từng cây sầu riêng bằng mã QR
-                  </h1>
-                  <p class="hero-text">
-                    Theo dõi sức khỏe từng cây, ghi nhận bệnh, quản lý năng suất
-                    và phân công nhân viên chăm sóc – tất cả trong một trang duy
-                    nhất.
-                  </p>
-                  <ul class="hero-bullets">
-                    <li>Mỗi cây một mã QR cố định, quét là xem thông tin mới nhất.</li>
-                    <li>Nhân viên cập nhật, chủ vườn xem lịch sử ai đã thay đổi.</li>
-                    <li>Năng suất được lưu theo từng năm cho từng cây.</li>
-                  </ul>
-                </div>
-              </div>
-              <div class="hero-public-side">
-                <div class="card login-card">
-                  <div class="card-header">
-                    <div>
-                      <div class="card-title">Đăng nhập quản lý vườn</div>
-                      <div class="card-desc">
-                        Chủ vườn và nhân viên đăng nhập để làm việc.
-                      </div>
-                    </div>
-                  </div>
-                  <form id="login-form">
-                    <label for="login-username">Tài khoản</label>
-                    <input
-                      id="login-username"
-                      placeholder="Ví dụ: thanh_huyen, nhanvien01..."
-                      autocomplete="username"
-                    />
-                    <label for="login-password">Mật khẩu</label>
-                    <input
-                      id="login-password"
-                      type="password"
-                      placeholder="••••••••"
-                      autocomplete="current-password"
-                    />
-                    <div class="form-footer">
-                      <button type="submit" class="btn">Đăng nhập</button>
-                      <div class="muted small">
-                        Tài khoản nhân viên do chủ vườn cấp.
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-
-            <!-- CÂY TỪ QR (KHI VÀO ?tree=xxx) -->
-            <div id="qr-tree-preview" class="card" style="display: none">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Thông tin cây từ mã QR</div>
-                  <div class="card-desc">
-                    Dữ liệu được lấy trực tiếp từ hệ thống quản lý vườn Thanh
-                    Huyền.
-                  </div>
-                </div>
-              </div>
-              <div class="qr-tree-details">
-                <div class="qr-tree-main">
-                  <div class="qr-tree-id" id="qr-tree-preview-id">#—</div>
-                  <div>
-                    <div class="qr-tree-name" id="qr-tree-preview-name">
-                      Tên cây
-                    </div>
-                    <div class="qr-tree-meta" id="qr-tree-preview-meta">
-                      Giống · Vị trí · Chủ vườn
-                    </div>
-                  </div>
-                </div>
-                <div class="qr-tree-health" id="qr-tree-preview-health">
-                  Tình trạng
-                </div>
-                <div class="qr-tree-notes" id="qr-tree-preview-notes"></div>
-                <div class="qr-tree-extra">
-                  <div
-                    class="qr-tree-diseases"
-                    id="qr-tree-diseases"
-                  ></div>
-                  <div class="qr-tree-yield" id="qr-tree-yield"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tin tức vườn -->
-            <div class="card public-news-card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Nhật ký vườn Thanh Huyền</div>
-                  <div class="card-desc">
-                    Một vài ghi chú xoay quanh canh tác sầu riêng của vườn.
-                  </div>
-                </div>
-              </div>
-              <div class="public-news-grid">
-                <article class="news-item">
-                  <div class="news-label">CHĂM SÓC</div>
-                  <h3 class="news-title">
-                    Quản lý sâu bệnh trên sầu riêng mùa mưa
-                  </h3>
-                  <p class="news-text">
-                    Ghi chép từng lần phun thuốc, bón phân theo từng cây giúp
-                    kiểm soát lượng sử dụng và tối ưu chi phí.
-                  </p>
-                </article>
-
-                <article class="news-item">
-                  <div class="news-label">NHÂN SỰ</div>
-                  <h3 class="news-title">
-                    Phân công nhân viên theo khu, theo lô cây
-                  </h3>
-                  <p class="news-text">
-                    Nhân viên đăng nhập, xem cây cần chăm sóc và cập nhật tình
-                    trạng sau khi làm việc.
-                  </p>
-                </article>
-
-                <article class="news-item">
-                  <div class="news-label">NĂNG SUẤT</div>
-                  <h3 class="news-title">
-                    Theo dõi năng suất từng năm cho từng cây
-                  </h3>
-                  <p class="news-text">
-                    Ghi nhận năng suất theo năm giúp đánh giá hiệu quả từng cây
-                    và cả vườn.
-                  </p>
-                </article>
-              </div>
-            </div>
-          </section>
-
-          <!-- VIEW: VƯỜN (chủ vườn / nhân viên) -->
-          <section id="farm-view" class="view" style="display: none">
-            <!-- Hero vườn -->
-            <div class="card">
-              <div class="hero-card">
-                <div class="hero-main">
-                  <div class="hero-logo">🌿</div>
-                  <div>
-                    <div class="hero-title" id="farm-hero-name">
-                      Vườn sầu riêng Thanh Huyền
-                    </div>
-                    <div class="hero-desc" id="farm-hero-desc">
-                      Thông tin tổng quan cây, nhân viên và năng suất.
-                    </div>
-                  </div>
-                </div>
-                <div class="hero-stats">
-                  <div class="hero-stat">
-                    <div class="hero-stat-label">Tổng số cây</div>
-                    <div class="hero-stat-value" id="stat-total-trees">0</div>
-                  </div>
-                  <div class="hero-stat">
-                    <div class="hero-stat-label">Cây cần chú ý</div>
-                    <div
-                      class="hero-stat-value danger"
-                      id="stat-bad-trees"
-                    >
-                      0
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Quản lý nhân viên (chỉ chủ vườn) -->
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Nhân viên vườn Thanh Huyền</div>
-                  <div class="card-desc">
-                    Chủ vườn tạo tài khoản cho nhân viên, xóa khi nhân viên nghỉ
-                    việc.
-                  </div>
-                </div>
-              </div>
-              <div id="owner-staff-panel">
-                <form id="create-staff-form">
-                  <div class="field-row">
-                    <div>
-                      <label for="staff-username">Tài khoản nhân viên</label>
-                      <input
-                        id="staff-username"
-                        placeholder="VD: nhanvien01"
-                      />
-                    </div>
-                    <div>
-                      <label for="staff-password">Mật khẩu</label>
-                      <input
-                        id="staff-password"
-                        type="password"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                  </div>
-                  <div class="form-footer">
-                    <button type="submit" class="btn">
-                      Thêm nhân viên
-                    </button>
-                    <div class="muted small">
-                      Nhân viên đăng nhập bằng tài khoản này để cập nhật cây.
-                    </div>
-                  </div>
-                </form>
-                <div class="table-wrapper" style="margin-top: 10px">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Tài khoản</th>
-                        <th>Tham gia</th>
-                        <th>Thao tác</th>
-                      </tr>
-                    </thead>
-                    <tbody id="staff-table-body">
-                      <tr>
-                        <td colspan="3" class="empty-text">
-                          Đang tải danh sách nhân viên...
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div
-                id="staff-readonly-note"
-                class="muted small"
-                style="display: none; margin-top: 6px"
-              >
-                Bạn đang đăng nhập bằng tài khoản nhân viên, không có quyền quản
-                lý nhân viên.
-              </div>
-            </div>
-
-            <!-- Form tạo cây (chỉ chủ vườn) -->
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Tạo cây sầu riêng mới</div>
-                  <div class="card-desc">
-                    Nhập thông tin cây. Hệ thống sẽ tự tạo mã QR cố định cho
-                    cây này.
-                  </div>
-                </div>
-              </div>
-              <form id="create-tree-form">
-                <div class="field-row">
-                  <div>
-                    <label for="tree-name">Tên cây *</label>
-                    <input
-                      id="tree-name"
-                      placeholder="VD: SR-01, SR-02..."
-                    />
-                  </div>
-                  <div>
-                    <label for="tree-species">Giống</label>
-                    <input
-                      id="tree-species"
-                      placeholder="VD: Ri6, Monthong..."
-                    />
-                  </div>
-                </div>
-                <div class="field-row">
-                  <div>
-                    <label for="tree-location">Vị trí</label>
-                    <input
-                      id="tree-location"
-                      placeholder="VD: Lô A3, Hàng B..."
-                    />
-                  </div>
-                  <div>
-                    <label for="tree-plant-date">Ngày trồng</label>
-                    <input
-                      id="tree-plant-date"
-                      type="date"
-                      placeholder="YYYY-MM-DD"
-                    />
-                  </div>
-                </div>
-                <div class="form-footer">
-                  <button type="submit" id="create-tree-btn" class="btn">
-                    Tạo cây & QR
-                  </button>
-                  <div class="muted small">
-                    Nhân viên chỉ xem và cập nhật tình trạng / bệnh / năng suất,
-                    không tạo cây.
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <!-- Danh sách cây -->
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Danh sách cây trong vườn</div>
-                  <div class="card-desc">
-                    Cập nhật sức khỏe, bệnh, năng suất, xem mã QR và lịch sử hoạt
-                    động từng cây.
-                  </div>
-                </div>
-              </div>
-              <div class="filter-row">
-                <button
-                  type="button"
-                  class="pill-filter active"
-                  data-health="all"
-                >
-                  Tất cả
-                </button>
-                <button
-                  type="button"
-                  class="pill-filter"
-                  data-health="Tốt"
-                >
-                  Tốt
-                </button>
-                <button
-                  type="button"
-                  class="pill-filter"
-                  data-health="Bình thường"
-                >
-                  Bình thường
-                </button>
-                <button
-                  type="button"
-                  class="pill-filter"
-                  data-health="Yếu"
-                >
-                  Yếu
-                </button>
-                <button
-                  type="button"
-                  class="pill-filter"
-                  data-health="Nguy hiểm"
-                >
-                  Nguy hiểm
-                </button>
-              </div>
-              <div class="table-wrapper">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Cây</th>
-                      <th>Giống</th>
-                      <th>Vị trí</th>
-                      <th>Tình trạng</th>
-                      <th>Bệnh</th>
-                      <th>QR</th>
-                      <th>Cập nhật</th>
-                      <th>Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tree-table-body">
-                    <tr>
-                      <td colspan="9" class="empty-text">
-                        Chưa có dữ liệu.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-        </main>
-      </div>
-    </div>
-
-    <!-- QR MODAL -->
-    <div id="qr-modal-backdrop" class="modal-backdrop">
-      <div class="modal">
-        <div class="modal-header">
-          <div>
-            <div class="modal-title">Mã QR cây</div>
-            <div class="modal-subtitle">
-              Quét bằng điện thoại để mở nhanh thông tin cây.
-            </div>
-          </div>
-          <button id="qr-modal-close" class="btn-ghost small" type="button">
-            Đóng
-          </button>
-        </div>
-        <div class="modal-body">
-          <img id="qr-modal-img" class="qr-modal-img" src="" alt="QR Code" />
-
-          <div class="qr-info">
-            <div class="qr-info-line">
-              <span class="qr-label">Tên cây:</span>
-              <span id="qr-tree-name" class="qr-value"></span>
-            </div>
-            <div class="qr-info-line">
-              <span class="qr-label">Vị trí:</span>
-              <span id="qr-tree-location" class="qr-value"></span>
-            </div>
-            <div class="qr-info-line">
-              <span class="qr-label">Chủ vườn:</span>
-              <span id="qr-tree-owner" class="qr-value"></span>
-            </div>
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="logo-area">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+          class="logo-icon"
+        >
+          <circle cx="256" cy="256" r="240" fill="#16a34a" />
+          <path
+            d="M256 128c-64 48-80 144 0 240 80-96 64-192 0-240z"
+            fill="#bbf7d0"
+          />
+        </svg>
+        <div class="logo-text">
+          <div class="farm-name">THANH HUYỀN FARM</div>
+          <div class="farm-sub">
+            Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng
           </div>
         </div>
       </div>
-    </div>
+      <button id="logout-btn" class="btn-primary small hidden">Đăng xuất</button>
+    </header>
 
-    <!-- DISEASE MODAL -->
-    <div id="disease-modal-backdrop" class="modal-backdrop">
-      <div class="modal">
-        <div class="modal-header">
-          <div>
-            <div class="modal-title">Cập nhật bệnh cho cây</div>
-            <div class="modal-subtitle">
-              Chọn các bệnh hiện tại hoặc thêm bệnh mới vào danh sách.
-            </div>
+    <main class="app-shell">
+      <!-- LOGIN -->
+      <section id="login-section" class="card center">
+        <h2>Đăng nhập hệ thống 🌿</h2>
+        <form id="login-form">
+          <input
+            type="text"
+            id="username"
+            placeholder="Tài khoản"
+            required
+          /><br />
+          <input
+            type="password"
+            id="password"
+            placeholder="Mật khẩu"
+            required
+          /><br />
+          <button type="submit" class="btn-primary">Đăng nhập</button>
+        </form>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="hidden">
+        <aside class="sidebar">
+          <ul>
+            <li class="active">🏡 Tổng quan</li>
+            <li>🌳 Quản lý cây</li>
+            <li>👨‍🌾 Nhân viên</li>
+            <li>📊 Năng suất</li>
+          </ul>
+        </aside>
+
+        <div class="dashboard-content">
+          <h2 class="page-title">Bảng điều khiển vườn Thanh Huyền</h2>
+          <p id="user-role-text"></p>
+
+          <!-- CREATE TREE -->
+          <div id="create-tree-section" class="card">
+            <h3>Thêm cây mới</h3>
+            <form id="create-tree-form">
+              <input
+                type="text"
+                id="tree-name"
+                placeholder="Tên cây"
+                required
+              />
+              <input
+                type="text"
+                id="tree-species"
+                placeholder="Giống cây"
+                required
+              />
+              <input
+                type="text"
+                id="tree-location"
+                placeholder="Vị trí (VD: Lô A3)"
+                required
+              />
+              <input type="date" id="tree-date" required />
+              <input
+                type="text"
+                id="tree-image"
+                placeholder="URL ảnh cây (tùy chọn)"
+              />
+              <button type="submit" class="btn-primary">Tạo cây & QR</button>
+            </form>
           </div>
-          <button
-            id="disease-modal-close"
-            class="btn-ghost small"
-            type="button"
-          >
+
+          <!-- TREE LIST -->
+          <div id="tree-list-section" class="card">
+            <h3>Danh sách cây 🌳</h3>
+            <table id="tree-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên cây</th>
+                  <th>Giống</th>
+                  <th>Vị trí</th>
+                  <th>Tình trạng</th>
+                  <th>Bệnh</th>
+                  <th>Năng suất</th>
+                  <th>QR</th>
+                  <th>Lịch sử</th>
+                </tr>
+              </thead>
+              <tbody id="tree-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODALS -->
+      <div id="qr-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>Mã QR của cây</h3>
+          <img id="qr-image" alt="QR" />
+          <button class="btn-secondary" onclick="closeModal('qr-modal')">
             Đóng
           </button>
-        </div>
-        <div class="modal-body">
-          <div class="field-row">
-            <div>
-              <label for="disease-select">Bệnh đang có</label>
-              <select id="disease-select" multiple></select>
-              <div class="muted small">
-                Giữ Ctrl (hoặc bấm nhiều lần) để chọn nhiều bệnh.
-              </div>
-            </div>
-            <div>
-              <label for="new-disease-input">Thêm bệnh mới</label>
-              <input
-                id="new-disease-input"
-                placeholder="VD: Sâu đục thân"
-              />
-              <button
-                id="add-disease-btn"
-                class="btn-ghost small"
-                type="button"
-                style="margin-top: 4px"
-              >
-                Thêm vào danh sách
-              </button>
-            </div>
-          </div>
-          <div class="form-footer" style="margin-top: 10px">
-            <button id="save-disease-btn" class="btn" type="button">
-              Lưu danh sách bệnh
-            </button>
-          </div>
         </div>
       </div>
-    </div>
 
-    <!-- YIELD MODAL -->
-    <div id="yield-modal-backdrop" class="modal-backdrop">
-      <div class="modal">
-        <div class="modal-header">
-          <div>
-            <div class="modal-title">Năng suất theo năm</div>
-            <div class="modal-subtitle">
-              Thêm số kg thu hoạch theo từng năm cho cây này.
-            </div>
-          </div>
-          <button id="yield-modal-close" class="btn-ghost small" type="button">
-            Đóng
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="field-row">
-            <div>
-              <label for="yield-year-input">Năm</label>
-              <input
-                id="yield-year-input"
-                type="number"
-                placeholder="VD: 2021"
-              />
-            </div>
-            <div>
-              <label for="yield-qty-input">Sản lượng (kg)</label>
-              <input
-                id="yield-qty-input"
-                type="number"
-                placeholder="VD: 20000"
-              />
-            </div>
-          </div>
-          <div class="form-footer" style="margin-top: 8px">
-            <button id="add-yield-btn" class="btn" type="button">
+      <div id="yield-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>Năng suất cây 🌾</h3>
+          <canvas id="yield-chart"></canvas>
+          <form id="yield-form">
+            <input type="number" id="yield-year" placeholder="Năm" required />
+            <input
+              type="number"
+              id="yield-quantity"
+              placeholder="Sản lượng (kg)"
+              required
+            />
+            <button type="submit" class="btn-primary small">
               Lưu năng suất
             </button>
-            <div class="muted small">
-              Nếu đã có năm đó, số kg sẽ được cập nhật lại.
-            </div>
-          </div>
-
-          <div style="margin-top: 12px">
-            <canvas id="yield-chart" height="180"></canvas>
-          </div>
-
-          <div class="yield-list" id="yield-list"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LOGS MODAL -->
-    <div id="logs-modal-backdrop" class="modal-backdrop">
-      <div class="modal">
-        <div class="modal-header">
-          <div>
-            <div class="modal-title">Lịch sử hoạt động cây</div>
-            <div class="modal-subtitle">
-              Xem ai đã thay đổi gì và vào lúc nào.
-            </div>
-          </div>
-          <button id="logs-modal-close" class="btn-ghost small" type="button">
+          </form>
+          <button class="btn-secondary" onclick="closeModal('yield-modal')">
             Đóng
           </button>
         </div>
-        <div class="modal-body">
-          <div
-            id="logs-list"
-            style="max-height: 260px; overflow: auto; font-size: 12px"
-          ></div>
+      </div>
+
+      <div id="logs-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>Lịch sử hoạt động 🌿</h3>
+          <div id="logs-container"></div>
+          <button class="btn-secondary" onclick="closeModal('logs-modal')">
+            Đóng
+          </button>
         </div>
       </div>
-    </div>
+    </main>
 
-    <!-- TOAST -->
-    <div id="toast" class="toast"></div>
+    <footer>
+      🌿 <b>Thanh Huyền Farm</b> | Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng
+      <br />
+      Hotline: 0909.123.456 | Facebook: /thanhhuyenfarm | Zalo: @thanhhuyenfarm
+    </footer>
 
     <script>
-      // ==== CONFIG API ====
-      // Nếu frontend & backend cùng server: để trống "" là tự gọi cùng domain
+      // Dùng relative path vì index.html được serve cùng domain với API
       const API_BASE = "";
-      // Nếu backend tách riêng (Render), sửa thành:
-      // const API_BASE = "https://ten-backend.onrender.com";
 
       let currentUser = null;
-      let authToken = null;
-      let treesCache = [];
-      let staffCache = [];
-      let diseaseMasterList = [
-        "Sâu đục thân",
-        "Thối rễ",
-        "Nứt thân xì mủ",
-        "Vàng lá",
-      ];
+      let token = null;
 
-      let currentTreeForDisease = null;
-      let currentTreeForYield = null;
-      let currentYieldChart = null;
-
-      // === THEME ===
-      function hexToRgba(hex, alpha) {
-        try {
-          let c = hex.replace("#", "");
-          if (c.length === 3) {
-            c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
-          }
-          const r = parseInt(c.slice(0, 2), 16);
-          const g = parseInt(c.slice(2, 4), 16);
-          const b = parseInt(c.slice(4, 6), 16);
-          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        } catch (e) {
-          return "rgba(22, 163, 74, 0.18)";
-        }
-      }
-
-      function applyThemeForUser(user) {
-        const root = document.documentElement;
-        const color =
-          (user && user.farmPrimaryColor && user.farmPrimaryColor.trim()) ||
-          "#16a34a";
-        root.style.setProperty("--accent", color);
-        root.style.setProperty("--accent-soft", hexToRgba(color, 0.14));
-      }
-
-      // === TOAST ===
-      function showToast(message, isError = false) {
-        const toast = document.getElementById("toast");
-        toast.textContent = message;
-        toast.classList.toggle("error", isError);
-        toast.classList.add("show");
-        setTimeout(() => {
-          toast.classList.remove("show");
-        }, 2600);
-      }
-
-      // === VIEW SWITCH ===
-      function showView(viewId) {
-        const views = ["public-view", "farm-view"];
-        views.forEach((id) => {
-          const el = document.getElementById(id);
-          if (!el) return;
-          el.style.display = id === viewId ? "block" : "none";
-        });
-
-        document.querySelectorAll(".nav-item").forEach((btn) => {
-          btn.classList.remove("nav-item-active");
-        });
-        if (viewId === "public-view") {
-          document.getElementById("nav-public").classList.add("nav-item-active");
-        } else if (viewId === "farm-view") {
-          document.getElementById("nav-farm").classList.add("nav-item-active");
-        }
-      }
-
-      function updateTopbarInfo() {
-        const chip = document.getElementById("user-chip");
-        const chipName = document.getElementById("user-chip-name");
-        const logoutBtn = document.getElementById("logout-btn");
-        const subtitle = document.getElementById("topbar-subtitle");
-
-        if (!currentUser) {
-          chip.style.display = "none";
-          logoutBtn.style.display = "none";
-          subtitle.textContent =
-            "Quản lý cây, nhân viên và năng suất theo năm.";
-          return;
-        }
-
-        chip.style.display = "inline-flex";
-        logoutBtn.style.display = "inline-flex";
-        chipName.textContent = `${currentUser.username} (${currentUser.role})`;
-
-        if (currentUser.role === "owner") {
-          subtitle.textContent =
-            currentUser.farmName || "Trang quản lý vườn Thanh Huyền";
-        } else {
-          subtitle.textContent = "Trang làm việc của nhân viên vườn Thanh Huyền";
-        }
-      }
-
-      function updateUIForLoggedOut() {
-        currentUser = null;
-        authToken = null;
-        applyThemeForUser(null);
-        updateTopbarInfo();
-        showView("public-view");
-      }
-
-      function updateUIAfterLogin() {
-        if (!currentUser) return;
-        applyThemeForUser(currentUser);
-        updateTopbarInfo();
-        showView("farm-view");
-        loadTrees();
-        if (currentUser.role === "owner") {
-          loadStaff();
-          document.getElementById("owner-staff-panel").style.display = "block";
-          document.getElementById("staff-readonly-note").style.display = "none";
-          document.getElementById("create-tree-form").style.display = "block";
-        } else {
-          document.getElementById("owner-staff-panel").style.display = "none";
-          document.getElementById("staff-readonly-note").style.display =
-            "block";
-          document.getElementById("create-tree-form").style.display = "none";
-        }
-      }
-
-      // === API WRAPPER ===
-      async function apiFetch(path, options = {}) {
-        const url = API_BASE ? `${API_BASE}${path}` : path;
-        const headers = options.headers || {};
-        if (authToken) {
-          headers["Authorization"] = `Bearer ${authToken}`;
-        }
-        if (!headers["Content-Type"] && options.body) {
-          headers["Content-Type"] = "application/json";
-        }
-        const res = await fetch(url, { ...options, headers });
-        let data = null;
-        try {
-          data = await res.json();
-        } catch (e) {}
-        if (!res.ok) {
-          const msg = (data && data.error) || "Lỗi kết nối server";
-          throw new Error(msg);
-        }
-        return data;
-      }
-
-      // === LOGIN / LOGOUT ===
+      // LOGIN
       document
         .getElementById("login-form")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-          const username = document.getElementById("login-username").value.trim();
-          const password = document.getElementById("login-password").value.trim();
-          if (!username || !password) {
-            showToast("Vui lòng nhập tài khoản và mật khẩu", true);
-            return;
-          }
-          try {
-            const data = await apiFetch("/auth/login", {
-              method: "POST",
-              body: JSON.stringify({ username, password }),
-            });
-            authToken = data.token;
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+
+          const res = await fetch(`${API_BASE}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          if (data.token) {
+            token = data.token;
             currentUser = data.user;
-            localStorage.setItem("authToken", authToken);
-            localStorage.setItem("currentUser", JSON.stringify(currentUser));
-            showToast("Đăng nhập thành công");
-            updateUIAfterLogin();
-          } catch (err) {
-            showToast(err.message, true);
-          }
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("dashboard").classList.remove("hidden");
+            document
+              .getElementById("logout-btn")
+              .classList.remove("hidden");
+            document.getElementById(
+              "user-role-text"
+            ).innerText = `Xin chào ${currentUser.username} – Vai trò: ${currentUser.role}`;
+            loadTrees();
+          } else alert("Sai tài khoản hoặc mật khẩu");
         });
 
-      document.getElementById("logout-btn").addEventListener("click", () => {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("currentUser");
-        showToast("Đã đăng xuất");
-        updateUIForLoggedOut();
-      });
-
-      // === NAV BUTTONS ===
-      document.getElementById("nav-public").addEventListener("click", () => {
-        if (!currentUser) {
-          showView("public-view");
-        } else {
-          showView("farm-view");
-        }
-      });
-
-      document.getElementById("nav-farm").addEventListener("click", () => {
-        if (!currentUser) {
-          showToast("Vui lòng đăng nhập để vào vườn", true);
-          return;
-        }
-        showView("farm-view");
-        loadTrees();
-        if (currentUser.role === "owner") loadStaff();
-      });
-
-      // === STAFF (owner) ===
-      async function loadStaff() {
-        try {
-          const staff = await apiFetch("/owner/staff", {
-            method: "GET",
-          });
-          staffCache = staff || [];
-          renderStaff();
-        } catch (err) {
-          staffCache = [];
-          renderStaff();
-        }
-      }
-
-      function renderStaff() {
-        const body = document.getElementById("staff-table-body");
-        if (!staffCache.length) {
-          body.innerHTML =
-            '<tr><td colspan="3" class="empty-text">Chưa có nhân viên nào.</td></tr>';
-          return;
-        }
-        body.innerHTML = staffCache
-          .map((s) => {
-            const created =
-              (s.createdAt && s.createdAt.slice(0, 10)) || "—";
-            return `
-          <tr>
-            <td>${s.username}</td>
-            <td>${created}</td>
-            <td>
-              <button class="btn-table danger-btn" type="button" onclick="deleteStaff('${s._id}')">
-                Xóa
-              </button>
-            </td>
-          </tr>
-        `;
-          })
-          .join("");
-      }
-
+      // LOGOUT
       document
-        .getElementById("create-staff-form")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          if (!currentUser || currentUser.role !== "owner") {
-            showToast("Chỉ chủ vườn mới tạo nhân viên", true);
-            return;
-          }
-          const username = document
-            .getElementById("staff-username")
-            .value.trim();
-          const password = document
-            .getElementById("staff-password")
-            .value.trim();
-          if (!username || !password) {
-            showToast("Vui lòng nhập tài khoản và mật khẩu nhân viên", true);
-            return;
-          }
-          try {
-            await apiFetch("/owner/staff", {
-              method: "POST",
-              body: JSON.stringify({ username, password }),
-            });
-            showToast("Đã tạo nhân viên");
-            e.target.reset();
-            loadStaff();
-          } catch (err) {
-            showToast("Không thể tạo nhân viên: " + err.message, true);
-          }
-        });
+        .getElementById("logout-btn")
+        .addEventListener("click", () => location.reload());
 
-      window.deleteStaff = async function (id) {
-        if (!confirm("Bạn có chắc muốn xóa nhân viên này?")) return;
-        try {
-          await apiFetch(`/api/staff/${id}`, { method: "DELETE" });
-          staffCache = staffCache.filter((s) => s._id !== id);
-          renderStaff();
-          showToast("Đã xóa nhân viên");
-        } catch (err) {
-          showToast("Không thể xóa nhân viên: " + err.message, true);
-        }
-      };
-
-      // === TREES (owner / staff) ===
-      async function loadTrees() {
-        try {
-          const trees = await apiFetch("/api/trees", {
-            method: "GET",
-          });
-          treesCache = trees || [];
-          renderTrees();
-        } catch (err) {
-          showToast("Không thể tải danh sách cây: " + err.message, true);
-        }
-      }
-
-      function renderTrees(filterHealth = "all") {
-        const body = document.getElementById("tree-table-body");
-        if (!treesCache || treesCache.length === 0) {
-          body.innerHTML =
-            '<tr><td colspan="9" class="empty-text">Chưa có cây nào trong vườn.</td></tr>';
-          document.getElementById("stat-total-trees").textContent = "0";
-          document.getElementById("stat-bad-trees").textContent = "0";
-          return;
-        }
-
-        let filtered = treesCache;
-        if (filterHealth !== "all") {
-          filtered = treesCache.filter((t) => t.currentHealth === filterHealth);
-        }
-
-        if (!filtered.length) {
-          body.innerHTML =
-            '<tr><td colspan="9" class="empty-text">Không có cây nào khớp bộ lọc.</td></tr>';
-        } else {
-          body.innerHTML = filtered
-            .map((tree) => {
-              const id = tree.numericId || "";
-              const name = tree.name || "";
-              const species = tree.species || "";
-              const location = tree.location || "";
-              const health = tree.currentHealth || "";
-              const diseases = (tree.diseases || []).join(", ");
-              const updated =
-                (tree.updatedAt && tree.updatedAt.slice(0, 10)) || "";
-              const isOwner =
-                currentUser &&
-                currentUser.role === "owner" &&
-                tree.owner &&
-                tree.owner._id === currentUser.id;
-
-              return `
-          <tr>
-            <td>${id}</td>
-            <td>${name}</td>
-            <td>${species}</td>
-            <td>${location}</td>
-            <td>${health}</td>
-            <td>${diseases || "—"}</td>
-            <td>
-              ${
-                tree.qrCode
-                  ? `<button class="btn-table" type="button" onclick="openQrModal('${tree._id}')">QR</button>`
-                  : '<span class="qr-thumb-empty">Chưa có</span>'
-              }
-            </td>
-            <td>${updated}</td>
-            <td>
-              <button class="btn-table" type="button" onclick="updateTreePrompt('${tree._id}')">
-                Tình trạng
-              </button>
-              <button class="btn-table" type="button" onclick="openDiseaseModal('${tree._id}')">
-                Bệnh
-              </button>
-              <button class="btn-table" type="button" onclick="openYieldModal('${tree._id}')">
-                Năng suất
-              </button>
-              <button class="btn-table" type="button" onclick="openLogsModal('${tree._id}')">
-                Lịch sử
-              </button>
-              ${
-                isOwner
-                  ? `
-              <button class="btn-table danger-btn" type="button" onclick="deleteTree('${tree._id}')">
-                Xóa
-              </button>
-              `
-                  : ""
-              }
-            </td>
-          </tr>
-        `;
-            })
-            .join("");
-        }
-
-        document.getElementById("stat-total-trees").textContent =
-          treesCache.length.toString();
-        const badCount = treesCache.filter((t) =>
-          ["Yếu", "Nguy hiểm"].includes(t.currentHealth)
-        ).length;
-        document.getElementById("stat-bad-trees").textContent =
-          badCount.toString();
-
-        const heroNameEl = document.getElementById("farm-hero-name");
-        const heroDescEl = document.getElementById("farm-hero-desc");
-        if (currentUser && currentUser.role === "owner") {
-          heroNameEl.textContent =
-            currentUser.farmName || "Vườn sầu riêng Thanh Huyền";
-          heroDescEl.textContent = `Chủ vườn: ${currentUser.username}`;
-        } else if (currentUser && currentUser.role === "staff") {
-          heroNameEl.textContent =
-            currentUser.farmName || "Vườn sầu riêng Thanh Huyền";
-          heroDescEl.textContent = `Nhân viên: ${currentUser.username}`;
-        }
-      }
-
-      document.querySelectorAll(".pill-filter").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          document
-            .querySelectorAll(".pill-filter")
-            .forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          const h = btn.getAttribute("data-health");
-          renderTrees(h || "all");
-        });
-      });
-
-      // tạo cây
+      // CREATE TREE
       document
         .getElementById("create-tree-form")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-          if (!currentUser || currentUser.role !== "owner") {
-            showToast("Chỉ chủ vườn mới được tạo cây mới", true);
-            return;
-          }
-          const name = document.getElementById("tree-name").value.trim();
-          const species = document.getElementById("tree-species").value.trim();
-          const location = document.getElementById("tree-location").value.trim();
-          const plantDate = document
-            .getElementById("tree-plant-date")
-            .value.trim();
+          const name = document.getElementById("tree-name").value;
+          const species = document.getElementById("tree-species").value;
+          const location = document.getElementById("tree-location").value;
+          const plantDate = document.getElementById("tree-date").value;
+          const imageURL = document.getElementById("tree-image").value;
 
-          if (!name) {
-            showToast("Vui lòng nhập tên cây", true);
-            return;
-          }
-
-          try {
-            const newTree = await apiFetch("/api/trees", {
-              method: "POST",
-              body: JSON.stringify({
-                name,
-                species,
-                location,
-                plantDate,
-              }),
-            });
-            showToast("Tạo cây thành công");
-            treesCache.unshift(newTree);
-            renderTrees(
-              document.querySelector(".pill-filter.active").dataset.health ||
-                "all"
-            );
-            e.target.reset();
-          } catch (err) {
-            showToast("Không thể tạo cây: " + err.message, true);
-          }
-        });
-
-      // update tree health
-      window.updateTreePrompt = async function (id) {
-        const tree = treesCache.find((t) => t._id === id);
-        if (!tree) return;
-        const health = prompt(
-          "Nhập tình trạng (Tốt / Bình thường / Yếu / Nguy hiểm):",
-          tree.currentHealth || "Bình thường"
-        );
-        if (!health) return;
-        const notes = prompt("Ghi chú chăm sóc:", tree.notes || "");
-        try {
-          const updated = await apiFetch(`/api/trees/${id}/health`, {
-            method: "PATCH",
-            body: JSON.stringify({ currentHealth: health, notes }),
+          const res = await fetch(`${API_BASE}/api/trees`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              name,
+              species,
+              location,
+              plantDate,
+              imageURL,
+            }),
           });
-          showToast("Đã cập nhật cây");
-          const idx = treesCache.findIndex((t) => t._id === id);
-          if (idx >= 0) treesCache[idx] = updated.tree;
-          renderTrees(
-            document.querySelector(".pill-filter.active").dataset.health ||
-              "all"
-          );
-        } catch (err) {
-          showToast("Lỗi cập nhật cây: " + err.message, true);
-        }
-      };
-
-      // delete tree
-      window.deleteTree = async function (id) {
-        if (!confirm("Bạn có chắc muốn xoá cây này?")) return;
-        try {
-          await apiFetch(`/api/trees/${id}`, { method: "DELETE" });
-          treesCache = treesCache.filter((t) => t._id !== id);
-          renderTrees(
-            document.querySelector(".pill-filter.active").dataset.health ||
-              "all"
-          );
-          showToast("Đã xoá cây");
-        } catch (err) {
-          showToast("Không thể xoá cây: " + err.message, true);
-        }
-      };
-
-      // QR modal
-      window.openQrModal = function (id) {
-        const tree = treesCache.find((t) => t._id === id);
-        if (!tree) return;
-        const modal = document.getElementById("qr-modal-backdrop");
-        const img = document.getElementById("qr-modal-img");
-        const nameEl = document.getElementById("qr-tree-name");
-        const locationEl = document.getElementById("qr-tree-location");
-        const ownerEl = document.getElementById("qr-tree-owner");
-
-        img.src = tree.qrCode || "";
-        nameEl.textContent = tree.name || "—";
-        locationEl.textContent = tree.location || "—";
-
-        const ownerName =
-          (tree.owner && (tree.owner.farmName || tree.owner.username)) ||
-          (currentUser && currentUser.farmName) ||
-          (currentUser && currentUser.username) ||
-          "—";
-        ownerEl.textContent = ownerName;
-
-        modal.classList.add("show");
-      };
-
-      document
-        .getElementById("qr-modal-close")
-        .addEventListener("click", () => {
-          document
-            .getElementById("qr-modal-backdrop")
-            .classList.remove("show");
-        });
-      document
-        .getElementById("qr-modal-backdrop")
-        .addEventListener("click", (e) => {
-          if (e.target.id === "qr-modal-backdrop") {
-            document
-              .getElementById("qr-modal-backdrop")
-              .classList.remove("show");
-          }
+          const data = await res.json();
+          if (data.tree) {
+            alert("✅ Đã thêm cây mới");
+            loadTrees();
+          } else alert("Lỗi tạo cây!");
         });
 
-      // === DISEASE MODAL ===
-      function fillDiseaseSelect(selectedDiseases) {
-        const select = document.getElementById("disease-select");
-        select.innerHTML = "";
-        diseaseMasterList.forEach((d) => {
-          const opt = document.createElement("option");
-          opt.value = d;
-          opt.textContent = d;
-          if (selectedDiseases.includes(d)) opt.selected = true;
-          select.appendChild(opt);
+      // LOAD TREES
+      async function loadTrees() {
+        const res = await fetch(`${API_BASE}/api/trees`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const trees = await res.json();
+        const tbody = document.getElementById("tree-table-body");
+        tbody.innerHTML = "";
+        trees.forEach((t) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${t.numericId}</td>
+            <td>${t.name}</td>
+            <td>${t.species}</td>
+            <td>${t.location}</td>
+            <td>${t.currentHealth}</td>
+            <td><button class="btn-secondary small" onclick="updateDiseases('${t._id}')">Bệnh</button></td>
+            <td><button class="btn-secondary small" onclick="openYieldModal('${t._id}')">Xem</button></td>
+            <td><button class="btn-secondary small" onclick="openQrModal('${t.qrCode}')">QR</button></td>
+            <td><button class="btn-secondary small" onclick="openLogs('${t._id}')">Xem</button></td>
+          `;
+          tbody.appendChild(row);
         });
       }
 
-      window.openDiseaseModal = function (treeId) {
-        const tree = treesCache.find((t) => t._id === treeId);
-        if (!tree) return;
-        currentTreeForDisease = tree;
-        (tree.diseases || []).forEach((d) => {
-          if (d && !diseaseMasterList.includes(d)) {
-            diseaseMasterList.push(d);
-          }
+      // MODALS
+      function openQrModal(qr) {
+        document.getElementById("qr-image").src = qr;
+        document.getElementById("qr-modal").classList.remove("hidden");
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.add("hidden");
+      }
+
+      async function updateDiseases(id) {
+        const diseases = prompt("Nhập các bệnh (phân tách dấu phẩy):");
+        if (!diseases) return;
+        await fetch(`${API_BASE}/api/trees/${id}/diseases`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            diseases: diseases.split(",").map((d) => d.trim()),
+          }),
         });
-        fillDiseaseSelect(tree.diseases || []);
-        document.getElementById("new-disease-input").value = "";
-        document
-          .getElementById("disease-modal-backdrop")
-          .classList.add("show");
-      };
+        loadTrees();
+      }
 
-      document
-        .getElementById("disease-modal-close")
-        .addEventListener("click", () => {
-          document
-            .getElementById("disease-modal-backdrop")
-            .classList.remove("show");
+      let chartInstance = null;
+      async function openYieldModal(treeId) {
+        document.getElementById("yield-modal").classList.remove("hidden");
+        const res = await fetch(`${API_BASE}/api/trees`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-      document
-        .getElementById("disease-modal-backdrop")
-        .addEventListener("click", (e) => {
-          if (e.target.id === "disease-modal-backdrop") {
-            document
-              .getElementById("disease-modal-backdrop")
-              .classList.remove("show");
-          }
-        });
-
-      document
-        .getElementById("add-disease-btn")
-        .addEventListener("click", () => {
-          const input = document
-            .getElementById("new-disease-input")
-            .value.trim();
-          if (!input) return;
-          if (!diseaseMasterList.includes(input)) {
-            diseaseMasterList.push(input);
-          }
-          fillDiseaseSelect(
-            currentTreeForDisease ? currentTreeForDisease.diseases || [] : []
-          );
-          document.getElementById("new-disease-input").value = "";
-        });
-
-      document
-        .getElementById("save-disease-btn")
-        .addEventListener("click", async () => {
-          if (!currentTreeForDisease) return;
-          const select = document.getElementById("disease-select");
-          const values = Array.from(select.selectedOptions).map(
-            (o) => o.value
-          );
-          try {
-            const updated = await apiFetch(
-              `/api/trees/${currentTreeForDisease._id}/diseases`,
-              {
-                method: "PATCH",
-                body: JSON.stringify({ diseases: values }),
-              }
-            );
-            showToast("Đã cập nhật bệnh cho cây");
-            const idx = treesCache.findIndex(
-              (t) => t._id === currentTreeForDisease._id
-            );
-            if (idx >= 0) treesCache[idx] = updated.tree;
-            renderTrees(
-              document.querySelector(".pill-filter.active").dataset.health ||
-                "all"
-            );
-            document
-              .getElementById("disease-modal-backdrop")
-              .classList.remove("show");
-          } catch (err) {
-            showToast("Không thể cập nhật bệnh: " + err.message, true);
-          }
-        });
-
-      // === YIELD MODAL (năng suất, biểu đồ) ===
-      function renderYieldForTree(tree) {
-        const listEl = document.getElementById("yield-list");
-        const canvas = document.getElementById("yield-chart");
-        const ctx = canvas.getContext("2d");
-
-        const history = (tree.yieldHistory || []).slice().sort((a, b) => {
-          return a.year - b.year;
-        });
-
-        if (!history.length) {
-          listEl.innerHTML =
-            '<div class="muted small">Chưa có dữ liệu năng suất. Thêm ở bên trên.</div>';
-        } else {
-          listEl.innerHTML =
-            "<div class='muted small'>Dữ liệu hiện tại:</div>" +
-            "<ul class='yield-ul'>" +
-            history
-              .map(
-                (h) => `<li>${h.year}: <strong>${h.quantity} kg</strong></li>`
-              )
-              .join("") +
-            "</ul>";
-        }
-
-        const labels = history.map((h) => h.year);
-        const data = history.map((h) => h.quantity);
-
-        if (currentYieldChart) {
-          currentYieldChart.destroy();
-        }
-
-        currentYieldChart = new Chart(ctx, {
+        const trees = await res.json();
+        const tree = trees.find((t) => t._id === treeId);
+        const ctx = document.getElementById("yield-chart").getContext("2d");
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
           type: "bar",
           data: {
-            labels,
+            labels: tree.yieldHistory.map((y) => y.year),
             datasets: [
               {
                 label: "Năng suất (kg)",
-                data,
-                backgroundColor: "rgba(22, 163, 74, 0.7)",
+                data: tree.yieldHistory.map((y) => y.quantity),
+                backgroundColor: "#16a34a",
               },
             ],
           },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-              },
-            },
-          },
+          options: { responsive: true, scales: { y: { beginAtZero: true } } },
         });
+        document
+          .getElementById("yield-form")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const year = document.getElementById("yield-year").value;
+            const quantity = document.getElementById("yield-quantity").value;
+            await fetch(`${API_BASE}/api/trees/${treeId}/yield`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ year, quantity }),
+            });
+            alert("Đã lưu năng suất");
+            closeModal("yield-modal");
+            loadTrees();
+          });
       }
 
-      window.openYieldModal = function (treeId) {
-        const tree = treesCache.find((t) => t._id === treeId);
-        if (!tree) return;
-        currentTreeForYield = tree;
-        document.getElementById("yield-year-input").value = "";
-        document.getElementById("yield-qty-input").value = "";
-        renderYieldForTree(tree);
-        document
-          .getElementById("yield-modal-backdrop")
-          .classList.add("show");
-      };
-
-      document
-        .getElementById("yield-modal-close")
-        .addEventListener("click", () => {
-          document
-            .getElementById("yield-modal-backdrop")
-            .classList.remove("show");
+      async function openLogs(treeId) {
+        document.getElementById("logs-modal").classList.remove("hidden");
+        const res = await fetch(`${API_BASE}/api/trees/${treeId}/logs`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-      document
-        .getElementById("yield-modal-backdrop")
-        .addEventListener("click", (e) => {
-          if (e.target.id === "yield-modal-backdrop") {
-            document
-              .getElementById("yield-modal-backdrop")
-              .classList.remove("show");
-          }
-        });
-
-      document
-        .getElementById("add-yield-btn")
-        .addEventListener("click", async () => {
-          if (!currentTreeForYield) return;
-          const year = document
-            .getElementById("yield-year-input")
-            .value.trim();
-          const quantity = document
-            .getElementById("yield-qty-input")
-            .value.trim();
-          if (!year || !quantity) {
-            showToast("Vui lòng nhập năm và số kg", true);
-            return;
-          }
-          try {
-            const updated = await apiFetch(
-              `/api/trees/${currentTreeForYield._id}/yield`,
-              {
-                method: "POST",
-                body: JSON.stringify({ year, quantity }),
-              }
-            );
-            showToast("Đã lưu năng suất");
-            const idx = treesCache.findIndex(
-              (t) => t._id === currentTreeForYield._id
-            );
-            if (idx >= 0) treesCache[idx] = updated.tree;
-            currentTreeForYield = updated.tree;
-            renderYieldForTree(updated.tree);
-            renderTrees(
-              document.querySelector(".pill-filter.active").dataset.health ||
-                "all"
-            );
-          } catch (err) {
-            showToast("Không thể lưu năng suất: " + err.message, true);
-          }
-        });
-
-      // === LOGS MODAL ===
-      window.openLogsModal = async function (treeId) {
-        const backdrop = document.getElementById("logs-modal-backdrop");
-        const listEl = document.getElementById("logs-list");
-        listEl.innerHTML = "Đang tải lịch sử...";
-        backdrop.classList.add("show");
-        try {
-          const logs = await apiFetch(`/api/trees/${treeId}/logs`, {
-            method: "GET",
-          });
-          if (!logs.length) {
-            listEl.innerHTML =
-              "<div class='muted small'>Chưa có hoạt động nào được ghi lại.</div>";
-           
+        const logs = await res.json();
+        document.getElementById("logs-container").innerHTML = logs
+          .map(
+            (l) =>
+              `<div class='log-item'><b>${l.username}</b> – ${l.action}<br>${l.details}<br><span>${new Date(
+                l.createdAt
+              ).toLocaleString()}</span></div>`
+          )
+          .join("");
+      }
+    </script>
+  </body>
+</html>

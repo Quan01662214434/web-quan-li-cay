@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cây sầu riêng - Thanh Huyền Farm 🌿</title>
+    <link rel="stylesheet" href="public.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+          class="logo-icon"
+        >
+          <circle cx="256" cy="256" r="240" fill="#16a34a" />
+          <path
+            d="M256 128c-64 48-80 144 0 240 80-96 64-192 0-240z"
+            fill="#bbf7d0"
+          />
+        </svg>
+        <div class="text">
+          <h1>THANH HUYỀN FARM</h1>
+          <p>Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div id="tree-info" class="card">
+        <h2>🌳 Thông tin cây</h2>
+        <img id="tree-image" alt="Hình cây" class="tree-photo hidden" />
+        <p><b>Tên cây:</b> <span id="tree-name"></span></p>
+        <p><b>Giống:</b> <span id="tree-species"></span></p>
+        <p><b>Vị trí:</b> <span id="tree-location"></span></p>
+        <p><b>Tình trạng:</b> <span id="tree-health"></span></p>
+        <p><b>Ghi chú:</b> <span id="tree-notes"></span></p>
+        <p><b>Chủ vườn:</b> <span id="tree-owner"></span></p>
+      </div>
+
+      <div id="yield-info" class="card">
+        <h2>📊 Năng suất theo năm</h2>
+        <canvas id="yield-chart"></canvas>
+      </div>
+    </main>
+
+    <footer>
+      🌿 <b>Thanh Huyền Farm</b> © 2025
+      <br />Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng
+    </footer>
+
+    <script>
+      // vì public.html được serve chung host với server
+      const API_BASE = "";
+
+      // /public/123 => lấy 123
+      const path = window.location.pathname;
+      const numericId = path.split("/").pop();
+
+      async function loadTree() {
+        try {
+          const res = await fetch(`${API_BASE}/public/tree/${numericId}`);
+          const tree = await res.json();
+
+          if (!tree || tree.error) {
+            document.body.innerHTML =
+              "<h2>❌ Không tìm thấy thông tin cây!</h2>";
+            return;
+          }
+
+          document.getElementById("tree-name").textContent = tree.name;
+          document.getElementById("tree-species").textContent = tree.species;
+          document.getElementById("tree-location").textContent = tree.location;
+          document.getElementById("tree-health").textContent =
+            tree.currentHealth;
+          document.getElementById("tree-notes").textContent =
+            tree.notes || "-";
+          document.getElementById("tree-owner").textContent =
+            tree.owner?.farmName || "Thanh Huyền Farm";
+
+          if (tree.imageURL) {
+            const img = document.getElementById("tree-image");
+            img.src = tree.imageURL;
+            img.classList.remove("hidden");
+          }
+
+          const ctx = document.getElementById("yield-chart").getContext("2d");
+          new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: tree.yieldHistory.map((y) => y.year),
+              datasets: [
+                {
+                  label: "Năng suất (kg)",
+                  data: tree.yieldHistory.map((y) => y.quantity),
+                  backgroundColor: "#16a34a",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: { y: { beginAtZero: true } },
+            },
+          });
+        } catch (err) {
+          document.body.innerHTML = "<h2>Lỗi khi tải dữ liệu cây!</h2>";
+        }
+      }
+
+      loadTree();
+    </script>
+  </body>
+</html>
