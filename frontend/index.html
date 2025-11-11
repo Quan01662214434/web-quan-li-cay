@@ -3,40 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thanh Huyền Farm – Quản lý vườn VietGAP</title>
+    <title>Thanh Huyền Farm - Quản lý cây</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
 
   <body>
-    <!-- HEADER -->
-    <header class="app-header">
-      <div class="header-left">
-        <img src="logo.svg" class="logo" />
-        <div class="header-title">
-          <span class="brand-name">Thanh Huyền Farm</span>
-          <span class="brand-subtitle">Vườn sầu riêng VietGAP</span>
-        </div>
+    <header class="header">
+      <div class="logo">
+        <img src="logo.svg" alt="Thanh Huyền Farm" />
+        <h1>Thanh Huyền Farm</h1>
       </div>
-      <button id="menuBtn" class="hamburger">
-        <span></span><span></span><span></span>
-      </button>
+      <button id="menuBtn" class="menu-btn">☰</button>
     </header>
 
-    <!-- MENU SIDEBAR -->
-    <nav id="sideMenu" class="sidebar">
+    <nav id="sidebar" class="sidebar">
       <ul>
-        <li><a href="#" id="menuDashboard">🏡 Trang chính</a></li>
-        <li><a href="#" id="menuAddTree">🌳 Thêm cây</a></li>
-        <li><a href="#" id="menuChart">📊 Năng suất</a></li>
-        <li><a href="#" id="logoutBtn">🚪 Đăng xuất</a></li>
+        <li><a id="menuDashboard">🌳 Quản lý cây</a></li>
+        <li><a id="menuStaff">👷 Nhân viên</a></li>
+        <li><a id="menuLogs">🧾 Lịch sử</a></li>
+        <li><a id="menuLogout">🚪 Đăng xuất</a></li>
       </ul>
     </nav>
 
     <!-- LOGIN -->
-    <section id="loginSection">
-      <div class="login-card card">
-        <h2>Đăng nhập</h2>
+    <section id="loginSection" class="center">
+      <div class="login-card">
+        <h2>Đăng nhập hệ thống</h2>
         <input id="username" placeholder="Tên đăng nhập" />
         <input id="password" type="password" placeholder="Mật khẩu" />
         <button id="loginBtn" class="btn-primary full-width">Đăng nhập</button>
@@ -44,105 +36,118 @@
     </section>
 
     <!-- DASHBOARD -->
-    <section id="dashboardSection" class="hidden section">
-      <div class="farm-vietgap-card">
-        <div class="vietgap-logo-circle"><span class="vg-text">VG</span></div>
-        <div class="farm-vietgap-info">
-          <div class="farm-vietgap-title">Vườn đạt chuẩn VietGAP</div>
-          <div class="farm-vietgap-detail">Mã số: <b id="farmVietgap">TH-VG-001</b></div>
-        </div>
-      </div>
-
+    <section id="dashboard" class="hidden">
       <div class="top-bar">
-        <input type="text" id="searchTree" placeholder="🔍 Tìm cây theo tên, giống, vị trí, VietGAP, ghi chú..." />
-        <button id="refreshBtn" class="btn-primary small">Làm mới</button>
+        <input
+          id="searchTree"
+          type="text"
+          placeholder="🔍 Tìm cây theo tên, giống, vị trí, mã VietGAP..."
+        />
+        <button id="addTreeBtn" class="btn-primary small">+ Cây</button>
       </div>
-
       <div id="treeList" class="tree-list"></div>
     </section>
 
-    <!-- BIỂU ĐỒ -->
-    <section id="chartSection" class="hidden section">
-      <canvas id="yieldChart"></canvas>
+    <!-- STAFF -->
+    <section id="staffSection" class="hidden">
+      <h2>Danh sách nhân viên</h2>
+      <div id="staffList"></div>
+      <div class="add-staff">
+        <input id="newStaffUser" placeholder="Tên nhân viên" />
+        <input
+          id="newStaffPass"
+          type="password"
+          placeholder="Mật khẩu mặc định"
+        />
+        <button id="addStaffBtn" class="btn-primary small">Thêm</button>
+      </div>
     </section>
 
-    <!-- POPUP FORM -->
+    <!-- LOGS -->
+    <section id="logSection" class="hidden">
+      <h2>Lịch sử hoạt động</h2>
+      <div id="logList"></div>
+    </section>
+
+    <!-- MODAL TREE -->
     <div id="treeModal" class="modal hidden">
       <div class="modal-content">
-        <h3 id="modalTitle">Thêm cây mới</h3>
+        <h3 id="modalTitle">Thêm cây</h3>
         <input id="treeName" placeholder="Tên cây" />
         <input id="treeSpecies" placeholder="Giống cây" />
         <input id="treeLocation" placeholder="Vị trí" />
         <input id="treePlantDate" type="date" />
         <input id="treeVietGapCode" placeholder="Mã VietGAP" />
-        <input id="treeHealth" placeholder="Tình trạng" />
+        <select id="treeHealth">
+          <option value="Bình thường">Bình thường</option>
+          <option value="Sâu bệnh">Sâu bệnh</option>
+          <option value="Thiếu dinh dưỡng">Thiếu dinh dưỡng</option>
+          <option value="Khác">Khác</option>
+        </select>
         <textarea id="treeNotes" placeholder="Ghi chú"></textarea>
+        <input id="treeArea" placeholder="Khu vực (VD: A1, B2...)" />
 
         <button id="saveTreeBtn" class="btn-primary full-width">Lưu</button>
-        <button id="cancelTreeBtn" class="btn-secondary full-width">Hủy</button>
+        <button id="cancelTreeBtn" class="btn-secondary full-width">
+          Hủy
+        </button>
       </div>
     </div>
 
     <script>
-      const API_BASE = "https://api.thefram.site";
+      const API_BASE = "http://localhost:4000";
+      const token = () => localStorage.getItem("token");
+
+      const loginSection = document.getElementById("loginSection");
+      const dashboard = document.getElementById("dashboard");
+      const staffSection = document.getElementById("staffSection");
+      const logSection = document.getElementById("logSection");
+      const sidebar = document.getElementById("sidebar");
       const menuBtn = document.getElementById("menuBtn");
-      const sideMenu = document.getElementById("sideMenu");
-      const treeModal = document.getElementById("treeModal");
-      const modalTitle = document.getElementById("modalTitle");
-      const saveTreeBtn = document.getElementById("saveTreeBtn");
-      const cancelTreeBtn = document.getElementById("cancelTreeBtn");
 
-      let editingTree = null;
+      menuBtn.onclick = () => sidebar.classList.toggle("show");
 
-      menuBtn.onclick = () => {
-        sideMenu.classList.toggle("show");
-        menuBtn.classList.toggle("open");
+      const hideAll = () => {
+        [dashboard, staffSection, logSection].forEach((s) =>
+          s.classList.add("hidden")
+        );
       };
 
-      function showSection(id) {
-        document.querySelectorAll("section").forEach((s) => s.classList.add("hidden"));
-        document.getElementById(id).classList.remove("hidden");
-      }
-
-      /* LOGIN */
-      async function login() {
-        const u = username.value.trim();
-        const p = password.value.trim();
-        if (!u || !p) return alert("Nhập đủ thông tin!");
+      // ===== LOGIN =====
+      document.getElementById("loginBtn").onclick = async () => {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+        if (!username || !password) return alert("Nhập đầy đủ thông tin");
         const res = await fetch(`${API_BASE}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: u, password: p }),
+          body: JSON.stringify({ username, password }),
         });
         const data = await res.json();
-        if (!res.ok) return alert(data.error || "Lỗi đăng nhập");
+        if (!res.ok) return alert(data.error || "Sai thông tin đăng nhập");
         localStorage.setItem("token", data.token);
-        showDashboard();
-      }
-
-      loginBtn.onclick = login;
-      logoutBtn.onclick = () => {
-        localStorage.clear();
-        showSection("loginSection");
+        localStorage.setItem("role", data.role);
+        loginSection.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+        loadTrees();
       };
 
-      menuDashboard.onclick = () => showDashboard();
-      menuChart.onclick = () => showChart();
-      menuAddTree.onclick = () => openModal();
+      document.getElementById("menuLogout").onclick = () => {
+        localStorage.clear();
+        location.reload();
+      };
 
-      /* LOAD DANH SÁCH CÂY */
+      // ===== CÂY =====
       async function loadTrees() {
-        const token = localStorage.getItem("token");
         const res = await fetch(`${API_BASE}/api/trees`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token()}` },
         });
         const data = await res.json();
-        const container = document.getElementById("treeList");
-        if (!res.ok) return (container.innerHTML = "Không thể tải danh sách cây");
-
-        const searchVal = searchTree.value.toLowerCase();
+        const search = document
+          .getElementById("searchTree")
+          .value.toLowerCase();
         const filtered = data.filter((t) => {
-          const val = searchVal.toLowerCase();
+          const val = search;
           return (
             t.name?.toLowerCase().includes(val) ||
             t.species?.toLowerCase().includes(val) ||
@@ -151,54 +156,59 @@
             t.notes?.toLowerCase().includes(val)
           );
         });
-
-        container.innerHTML = filtered
+        document.getElementById("treeList").innerHTML = filtered
           .map(
             (t) => `
           <div class="tree-card">
             <div>
               <b>${t.name}</b> (${t.species})<br/>
-              📍 ${t.location || "-"}<br/>
-              🧾 VietGAP: ${t.vietGapCode || "-"}
+              📍 ${t.location || "-"} | Mã VietGAP: ${t.vietGapCode || "-"}
             </div>
             <div class="card-actions">
-              <button class="btn-edit" onclick="editTree('${t._id}')">✏️</button>
-              <button class="btn-delete" onclick="deleteTree('${t._id}')">🗑️</button>
-              <img src="${t.qrCode}" class="qr-img" />
+              <button onclick="editTree('${t._id}')">✏️</button>
+              <button onclick="deleteTree('${t._id}')">🗑️</button>
+              <a href="public/public.html?treeId=${t._id}" target="_blank">
+                <img src="${t.qrCode}" class="qr-img" />
+              </a>
             </div>
           </div>`
           )
           .join("");
       }
 
-      /* THÊM / SỬA CÂY */
-      function openModal(tree = null) {
-        editingTree = tree;
-        modalTitle.innerText = tree ? "Sửa thông tin cây" : "Thêm cây mới";
-        treeModal.classList.remove("hidden");
-        if (tree) {
-          treeName.value = tree.name;
-          treeSpecies.value = tree.species;
-          treeLocation.value = tree.location;
-          treePlantDate.value = tree.plantDate?.split("T")[0];
-          treeVietGapCode.value = tree.vietGapCode;
-          treeHealth.value = tree.currentHealth;
-          treeNotes.value = tree.notes;
-        } else {
-          treeName.value =
-            treeSpecies.value =
-            treeLocation.value =
-            treeVietGapCode.value =
-            treeHealth.value =
-            treeNotes.value =
-              "";
-          treePlantDate.value = "";
-        }
+      document.getElementById("searchTree").oninput = loadTrees;
+
+      // ===== THÊM/SỬA =====
+      const modal = document.getElementById("treeModal");
+      const cancelTreeBtn = document.getElementById("cancelTreeBtn");
+      cancelTreeBtn.onclick = () => modal.classList.add("hidden");
+      document.getElementById("addTreeBtn").onclick = () => {
+        editing = null;
+        modal.classList.remove("hidden");
+        document.getElementById("modalTitle").innerText = "Thêm cây";
+      };
+
+      let editing = null;
+      async function editTree(id) {
+        const res = await fetch(`${API_BASE}/api/trees`, {
+          headers: { Authorization: `Bearer ${token()}` },
+        });
+        const trees = await res.json();
+        const t = trees.find((x) => x._id === id);
+        editing = t;
+        document.getElementById("modalTitle").innerText = "Sửa cây";
+        treeName.value = t.name;
+        treeSpecies.value = t.species;
+        treeLocation.value = t.location;
+        treePlantDate.value = t.plantDate?.split("T")[0];
+        treeVietGapCode.value = t.vietGapCode;
+        treeHealth.value = t.currentHealth;
+        treeNotes.value = t.notes;
+        treeArea.value = t.area;
+        modal.classList.remove("hidden");
       }
 
-      cancelTreeBtn.onclick = () => treeModal.classList.add("hidden");
-
-      saveTreeBtn.onclick = async () => {
+      document.getElementById("saveTreeBtn").onclick = async () => {
         const body = {
           name: treeName.value,
           species: treeSpecies.value,
@@ -207,82 +217,119 @@
           vietGapCode: treeVietGapCode.value,
           currentHealth: treeHealth.value,
           notes: treeNotes.value,
+          area: treeArea.value,
         };
-
-        const token = localStorage.getItem("token");
-        const method = editingTree ? "PUT" : "POST";
-        const url = editingTree
-          ? `${API_BASE}/api/trees/${editingTree._id}`
+        const url = editing
+          ? `${API_BASE}/api/trees/${editing._id}`
           : `${API_BASE}/api/trees`;
-
-        const res = await fetch(url, {
+        const method = editing ? "PUT" : "POST";
+        await fetch(url, {
           method,
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token()}`,
           },
           body: JSON.stringify(body),
         });
-
-        if (!res.ok) return alert("Lưu thất bại");
-        alert("Đã lưu!");
-        treeModal.classList.add("hidden");
+        modal.classList.add("hidden");
         loadTrees();
       };
 
-      async function editTree(id) {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE}/api/trees`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const trees = await res.json();
-        const tree = trees.find((t) => t._id === id);
-        if (tree) openModal(tree);
-      }
-
       async function deleteTree(id) {
         if (!confirm("Xóa cây này?")) return;
-        const token = localStorage.getItem("token");
         await fetch(`${API_BASE}/api/trees/${id}`, {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token()}` },
         });
         loadTrees();
       }
 
-      /* BIỂU ĐỒ NĂNG SUẤT */
-      async function showChart() {
-        showSection("chartSection");
-        const ctx = document.getElementById("yieldChart").getContext("2d");
-        new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: ["2021", "2022", "2023", "2024"],
-            datasets: [
-              {
-                label: "Năng suất (kg)",
-                data: [12000, 15000, 18000, 20000],
-                backgroundColor: "#2e7d32",
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: true },
-            },
-          },
+      // ===== NHÂN VIÊN =====
+      async function loadStaff() {
+        const res = await fetch(`${API_BASE}/api/staff`, {
+          headers: { Authorization: `Bearer ${token()}` },
         });
+        if (!res.ok)
+          return (staffList.innerHTML =
+            "<p>Chỉ chủ vườn có thể xem danh sách nhân viên</p>");
+        const data = await res.json();
+        staffList.innerHTML = data
+          .map(
+            (s) => `
+          <div class="staff-card">
+            👷 ${s.username}
+            <button onclick="deleteStaff('${s.username}')">Xóa</button>
+          </div>`
+          )
+          .join("");
       }
 
-      function showDashboard() {
-        showSection("dashboardSection");
+      document.getElementById("addStaffBtn").onclick = async () => {
+        const u = newStaffUser.value.trim();
+        const p = newStaffPass.value.trim();
+        if (!u || !p) return alert("Nhập đầy đủ thông tin");
+        await fetch(`${API_BASE}/api/staff`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token()}`,
+          },
+          body: JSON.stringify({ username: u, password: p }),
+        });
+        loadStaff();
+      };
+
+      async function deleteStaff(u) {
+        await fetch(`${API_BASE}/api/staff/${u}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token()}` },
+        });
+        loadStaff();
+      }
+
+      // ===== LOGS =====
+      async function loadLogs() {
+        const res = await fetch(`${API_BASE}/api/logs`, {
+          headers: { Authorization: `Bearer ${token()}` },
+        });
+        if (!res.ok)
+          return (logList.innerHTML =
+            "<p>Chỉ chủ vườn có thể xem lịch sử hoạt động</p>");
+        const data = await res.json();
+        logList.innerHTML = data
+          .map(
+            (l) => `
+          <div class="log-item">
+            ${new Date(l.time).toLocaleString("vi-VN")} - 
+            <b>${l.user}</b>: ${l.action}
+          </div>`
+          )
+          .join("");
+      }
+
+      // ===== MENU =====
+      menuDashboard.onclick = () => {
+        hideAll();
+        dashboard.classList.remove("hidden");
+        loadTrees();
+      };
+      menuStaff.onclick = () => {
+        hideAll();
+        staffSection.classList.remove("hidden");
+        loadStaff();
+      };
+      menuLogs.onclick = () => {
+        hideAll();
+        logSection.classList.remove("hidden");
+        loadLogs();
+      };
+
+      // ===== AUTO LOGIN =====
+      if (localStorage.getItem("token")) {
+        loginSection.classList.add("hidden");
+        dashboard.classList.remove("hidden");
         loadTrees();
       }
-
-      refreshBtn.onclick = loadTrees;
-      searchTree.oninput = loadTrees;
-      if (localStorage.getItem("token")) showDashboard();
     </script>
   </body>
 </html>

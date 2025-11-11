@@ -2,13 +2,17 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
     <title>Thông tin cây - Thanh Huyền Farm</title>
     <link rel="stylesheet" href="public.css" />
   </head>
   <body>
     <div class="public-container fade-in">
       <div class="public-header">
+        <!-- Anh chỉ cần thay logo.svg bằng logo thật của vườn -->
         <img src="logo.svg" alt="Thanh Huyền Farm" class="logo-spin" />
         <h2>Thanh Huyền Farm</h2>
         <p>Vườn sầu riêng đạt chuẩn VietGAP</p>
@@ -20,53 +24,76 @@
 
       <div class="footer">
         <p>
-          🌿 Liên hệ: <b>Thanh Huyền Farm</b><br />
+          🌿 <b>Thanh Huyền Farm</b><br />
           Hotline: 0912 345 678<br />
           Địa chỉ: Ấp 3, xã Hòa Khánh, Cái Bè, Tiền Giang
+        </p>
+        <p class="note">
+          Thông tin được cập nhật bởi chủ vườn & nhân viên Thanh Huyền.
         </p>
       </div>
     </div>
 
-    <!-- Liên hệ nổi -->
+    <!-- Nút liên hệ nổi -->
     <div class="floating-contact">
       <a
         href="https://zalo.me/0912345678"
         class="contact-btn zalo-btn"
         target="_blank"
-        >Zalo</a
       >
+        Zalo
+      </a>
       <a
         href="https://facebook.com/ThanhHuyenFarm"
         class="contact-btn fb-btn"
         target="_blank"
-        >FB</a
       >
+        Facebook
+      </a>
     </div>
 
     <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const id = urlParams.get("treeId");
-      const API_BASE = "https://api.thefram.site";
+      // Lấy treeId từ URL
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("treeId");
+      const API_BASE = "http://localhost:4000"; // Nếu deploy, đổi thành https://api.thefram.site hoặc domain của anh
 
       async function loadTree() {
-        if (!id) return (treeInfo.innerHTML = "Không có mã cây hợp lệ!");
-        const res = await fetch(`${API_BASE}/public/tree/${id}`);
-        const data = await res.json();
-        if (!res.ok || !data.tree)
-          return (treeInfo.innerHTML = "Không tìm thấy cây này!");
+        const info = document.getElementById("treeInfo");
+        if (!id) {
+          info.innerHTML = "❌ Không có mã cây hợp lệ trong QR!";
+          return;
+        }
 
-        const t = data.tree;
-        treeInfo.innerHTML = `
-          <div><b>Tên cây:</b> ${t.name}</div>
-          <div><b>Giống cây:</b> ${t.species}</div>
-          <div><b>Vị trí:</b> ${t.location || "-"}</div>
-          <div><b>Ngày trồng:</b> ${
-            t.plantDate ? new Date(t.plantDate).toLocaleDateString("vi-VN") : "-"
-          }</div>
-          <div><b>Mã số VietGAP:</b> ${t.vietGapCode || "-"}</div>
-          <div><b>Tình trạng:</b> ${t.currentHealth || "Bình thường"}</div>
-          <div><b>Ghi chú:</b> ${t.notes || "-"}</div>
-        `;
+        try {
+          const res = await fetch(`${API_BASE}/public/tree/${id}`);
+          const data = await res.json();
+
+          if (!res.ok || !data.tree) {
+            info.innerHTML = "⚠️ Không tìm thấy thông tin cây này!";
+            return;
+          }
+
+          const t = data.tree;
+          info.innerHTML = `
+            <div><b>Tên cây:</b> ${t.name}</div>
+            <div><b>Giống cây:</b> ${t.species || "-"}</div>
+            <div><b>Vị trí:</b> ${t.location || "-"}</div>
+            <div><b>Khu vực:</b> ${t.area || "-"}</div>
+            <div><b>Ngày trồng:</b> ${
+              t.plantDate
+                ? new Date(t.plantDate).toLocaleDateString("vi-VN")
+                : "-"
+            }</div>
+            <div><b>Mã số VietGAP:</b> ${t.vietGapCode || "-"}</div>
+            <div><b>Tình trạng hiện tại:</b> ${
+              t.currentHealth || "Bình thường"
+            }</div>
+            <div><b>Ghi chú chăm sóc:</b> ${t.notes || "-"}</div>
+          `;
+        } catch (e) {
+          info.innerHTML = "⚠️ Lỗi kết nối, vui lòng thử lại sau!";
+        }
       }
 
       loadTree();
