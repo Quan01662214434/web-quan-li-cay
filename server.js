@@ -1,5 +1,5 @@
 // =======================================================
-// 🌿 THANH HUYỀN FARM - SERVER 4.0 (FULL + seed-owner)
+// 🌿 THANH HUYỀN FARM - SERVER 4.0 (FULL + seed-owner reset)
 // =======================================================
 import express from "express";
 import mongoose from "mongoose";
@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = "THANH_HUYEN_FARM_SECRET_KEY";
-// URL dùng để nhúng vào QR => trỏ đến trang public HTML
+// URL để nhúng vào QR => trỏ tới trang public HTML
 const PUBLIC_BASE_URL = `http://localhost:${PORT}/public`;
 
 // =======================================================
@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
-// Route HTML cho QR: /public/123 => mở public.html (JS sẽ gọi API để lấy dữ liệu)
+// Route HTML cho QR: /public/123 => mở public.html (JS sẽ tự gọi API JSON)
 app.get("/public/:numericId", (req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "public.html"));
 });
@@ -131,7 +131,8 @@ async function logActivity({ tree, user, username, action, details }) {
 // =======================================================
 // AUTH
 // =======================================================
-// Tạo user (dùng để tạo chủ vườn / nhân viên)
+
+// Tạo user (chủ vườn / nhân viên) qua API nếu cần
 app.post("/auth/register", async (req, res) => {
   try {
     const { username, password, role, farmName, farmOwner } = req.body;
@@ -161,12 +162,14 @@ app.post("/auth/login", async (req, res) => {
   res.json({ token, user });
 });
 
-// Tạo tài khoản chủ vườn mặc định bằng URL
+// Tạo hoặc RESET tài khoản chủ vườn mặc định
 app.get("/auth/seed-owner", async (req, res) => {
   try {
+    const hashed = await bcrypt.hash("12345", 10);
     let user = await User.findOne({ username: "thanhhuyen" });
+
     if (!user) {
-      const hashed = await bcrypt.hash("12345", 10);
+      // Chưa có thì TẠO mới
       user = await User.create({
         username: "thanhhuyen",
         password: hashed,
@@ -174,26 +177,36 @@ app.get("/auth/seed-owner", async (req, res) => {
         farmName: "Vườn sầu riêng Thanh Huyền",
       });
       return res.json({
-        message: "✅ Đã tạo tài khoản chủ vườn mặc định",
+        message: "✅ Đã TẠO tài khoản chủ vườn mặc định",
         username: "thanhhuyen",
         password: "12345",
       });
     } else {
+      // Đã có thì RESET mật khẩu về 12345
+      user.password = hashed;
+      user.role = "owner";
+      user.farmName = user.farmName || "Vườn sầu riêng Thanh Huyền";
+      await user.save();
+
       return res.json({
-        message: "ℹ️ Tài khoản đã tồn tại",
+        message: "✅ ĐÃ RESET mật khẩu tài khoản 'thanhhuyen' về 12345",
         username: "thanhhuyen",
+        password: "12345",
       });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Lỗi khi tạo tài khoản mặc định" });
+    res
+      .status(500)
+      .json({ error: "Lỗi khi tạo/reset tài khoản chủ vườn mặc định" });
   }
 });
 
 // =======================================================
 // TREES
 // =======================================================
-// Lấy danh sách cây (tùy theo role)
+
+// Lấy danh sách cây (tùy theo vai trò)
 app.get("/api/trees", authMiddleware, async (req, res) => {
   const user = await User.findById(req.user.id);
   let trees = [];
