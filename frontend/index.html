@@ -3,332 +3,357 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thanh Huyền Farm - Quản lý cây</title>
+    <title>Thanh Huyền Farm 🌿</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
-
   <body>
-    <header class="header">
-      <div class="logo">
-        <img src="logo.svg" alt="Thanh Huyền Farm" />
-        <h1>Thanh Huyền Farm</h1>
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="logo-area">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+          class="logo-icon"
+        >
+          <circle cx="256" cy="256" r="240" fill="#16a34a" />
+          <path
+            d="M256 128c-64 48-80 144 0 240 80-96 64-192 0-240z"
+            fill="#bbf7d0"
+          />
+        </svg>
+        <div class="logo-text">
+          <div class="farm-name">THANH HUYỀN FARM</div>
+          <div class="farm-sub">
+            Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng
+          </div>
+        </div>
       </div>
-      <button id="menuBtn" class="menu-btn">☰</button>
+      <button id="logout-btn" class="btn-primary small hidden">Đăng xuất</button>
     </header>
 
-    <nav id="sidebar" class="sidebar">
-      <ul>
-        <li><a id="menuDashboard">🌳 Quản lý cây</a></li>
-        <li><a id="menuStaff">👷 Nhân viên</a></li>
-        <li><a id="menuLogs">🧾 Lịch sử</a></li>
-        <li><a id="menuLogout">🚪 Đăng xuất</a></li>
-      </ul>
-    </nav>
+    <main class="app-shell">
+      <!-- LOGIN -->
+      <section id="login-section" class="card center">
+        <h2>Đăng nhập hệ thống 🌿</h2>
+        <form id="login-form">
+          <input
+            type="text"
+            id="username"
+            placeholder="Tài khoản"
+            required
+          /><br />
+          <input
+            type="password"
+            id="password"
+            placeholder="Mật khẩu"
+            required
+          /><br />
+          <button type="submit" class="btn-primary">Đăng nhập</button>
+        </form>
+      </section>
 
-    <!-- LOGIN -->
-    <section id="loginSection" class="center">
-      <div class="login-card">
-        <h2>Đăng nhập hệ thống</h2>
-        <input id="username" placeholder="Tên đăng nhập" />
-        <input id="password" type="password" placeholder="Mật khẩu" />
-        <button id="loginBtn" class="btn-primary full-width">Đăng nhập</button>
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="hidden">
+        <aside class="sidebar">
+          <ul>
+            <li class="active">🏡 Tổng quan</li>
+            <li>🌳 Quản lý cây</li>
+            <li>👨‍🌾 Nhân viên</li>
+            <li>📊 Năng suất</li>
+          </ul>
+        </aside>
+
+        <div class="dashboard-content">
+          <h2 class="page-title">Bảng điều khiển vườn Thanh Huyền</h2>
+          <p id="user-role-text"></p>
+
+          <!-- CREATE TREE -->
+          <div id="create-tree-section" class="card">
+            <h3>Thêm cây mới</h3>
+            <form id="create-tree-form">
+              <input
+                type="text"
+                id="tree-name"
+                placeholder="Tên cây"
+                required
+              />
+              <input
+                type="text"
+                id="tree-species"
+                placeholder="Giống cây"
+                required
+              />
+              <input
+                type="text"
+                id="tree-location"
+                placeholder="Vị trí (VD: Lô A3)"
+                required
+              />
+              <input type="date" id="tree-date" required />
+              <input
+                type="text"
+                id="tree-image"
+                placeholder="URL ảnh cây (tùy chọn)"
+              />
+              <button type="submit" class="btn-primary">Tạo cây & QR</button>
+            </form>
+          </div>
+
+          <!-- TREE LIST -->
+          <div id="tree-list-section" class="card">
+            <h3>Danh sách cây 🌳</h3>
+            <table id="tree-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên cây</th>
+                  <th>Giống</th>
+                  <th>Vị trí</th>
+                  <th>Tình trạng</th>
+                  <th>Bệnh</th>
+                  <th>Năng suất</th>
+                  <th>QR</th>
+                  <th>Lịch sử</th>
+                </tr>
+              </thead>
+              <tbody id="tree-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODALS -->
+      <div id="qr-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>Mã QR của cây</h3>
+          <img id="qr-image" alt="QR" />
+          <button class="btn-secondary" onclick="closeModal('qr-modal')">
+            Đóng
+          </button>
+        </div>
       </div>
-    </section>
 
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="hidden">
-      <div class="top-bar">
-        <input
-          id="searchTree"
-          type="text"
-          placeholder="🔍 Tìm cây theo tên, giống, vị trí, mã VietGAP..."
-        />
-        <button id="addTreeBtn" class="btn-primary small">+ Cây</button>
+      <div id="yield-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>Năng suất cây 🌾</h3>
+          <canvas id="yield-chart"></canvas>
+          <form id="yield-form">
+            <input type="number" id="yield-year" placeholder="Năm" required />
+            <input
+              type="number"
+              id="yield-quantity"
+              placeholder="Sản lượng (kg)"
+              required
+            />
+            <button type="submit" class="btn-primary small">
+              Lưu năng suất
+            </button>
+          </form>
+          <button class="btn-secondary" onclick="closeModal('yield-modal')">
+            Đóng
+          </button>
+        </div>
       </div>
-      <div id="treeList" class="tree-list"></div>
-    </section>
 
-    <!-- STAFF -->
-    <section id="staffSection" class="hidden">
-      <h2>Danh sách nhân viên</h2>
-      <div id="staffList"></div>
-      <div class="add-staff">
-        <input id="newStaffUser" placeholder="Tên nhân viên" />
-        <input
-          id="newStaffPass"
-          type="password"
-          placeholder="Mật khẩu mặc định"
-        />
-        <button id="addStaffBtn" class="btn-primary small">Thêm</button>
+      <div id="logs-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>Lịch sử hoạt động 🌿</h3>
+          <div id="logs-container"></div>
+          <button class="btn-secondary" onclick="closeModal('logs-modal')">
+            Đóng
+          </button>
+        </div>
       </div>
-    </section>
+    </main>
 
-    <!-- LOGS -->
-    <section id="logSection" class="hidden">
-      <h2>Lịch sử hoạt động</h2>
-      <div id="logList"></div>
-    </section>
-
-    <!-- MODAL TREE -->
-    <div id="treeModal" class="modal hidden">
-      <div class="modal-content">
-        <h3 id="modalTitle">Thêm cây</h3>
-        <input id="treeName" placeholder="Tên cây" />
-        <input id="treeSpecies" placeholder="Giống cây" />
-        <input id="treeLocation" placeholder="Vị trí" />
-        <input id="treePlantDate" type="date" />
-        <input id="treeVietGapCode" placeholder="Mã VietGAP" />
-        <select id="treeHealth">
-          <option value="Bình thường">Bình thường</option>
-          <option value="Sâu bệnh">Sâu bệnh</option>
-          <option value="Thiếu dinh dưỡng">Thiếu dinh dưỡng</option>
-          <option value="Khác">Khác</option>
-        </select>
-        <textarea id="treeNotes" placeholder="Ghi chú"></textarea>
-        <input id="treeArea" placeholder="Khu vực (VD: A1, B2...)" />
-
-        <button id="saveTreeBtn" class="btn-primary full-width">Lưu</button>
-        <button id="cancelTreeBtn" class="btn-secondary full-width">
-          Hủy
-        </button>
-      </div>
-    </div>
+    <footer>
+      🌿 <b>Thanh Huyền Farm</b> | Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng
+      <br />
+      Hotline: 0909.123.456 | Facebook: /thanhhuyenfarm | Zalo: @thanhhuyenfarm
+    </footer>
 
     <script>
-      const API_BASE = "http://localhost:4000";
-      const token = () => localStorage.getItem("token");
+      // Dùng relative path vì index.html được serve cùng domain với API
+      const API_BASE = "";
 
-      const loginSection = document.getElementById("loginSection");
-      const dashboard = document.getElementById("dashboard");
-      const staffSection = document.getElementById("staffSection");
-      const logSection = document.getElementById("logSection");
-      const sidebar = document.getElementById("sidebar");
-      const menuBtn = document.getElementById("menuBtn");
+      let currentUser = null;
+      let token = null;
 
-      menuBtn.onclick = () => sidebar.classList.toggle("show");
+      // LOGIN
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
 
-      const hideAll = () => {
-        [dashboard, staffSection, logSection].forEach((s) =>
-          s.classList.add("hidden")
-        );
-      };
-
-      // ===== LOGIN =====
-      document.getElementById("loginBtn").onclick = async () => {
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value.trim();
-        if (!username || !password) return alert("Nhập đầy đủ thông tin");
-        const res = await fetch(`${API_BASE}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
+          const res = await fetch(`${API_BASE}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          if (data.token) {
+            token = data.token;
+            currentUser = data.user;
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("dashboard").classList.remove("hidden");
+            document
+              .getElementById("logout-btn")
+              .classList.remove("hidden");
+            document.getElementById(
+              "user-role-text"
+            ).innerText = `Xin chào ${currentUser.username} – Vai trò: ${currentUser.role}`;
+            loadTrees();
+          } else alert("Sai tài khoản hoặc mật khẩu");
         });
-        const data = await res.json();
-        if (!res.ok) return alert(data.error || "Sai thông tin đăng nhập");
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);
-        loginSection.classList.add("hidden");
-        dashboard.classList.remove("hidden");
-        loadTrees();
-      };
 
-      document.getElementById("menuLogout").onclick = () => {
-        localStorage.clear();
-        location.reload();
-      };
+      // LOGOUT
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", () => location.reload());
 
-      // ===== CÂY =====
+      // CREATE TREE
+      document
+        .getElementById("create-tree-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const name = document.getElementById("tree-name").value;
+          const species = document.getElementById("tree-species").value;
+          const location = document.getElementById("tree-location").value;
+          const plantDate = document.getElementById("tree-date").value;
+          const imageURL = document.getElementById("tree-image").value;
+
+          const res = await fetch(`${API_BASE}/api/trees`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              name,
+              species,
+              location,
+              plantDate,
+              imageURL,
+            }),
+          });
+          const data = await res.json();
+          if (data.tree) {
+            alert("✅ Đã thêm cây mới");
+            loadTrees();
+          } else alert("Lỗi tạo cây!");
+        });
+
+      // LOAD TREES
       async function loadTrees() {
         const res = await fetch(`${API_BASE}/api/trees`, {
-          headers: { Authorization: `Bearer ${token()}` },
-        });
-        const data = await res.json();
-        const search = document
-          .getElementById("searchTree")
-          .value.toLowerCase();
-        const filtered = data.filter((t) => {
-          const val = search;
-          return (
-            t.name?.toLowerCase().includes(val) ||
-            t.species?.toLowerCase().includes(val) ||
-            t.location?.toLowerCase().includes(val) ||
-            t.vietGapCode?.toLowerCase().includes(val) ||
-            t.notes?.toLowerCase().includes(val)
-          );
-        });
-        document.getElementById("treeList").innerHTML = filtered
-          .map(
-            (t) => `
-          <div class="tree-card">
-            <div>
-              <b>${t.name}</b> (${t.species})<br/>
-              📍 ${t.location || "-"} | Mã VietGAP: ${t.vietGapCode || "-"}
-            </div>
-            <div class="card-actions">
-              <button onclick="editTree('${t._id}')">✏️</button>
-              <button onclick="deleteTree('${t._id}')">🗑️</button>
-              <a href="public/public.html?treeId=${t._id}" target="_blank">
-                <img src="${t.qrCode}" class="qr-img" />
-              </a>
-            </div>
-          </div>`
-          )
-          .join("");
-      }
-
-      document.getElementById("searchTree").oninput = loadTrees;
-
-      // ===== THÊM/SỬA =====
-      const modal = document.getElementById("treeModal");
-      const cancelTreeBtn = document.getElementById("cancelTreeBtn");
-      cancelTreeBtn.onclick = () => modal.classList.add("hidden");
-      document.getElementById("addTreeBtn").onclick = () => {
-        editing = null;
-        modal.classList.remove("hidden");
-        document.getElementById("modalTitle").innerText = "Thêm cây";
-      };
-
-      let editing = null;
-      async function editTree(id) {
-        const res = await fetch(`${API_BASE}/api/trees`, {
-          headers: { Authorization: `Bearer ${token()}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         const trees = await res.json();
-        const t = trees.find((x) => x._id === id);
-        editing = t;
-        document.getElementById("modalTitle").innerText = "Sửa cây";
-        treeName.value = t.name;
-        treeSpecies.value = t.species;
-        treeLocation.value = t.location;
-        treePlantDate.value = t.plantDate?.split("T")[0];
-        treeVietGapCode.value = t.vietGapCode;
-        treeHealth.value = t.currentHealth;
-        treeNotes.value = t.notes;
-        treeArea.value = t.area;
-        modal.classList.remove("hidden");
+        const tbody = document.getElementById("tree-table-body");
+        tbody.innerHTML = "";
+        trees.forEach((t) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${t.numericId}</td>
+            <td>${t.name}</td>
+            <td>${t.species}</td>
+            <td>${t.location}</td>
+            <td>${t.currentHealth}</td>
+            <td><button class="btn-secondary small" onclick="updateDiseases('${t._id}')">Bệnh</button></td>
+            <td><button class="btn-secondary small" onclick="openYieldModal('${t._id}')">Xem</button></td>
+            <td><button class="btn-secondary small" onclick="openQrModal('${t.qrCode}')">QR</button></td>
+            <td><button class="btn-secondary small" onclick="openLogs('${t._id}')">Xem</button></td>
+          `;
+          tbody.appendChild(row);
+        });
       }
 
-      document.getElementById("saveTreeBtn").onclick = async () => {
-        const body = {
-          name: treeName.value,
-          species: treeSpecies.value,
-          location: treeLocation.value,
-          plantDate: treePlantDate.value,
-          vietGapCode: treeVietGapCode.value,
-          currentHealth: treeHealth.value,
-          notes: treeNotes.value,
-          area: treeArea.value,
-        };
-        const url = editing
-          ? `${API_BASE}/api/trees/${editing._id}`
-          : `${API_BASE}/api/trees`;
-        const method = editing ? "PUT" : "POST";
-        await fetch(url, {
-          method,
+      // MODALS
+      function openQrModal(qr) {
+        document.getElementById("qr-image").src = qr;
+        document.getElementById("qr-modal").classList.remove("hidden");
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.add("hidden");
+      }
+
+      async function updateDiseases(id) {
+        const diseases = prompt("Nhập các bệnh (phân tách dấu phẩy):");
+        if (!diseases) return;
+        await fetch(`${API_BASE}/api/trees/${id}/diseases`, {
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token()}`,
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(body),
-        });
-        modal.classList.add("hidden");
-        loadTrees();
-      };
-
-      async function deleteTree(id) {
-        if (!confirm("Xóa cây này?")) return;
-        await fetch(`${API_BASE}/api/trees/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token()}` },
+          body: JSON.stringify({
+            diseases: diseases.split(",").map((d) => d.trim()),
+          }),
         });
         loadTrees();
       }
 
-      // ===== NHÂN VIÊN =====
-      async function loadStaff() {
-        const res = await fetch(`${API_BASE}/api/staff`, {
-          headers: { Authorization: `Bearer ${token()}` },
+      let chartInstance = null;
+      async function openYieldModal(treeId) {
+        document.getElementById("yield-modal").classList.remove("hidden");
+        const res = await fetch(`${API_BASE}/api/trees`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok)
-          return (staffList.innerHTML =
-            "<p>Chỉ chủ vườn có thể xem danh sách nhân viên</p>");
-        const data = await res.json();
-        staffList.innerHTML = data
+        const trees = await res.json();
+        const tree = trees.find((t) => t._id === treeId);
+        const ctx = document.getElementById("yield-chart").getContext("2d");
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: tree.yieldHistory.map((y) => y.year),
+            datasets: [
+              {
+                label: "Năng suất (kg)",
+                data: tree.yieldHistory.map((y) => y.quantity),
+                backgroundColor: "#16a34a",
+              },
+            ],
+          },
+          options: { responsive: true, scales: { y: { beginAtZero: true } } },
+        });
+        document
+          .getElementById("yield-form")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const year = document.getElementById("yield-year").value;
+            const quantity = document.getElementById("yield-quantity").value;
+            await fetch(`${API_BASE}/api/trees/${treeId}/yield`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ year, quantity }),
+            });
+            alert("Đã lưu năng suất");
+            closeModal("yield-modal");
+            loadTrees();
+          });
+      }
+
+      async function openLogs(treeId) {
+        document.getElementById("logs-modal").classList.remove("hidden");
+        const res = await fetch(`${API_BASE}/api/trees/${treeId}/logs`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const logs = await res.json();
+        document.getElementById("logs-container").innerHTML = logs
           .map(
-            (s) => `
-          <div class="staff-card">
-            👷 ${s.username}
-            <button onclick="deleteStaff('${s.username}')">Xóa</button>
-          </div>`
+            (l) =>
+              `<div class='log-item'><b>${l.username}</b> – ${l.action}<br>${l.details}<br><span>${new Date(
+                l.createdAt
+              ).toLocaleString()}</span></div>`
           )
           .join("");
-      }
-
-      document.getElementById("addStaffBtn").onclick = async () => {
-        const u = newStaffUser.value.trim();
-        const p = newStaffPass.value.trim();
-        if (!u || !p) return alert("Nhập đầy đủ thông tin");
-        await fetch(`${API_BASE}/api/staff`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token()}`,
-          },
-          body: JSON.stringify({ username: u, password: p }),
-        });
-        loadStaff();
-      };
-
-      async function deleteStaff(u) {
-        await fetch(`${API_BASE}/api/staff/${u}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token()}` },
-        });
-        loadStaff();
-      }
-
-      // ===== LOGS =====
-      async function loadLogs() {
-        const res = await fetch(`${API_BASE}/api/logs`, {
-          headers: { Authorization: `Bearer ${token()}` },
-        });
-        if (!res.ok)
-          return (logList.innerHTML =
-            "<p>Chỉ chủ vườn có thể xem lịch sử hoạt động</p>");
-        const data = await res.json();
-        logList.innerHTML = data
-          .map(
-            (l) => `
-          <div class="log-item">
-            ${new Date(l.time).toLocaleString("vi-VN")} - 
-            <b>${l.user}</b>: ${l.action}
-          </div>`
-          )
-          .join("");
-      }
-
-      // ===== MENU =====
-      menuDashboard.onclick = () => {
-        hideAll();
-        dashboard.classList.remove("hidden");
-        loadTrees();
-      };
-      menuStaff.onclick = () => {
-        hideAll();
-        staffSection.classList.remove("hidden");
-        loadStaff();
-      };
-      menuLogs.onclick = () => {
-        hideAll();
-        logSection.classList.remove("hidden");
-        loadLogs();
-      };
-
-      // ===== AUTO LOGIN =====
-      if (localStorage.getItem("token")) {
-        loginSection.classList.add("hidden");
-        dashboard.classList.remove("hidden");
-        loadTrees();
       }
     </script>
   </body>
