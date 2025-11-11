@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Thông tin cây – Thanh Huyền Farm</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Dùng chung style.css với trang chính -->
     <link rel="stylesheet" href="style.css" />
     <style>
       body {
@@ -106,11 +105,6 @@
         color: #6b7280;
         font-size: 14px;
       }
-      .error-text {
-        color: #b91c1c;
-        font-size: 14px;
-        text-align: center;
-      }
     </style>
   </head>
   <body>
@@ -120,7 +114,7 @@
       </div>
     </div>
 
-    <!-- Nút nổi liên hệ chỉ dùng cho trang QR -->
+    <!-- Nút nổi liên hệ -->
     <div class="floating-contact">
       <a
         href="https://zalo.me/0912345678"
@@ -141,12 +135,21 @@
     </div>
 
     <script>
-      // ✅ API_BASE: nếu đang chạy trên thefram.site thì dùng API riêng,
-      // còn nếu test local (localhost:4000) thì tự dùng luôn localhost.
-      const API_BASE =
-        window.location.hostname === "thefram.site"
-          ? "https://api.thefram.site"
-          : "http://localhost:4000";
+      // ✅ Xác định API_BASE tự động theo môi trường
+      let API_BASE = "";
+
+      if (window.location.hostname === "thefram.site") {
+        // Nếu chạy thật trên domain chính
+        API_BASE = "https://web-quan-li-cay.onrender.com"; // 👉 Đổi thành URL backend thật của anh
+      } else if (window.location.hostname.includes("localhost")) {
+        // Nếu đang test local
+        API_BASE = "http://localhost:4000";
+      } else {
+        // Nếu đang chạy ở môi trường khác (subdomain / staging)
+        API_BASE = "https://web-quan-li-cay.onrender.com";
+      }
+
+      console.log("🔗 API_BASE đang dùng:", API_BASE);
 
       function getTreeIdFromUrl() {
         const params = new URLSearchParams(window.location.search);
@@ -166,17 +169,17 @@
 
         if (!treeId) {
           container.innerHTML =
-            '<p class="error-text">Không tìm thấy cây (thiếu tham số <b>treeId</b> trên URL).</p>';
+            "<p>Không tìm thấy cây (thiếu tham số treeId).</p>";
           return;
         }
 
         try {
           const res = await fetch(`${API_BASE}/public/tree/${treeId}`);
-          const data = await res.json().catch(() => null);
+          const data = await res.json();
 
-          if (!res.ok || !data || !data.tree) {
+          if (!res.ok) {
             container.innerHTML =
-              '<p class="error-text">Không tải được thông tin cây. Có thể cây đã bị xoá hoặc server đang lỗi.</p>';
+              "<p>Không tải được thông tin cây. Vui lòng thử lại sau.</p>";
             return;
           }
 
@@ -193,7 +196,6 @@
             </div>
           `;
 
-          // Banner VietGAP của vườn (dùng mã VietGAP lấy từ cây/vườn, tùy config)
           if (farmVietGapCode && cfg.showVietGap !== false) {
             html += `
               <div class="vg-banner">
@@ -218,15 +220,15 @@
           }
 
           if (cfg.showArea !== false || cfg.showLocation !== false) {
-            let line = "";
+            html += `<p>`;
             if (cfg.showArea !== false && tree.area) {
-              line += `<b>Khu vực:</b> ${tree.area}`;
+              html += `<b>Khu vực:</b> ${tree.area}`;
             }
             if (cfg.showLocation !== false && tree.location) {
-              if (line) line += " • ";
-              line += `<b>Vị trí:</b> ${tree.location}`;
+              if (tree.area) html += " • ";
+              html += `<b>Vị trí:</b> ${tree.location}`;
             }
-            if (line) html += `<p>${line}</p>`;
+            html += `</p>`;
           }
 
           if (cfg.showPlantDate !== false && tree.plantDate) {
@@ -241,17 +243,13 @@
             html += `<p><b>Ghi chú:</b> ${tree.notes}</p>`;
           }
 
-          if (
-            cfg.showDiseases !== false &&
-            Array.isArray(tree.diseases) &&
-            tree.diseases.length
-          ) {
+          if (cfg.showDiseases !== false && tree.diseases && tree.diseases.length) {
             html += `<p><b>Bệnh:</b> ${tree.diseases.join(", ")}</p>`;
           }
 
           if (
             cfg.showYield !== false &&
-            Array.isArray(tree.yieldHistory) &&
+            tree.yieldHistory &&
             tree.yieldHistory.length
           ) {
             const sorted = [...tree.yieldHistory].sort(
@@ -271,21 +269,20 @@
 
           html += `</div>`;
 
-          // Khối thông tin liên hệ dưới cùng
           html += `
             <div class="farm-contact">
               <h3>📞 Liên hệ chủ vườn – Thanh Huyền Farm</h3>
-              <p><b>Điện thoại / Zalo:</b> <a href="tel:0906325133">0906325133</a></p>
+              <p><b>Điện thoại / Zalo:</b> <a href="tel:0912345678">0912 345 678</a></p>
               <p><b>Facebook:</b> <a href="https://facebook.com/ThanhHuyenFarm" target="_blank">Fanpage Thanh Huyền Farm</a></p>
-              <p><b>Địa chỉ:</b> Xã Phú Vinh, Tỉnh Đồng Nai </p>
+              <p><b>Địa chỉ:</b> Ấp 3, xã Ea Ktur, Cư Kuin, Đắk Lắk</p>
             </div>
           `;
 
           container.innerHTML = html;
         } catch (err) {
-          console.error("Lỗi loadPublicTree:", err);
+          console.error(err);
           container.innerHTML =
-            '<p class="error-text">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>';
+            "<p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>";
         }
       }
 
