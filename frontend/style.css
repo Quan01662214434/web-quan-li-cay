@@ -1,281 +1,303 @@
-/* =====================================================
-   🌿 THANH HUYỀN FARM - STYLE 4.0
-   ===================================================== */
+/* 🌿 Thanh Huyền Farm - Mobile-first UI */
 
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
-
-:root {
-  --accent: #16a34a;
-  --accent-light: #bbf7d0;
-  --text: #0f172a;
-  --muted: #64748b;
-  --card-bg: rgba(255, 255, 255, 0.9);
-  --border: rgba(148, 163, 184, 0.25);
-  --radius: 10px;
-  --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: "Poppins", sans-serif;
-  color: var(--text);
-  background: linear-gradient(
-      rgba(255, 255, 255, 0.9),
-      rgba(255, 255, 255, 0.9)
-    ),
-    url("https://images.unsplash.com/photo-1600797310547-30fda33f7f32?auto=format&fit=crop&w=1200&q=60")
-      center/cover no-repeat fixed;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: linear-gradient(135deg, #e5f9e7, #ffffff);
+  color: #1f2933;
 }
 
-/* ========== HEADER ========== */
+/* HEADER */
+
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 28px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  padding: 10px 14px;
+  background: #3fa34d;
+  color: white;
 }
 
-.logo-area {
+.brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
-.logo-icon {
-  width: 48px;
-  height: 48px;
-}
-
-.farm-name {
-  font-weight: 700;
-  font-size: 20px;
-  color: var(--accent);
-  letter-spacing: 0.4px;
-}
-
-.farm-sub {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* ========== SIDEBAR ========== */
-.sidebar {
-  position: fixed;
-  top: 70px;
-  left: 0;
-  height: calc(100vh - 70px);
-  width: 230px;
-  background: rgba(255, 255, 255, 0.8);
-  border-right: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-  box-shadow: var(--shadow);
-}
-
-.sidebar ul {
-  list-style: none;
-  margin: 0;
-  padding: 20px;
-}
-
-.sidebar li {
-  margin: 12px 0;
-  padding: 10px 16px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: 0.2s;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.sidebar li.active,
-.sidebar li:hover {
-  background: var(--accent-light);
-  color: var(--accent);
-}
-
-/* ========== MAIN DASHBOARD ========== */
-.app-shell {
-  margin-left: 230px;
-  padding: 20px;
-}
-
-.page-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 10px;
-}
-
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 20px;
-  margin-bottom: 20px;
-  backdrop-filter: blur(6px);
-}
-
-.center {
-  max-width: 400px;
-  margin: 100px auto;
-  text-align: center;
-}
-
-/* ========== FORMS ========== */
-input {
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  width: 90%;
-  margin: 6px 0;
-  font-size: 14px;
-  font-family: "Poppins", sans-serif;
-}
-
-form {
-  margin-top: 10px;
-}
-
-/* ========== BUTTONS ========== */
-.btn-primary {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.25s;
-}
-
-.btn-primary:hover {
-  background: #15803d;
-}
-
-.btn-primary.small {
-  padding: 6px 12px;
-  font-size: 13px;
-}
-
-.btn-secondary {
-  background: var(--accent-light);
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.btn-secondary:hover {
-  background: var(--accent);
-  color: white;
-}
-
-/* ========== TABLES ========== */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-th,
-td {
-  padding: 10px;
-  border-bottom: 1px solid var(--border);
-}
-
-th {
-  background: #f9fafb;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: var(--muted);
-  text-align: left;
-}
-
-tbody tr:hover {
-  background: rgba(187, 247, 208, 0.2);
-}
-
-/* ========== MODALS ========== */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+.logo-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: white;
+  color: #3fa34d;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.brand-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.brand-sub {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+/* BUTTONS */
+
+.btn-primary,
+.btn-secondary {
+  border-radius: 999px;
+  padding: 10px 16px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #3fa34d;
+  color: white;
+  width: 100%;
+}
+
+.btn-secondary {
+  background: white;
+  color: #3f3f46;
+  border: 1px solid #d4d4d8;
+}
+
+.btn-secondary.small,
+.btn-primary.small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+/* HEADER BUTTONS */
+
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* LAYOUT */
+
+main {
+  padding: 12px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+}
+
+.card-center {
+  max-width: 420px;
+  margin: 32px auto;
+  text-align: center;
+}
+
+h2,
+h3 {
+  margin: 0 0 8px 0;
+}
+
+.sub {
+  margin: 0 0 14px 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 12px;
+}
+
+code {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* FORM */
+
+input,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  border: 1px solid #d4d4d8;
+  font-size: 14px;
+}
+
+/* FIELD GROUP */
+
+.field-group {
+  margin-bottom: 10px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #6b7280;
+}
+
+.field-inline {
+  display: flex;
+  gap: 6px;
+}
+
+.field-inline select {
+  flex: 1;
+}
+
+/* TREE LIST */
+
+.tree-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tree-card {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tree-main {
+  font-size: 13px;
+}
+
+.tree-title {
+  font-weight: 600;
+}
+
+.tree-sub {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.tree-health,
+.tree-disease {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.tree-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* MODALS */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
 }
 
 .modal-content {
   background: white;
-  padding: 22px;
-  border-radius: var(--radius);
-  max-width: 500px;
-  width: 90%;
+  padding: 16px;
+  border-radius: 12px;
+  width: 92%;
+  max-width: 420px;
   text-align: center;
-  box-shadow: var(--shadow);
-  animation: fadeIn 0.3s ease;
 }
 
-.modal img {
+.modal-content img {
   max-width: 220px;
-  margin-bottom: 12px;
+  width: 100%;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.qr-note {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 6px 0 12px;
 }
 
-/* ========== LOGS ========== */
-#logs-container {
-  max-height: 300px;
-  overflow-y: auto;
+.disease-list {
   text-align: left;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 10px;
 }
 
-.log-item {
-  background: #f9fafb;
-  border-left: 4px solid var(--accent);
-  padding: 8px 10px;
-  border-radius: 6px;
-  margin-bottom: 8px;
+.disease-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
   font-size: 13px;
 }
 
-.log-item span {
-  color: var(--muted);
-  font-size: 11px;
+.disease-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
 }
 
-/* ========== FOOTER ========== */
+.add-disease {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.add-disease input {
+  flex: 1;
+  border-radius: 999px;
+  padding: 8px 10px;
+  border: 1px solid #d4d4d8;
+}
+
 footer {
   text-align: center;
-  padding: 18px;
-  font-size: 13px;
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.8);
-  border-top: 1px solid var(--border);
-  backdrop-filter: blur(6px);
+  font-size: 12px;
+  padding: 16px 12px 24px;
+  color: #6b7280;
 }
 
-/* ========== UTILITY ========== */
+/* UTILS */
+
 .hidden {
   display: none !important;
+}
+
+/* DESKTOP TWEAKS */
+
+@media (min-width: 768px) {
+  main {
+    padding: 16px;
+  }
+
+  .card-center {
+    margin-top: 60px;
+  }
 }

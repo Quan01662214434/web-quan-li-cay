@@ -3,109 +3,185 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cây sầu riêng - Thanh Huyền Farm 🌿</title>
+    <title>Cây sầu riêng - Thanh Huyền Farm</title>
     <link rel="stylesheet" href="public.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <header>
-      <div class="logo">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 512 512"
-          class="logo-icon"
-        >
-          <circle cx="256" cy="256" r="240" fill="#16a34a" />
-          <path
-            d="M256 128c-64 48-80 144 0 240 80-96 64-192 0-240z"
-            fill="#bbf7d0"
-          />
-        </svg>
-        <div class="text">
-          <h1>THANH HUYỀN FARM</h1>
-          <p>Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng</p>
+    <header class="ph-header">
+      <div class="ph-brand">
+        <div class="ph-logo">TH</div>
+        <div>
+          <div class="ph-name">Thanh Huyền Farm</div>
+          <div class="ph-sub">Vườn sầu riêng hữu cơ</div>
         </div>
       </div>
     </header>
 
-    <main class="container">
-      <div id="tree-info" class="card">
+    <main class="ph-main">
+      <section class="ph-card" id="info-card">
         <h2>🌳 Thông tin cây</h2>
-        <img id="tree-image" alt="Hình cây" class="tree-photo hidden" />
-        <p><b>Tên cây:</b> <span id="tree-name"></span></p>
-        <p><b>Giống:</b> <span id="tree-species"></span></p>
-        <p><b>Vị trí:</b> <span id="tree-location"></span></p>
-        <p><b>Tình trạng:</b> <span id="tree-health"></span></p>
-        <p><b>Ghi chú:</b> <span id="tree-notes"></span></p>
-        <p><b>Chủ vườn:</b> <span id="tree-owner"></span></p>
-      </div>
+        <img
+          id="tree-image"
+          class="ph-image hidden"
+          alt="Hình cây sầu riêng"
+        />
 
-      <div id="yield-info" class="card">
+        <p id="row-name">
+          <b>Tên cây:</b> <span id="tree-name"></span>
+        </p>
+        <p id="row-species">
+          <b>Giống:</b> <span id="tree-species"></span>
+        </p>
+        <p id="row-area">
+          <b>Khu vực:</b> <span id="tree-area"></span>
+        </p>
+        <p id="row-location">
+          <b>Vị trí:</b> <span id="tree-location"></span>
+        </p>
+        <p id="row-plantDate">
+          <b>Ngày trồng:</b> <span id="tree-plantDate"></span>
+        </p>
+        <p id="row-health">
+          <b>Tình trạng:</b> <span id="tree-health"></span>
+        </p>
+        <p id="row-notes">
+          <b>Ghi chú:</b> <span id="tree-notes"></span>
+        </p>
+        <p id="row-diseases">
+          <b>Bệnh:</b> <span id="tree-diseases"></span>
+        </p>
+        <p id="row-owner">
+          <b>Chủ vườn:</b> <span id="tree-owner"></span>
+        </p>
+      </section>
+
+      <section class="ph-card" id="yield-card">
         <h2>📊 Năng suất theo năm</h2>
         <canvas id="yield-chart"></canvas>
-      </div>
+      </section>
     </main>
 
-    <footer>
-      🌿 <b>Thanh Huyền Farm</b> © 2025
-      <br />Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng
+    <footer class="ph-footer">
+      🌿 Thanh Huyền Farm – Đức Trọng, Lâm Đồng
     </footer>
 
     <script>
-      // vì public.html được serve chung host với server
       const API_BASE = "";
 
-      // /public/123 => lấy 123
-      const path = window.location.pathname;
+      const path = window.location.pathname; // /public/3
       const numericId = path.split("/").pop();
+
+      function setRowVisible(rowId, visible) {
+        const el = document.getElementById(rowId);
+        if (!el) return;
+        el.style.display = visible ? "block" : "none";
+      }
 
       async function loadTree() {
         try {
           const res = await fetch(`${API_BASE}/public/tree/${numericId}`);
-          const tree = await res.json();
-
-          if (!tree || tree.error) {
-            document.body.innerHTML =
-              "<h2>❌ Không tìm thấy thông tin cây!</h2>";
+          const data = await res.json();
+          if (!res.ok || !data || data.error) {
+            document.getElementById("info-card").innerHTML =
+              "<p>❌ Không tìm thấy thông tin cây.</p>";
             return;
           }
 
-          document.getElementById("tree-name").textContent = tree.name;
-          document.getElementById("tree-species").textContent = tree.species;
-          document.getElementById("tree-location").textContent = tree.location;
+          const tree = data.tree || data;
+          const cfg = data.displayConfig || {};
+
+          const showName = cfg.showName !== false;
+          const showSpecies = cfg.showSpecies !== false;
+          const showArea = cfg.showArea !== false;
+          const showLocation = cfg.showLocation !== false;
+          const showPlantDate = cfg.showPlantDate !== false;
+          const showImage = cfg.showImage !== false;
+          const showHealth = cfg.showCurrentHealth !== false;
+          const showNotes = cfg.showNotes !== false;
+          const showDiseases = cfg.showDiseases !== false;
+          const showYield = cfg.showYield !== false;
+          const showOwnerName = cfg.showOwnerName !== false;
+
+          // SET TEXT
+          document.getElementById("tree-name").textContent = tree.name || "-";
+          document.getElementById("tree-species").textContent =
+            tree.species || "-";
+          document.getElementById("tree-area").textContent =
+            tree.area || "-";
+          document.getElementById("tree-location").textContent =
+            tree.location || "-";
+          document.getElementById("tree-plantDate").textContent =
+            tree.plantDate || "-";
           document.getElementById("tree-health").textContent =
-            tree.currentHealth;
+            tree.currentHealth || "-";
           document.getElementById("tree-notes").textContent =
             tree.notes || "-";
+          document.getElementById("tree-diseases").textContent =
+            (tree.diseases || []).join(", ") || "-";
           document.getElementById("tree-owner").textContent =
-            tree.owner?.farmName || "Thanh Huyền Farm";
+            tree.owner?.farmName ||
+            tree.owner?.username ||
+            "Thanh Huyền Farm";
 
-          if (tree.imageURL) {
-            const img = document.getElementById("tree-image");
-            img.src = tree.imageURL;
-            img.classList.remove("hidden");
+          // Ảnh
+          const imgEl = document.getElementById("tree-image");
+          if (tree.imageURL && showImage) {
+            imgEl.src = tree.imageURL;
+            imgEl.classList.remove("hidden");
+          } else {
+            imgEl.classList.add("hidden");
           }
 
-          const ctx = document.getElementById("yield-chart").getContext("2d");
-          new Chart(ctx, {
-            type: "bar",
-            data: {
-              labels: tree.yieldHistory.map((y) => y.year),
-              datasets: [
-                {
-                  label: "Năng suất (kg)",
-                  data: tree.yieldHistory.map((y) => y.quantity),
-                  backgroundColor: "#16a34a",
+          // ẨN/HIỆN TỪNG DÒNG THEO CONFIG
+          setRowVisible("row-name", showName);
+          setRowVisible("row-species", showSpecies);
+          setRowVisible("row-area", showArea);
+          setRowVisible("row-location", showLocation);
+          setRowVisible("row-plantDate", showPlantDate);
+          setRowVisible("row-health", showHealth);
+          setRowVisible("row-notes", showNotes);
+          setRowVisible("row-diseases", showDiseases);
+          setRowVisible("row-owner", showOwnerName);
+
+          // NĂNG SUẤT
+          if (!showYield) {
+            document.getElementById("yield-card").style.display = "none";
+          } else {
+            const ctx = document
+              .getElementById("yield-chart")
+              .getContext("2d");
+            const labels = (tree.yieldHistory || []).map((y) => y.year);
+            const quantities = (tree.yieldHistory || []).map(
+              (y) => y.quantity
+            );
+            if (!labels.length) {
+              document.getElementById("yield-card").innerHTML =
+                "<p>Chưa có dữ liệu năng suất.</p>";
+            } else {
+              new Chart(ctx, {
+                type: "bar",
+                data: {
+                  labels,
+                  datasets: [
+                    {
+                      label: "Năng suất (kg)",
+                      data: quantities,
+                      backgroundColor: "#3fa34d",
+                    },
+                  ],
                 },
-              ],
-            },
-            options: {
-              responsive: true,
-              scales: { y: { beginAtZero: true } },
-            },
-          });
+                options: {
+                  responsive: true,
+                  scales: { y: { beginAtZero: true } },
+                },
+              });
+            }
+          }
         } catch (err) {
-          document.body.innerHTML = "<h2>Lỗi khi tải dữ liệu cây!</h2>";
+          console.error(err);
+          document.getElementById("info-card").innerHTML =
+            "<p>❌ Lỗi khi tải dữ liệu cây.</p>";
         }
       }
 
