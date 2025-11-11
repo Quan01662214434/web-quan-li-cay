@@ -41,7 +41,7 @@ body {
   padding: 10px 5vw;
   background: linear-gradient(90deg, var(--green-main), var(--green-dark));
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .header-left {
@@ -102,11 +102,12 @@ body {
   font-size: 13px;
   color: #e9f5eb;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
 }
 
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
 }
 
 .nav-link.active {
@@ -162,8 +163,50 @@ main {
   margin: 0 auto;
 }
 
+.section-landing {
+  margin-top: 24px;
+}
+
 .hidden {
   display: none !important;
+}
+
+/* LANDING (TRANG CHỜ + LOGIN) */
+
+.landing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.landing-text h1 {
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+.landing-text p {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 480px;
+}
+
+.landing-bullets {
+  margin-top: 12px;
+  padding-left: 20px;
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.landing-bullets li + li {
+  margin-top: 6px;
+}
+
+.landing-footer {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 /* CARD */
@@ -176,12 +219,51 @@ main {
   border: 1px solid #e0ece1;
 }
 
+.card h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* LOGIN CARD */
+
+.login-card {
+  max-width: 380px;
+  margin-left: auto;
+}
+
+.login-card h2 {
+  text-align: center;
+}
+
 /* FORM */
+
+.form-grid {
+  display: grid;
+  gap: 10px;
+}
 
 .form-row {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.form-row.two-col {
+  display: grid;
+  grid-template-columns: 1.5fr 0.8fr;
+  gap: 8px;
+}
+
+.form-inline {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: end;
 }
 
 label {
@@ -198,6 +280,7 @@ textarea {
   font-size: 14px;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
+  background: #ffffff;
 }
 
 input:focus,
@@ -207,37 +290,156 @@ textarea:focus {
   box-shadow: 0 0 0 1px rgba(46, 125, 50, 0.15);
 }
 
+textarea {
+  resize: vertical;
+}
+
 /* BUTTONS */
 
 button {
   font-family: inherit;
 }
 
-.btn-primary {
-  background: var(--green-main);
-  color: white;
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-link {
   border-radius: 999px;
   padding: 8px 16px;
   font-size: 14px;
   border: none;
   cursor: pointer;
-  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  color: white;
+  box-shadow: 0 6px 14px rgba(27, 94, 32, 0.25);
 }
 
 .btn-primary:hover {
-  background: var(--green-dark);
+  background: linear-gradient(135deg, #29692d, #174f1a);
+  transform: translateY(-0.5px);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--green-main);
+  border: 1px solid rgba(46, 125, 50, 0.3);
+}
+
+.btn-secondary:hover {
+  background: #f3faf4;
 }
 
 .btn-danger {
   background: var(--danger);
   color: white;
-  border-radius: 999px;
-  padding: 8px 16px;
-  border: none;
-  cursor: pointer;
 }
 
-/* TREE CARD */
+.btn-danger:hover {
+  background: #c62828;
+}
+
+.btn-link {
+  background: transparent;
+  color: var(--green-main);
+  padding-inline: 0;
+}
+
+.btn-link.small {
+  font-size: 13px;
+}
+
+.small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* DASHBOARD GRID */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 20px;
+}
+
+.dashboard-grid > .card:nth-child(3),
+.dashboard-grid > .card:nth-child(4) {
+  grid-column: 1 / -1;
+}
+
+/* FARM VIETGAP CARD */
+
+.farm-vietgap-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #e4f9e7, #c8f0cf);
+  border: 1px solid #a5d8a9;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 5px rgba(0, 60, 0, 0.08);
+  margin-bottom: 14px;
+}
+
+.farm-vietgap-left {
+  display: flex;
+  align-items: center;
+}
+
+.vietgap-logo-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #4caf50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vg-text {
+  font-weight: 700;
+  color: #2e7d32;
+  font-size: 16px;
+}
+
+.farm-vietgap-info {
+  flex: 1;
+}
+
+.farm-vietgap-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1e4620;
+}
+
+.farm-vietgap-detail {
+  font-size: 13px;
+  color: #245c2a;
+}
+
+.farm-vietgap-note {
+  font-size: 11px;
+  color: #3d6f40;
+}
+
+.farm-vietgap-status {
+  font-size: 22px;
+  color: #2c882e;
+}
+
+/* TREE LIST */
 
 .tree-list {
   display: flex;
@@ -250,12 +452,18 @@ button {
 
 .tree-card {
   display: grid;
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 8px;
   padding: 10px 12px;
   border-radius: var(--radius-md);
   border: 1px solid #e0ece1;
   background: #f9fbf9;
+}
+
+.tree-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .tree-title {
@@ -268,7 +476,222 @@ button {
   color: var(--text-muted);
 }
 
-/* FLOATING CONTACT BUTTONS */
+.tree-health {
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.tree-vietgap {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.tree-disease {
+  font-size: 12px;
+  color: #b45309;
+}
+
+.tree-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+/* STAFF & ACTIVITY */
+
+.staff-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.staff-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  background: #f7faf7;
+  border: 1px solid #e2efe4;
+  font-size: 14px;
+}
+
+.activity-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  border-radius: var(--radius-md);
+  border: 1px solid #e2efe4;
+  padding: 8px 10px;
+  background: #f7faf7;
+  font-size: 13px;
+}
+
+.activity-meta {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* MODALS */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.modal-content {
+  position: relative;
+  z-index: 1;
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 20px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+  max-width: 520px;
+  width: 100%;
+}
+
+.modal-qr {
+  text-align: center;
+  max-width: 320px;
+}
+
+.modal-qr img {
+  width: 220px;
+  height: 220px;
+  margin-bottom: 12px;
+}
+
+.modal-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* DISEASE */
+
+.disease-list {
+  border-radius: var(--radius-md);
+  border: 1px solid #e2efe4;
+  padding: 8px 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 4px 8px;
+  font-size: 13px;
+}
+
+.disease-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* STATUS */
+
+.status-row {
+  display: flex;
+  gap: 6px;
+}
+
+.status-row select {
+  flex: 1;
+}
+
+/* DISPLAY CONFIG */
+
+.display-config-grid {
+  margin-top: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2efe4;
+  padding: 10px 10px 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 6px;
+  font-size: 13px;
+}
+
+.display-config-grid label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.text-muted {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* TREE TOOLBAR (FILTER + SEARCH) */
+
+.tree-toolbar {
+  margin: 8px 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tree-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.tree-tabs .tab {
+  border-radius: 999px;
+}
+
+.tree-tabs .tab.active {
+  background: var(--green-main);
+  color: #fff;
+  border-color: var(--green-main);
+}
+
+.tree-search {
+  position: relative;
+  max-width: 260px;
+  width: 100%;
+}
+
+.tree-search input {
+  width: 100%;
+  padding-right: 28px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* NÚT LIÊN HỆ NỔI (ZALO, FB) – dùng cho trang QR */
 
 .floating-contact {
   position: fixed;
@@ -303,51 +726,155 @@ button {
   background: #1877f2;
 }
 
-/* MOBILE OPTIMIZATION */
+/* RESPONSIVE */
 
 @media (max-width: 900px) {
-  .hamburger {
-    display: inline-flex;
-  }
-  .main-nav {
-    display: none;
-    width: 100%;
+  .app-header {
+    padding-inline: 4vw;
     flex-wrap: wrap;
-    border-top: 1px solid rgba(255, 255, 255, 0.25);
-    margin-top: 6px;
+    row-gap: 6px;
   }
+
+  .header-left {
+    flex: 1 1 auto;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  main {
+    padding: 16px 4vw 32px;
+  }
+
+  .landing-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .landing-text h1 {
+    font-size: 22px;
+  }
+
+  .landing-text p,
+  .landing-bullets {
+    font-size: 13px;
+  }
+
+  .login-card {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .tree-card {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 10px;
+  }
+
+  .tree-main {
+    gap: 3px;
+  }
+
+  .tree-title {
+    font-size: 14px;
+  }
+
+  .tree-sub,
+  .tree-health,
+  .tree-vietgap,
+  .tree-disease {
+    font-size: 12px;
+  }
+
+  .tree-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tree-search {
+    max-width: none;
+  }
+
+  .main-nav {
+    order: 3;
+    width: 100%;
+    margin: 6px 0 0;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    display: none;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
   .main-nav.open {
     display: flex;
   }
-  .tree-card {
-    grid-template-columns: 1fr;
-  }
-  .brand-name {
-    font-size: 18px;
+
+  .hamburger {
+    display: inline-flex;
   }
 }
 
 @media (max-width: 600px) {
-  .app-header {
-    flex-wrap: wrap;
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .brand-subtitle {
+    font-size: 11px;
+  }
+
+  .user-info {
+    font-size: 11px;
+  }
+
+  .tree-actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .tree-actions .btn-secondary,
+  .tree-actions .btn-danger {
+    flex: 0 0 auto;
+    font-size: 11px;
+    padding: 5px 9px;
+  }
+
+  .staff-row,
+  .activity-item {
+    font-size: 12px;
+  }
+
+  .activity-meta {
+    font-size: 11px;
+  }
+
+  .floating-contact {
+    right: 12px;
+    bottom: 12px;
     gap: 6px;
   }
-  .tree-card {
-    padding: 8px;
-  }
-  .btn-primary,
-  .btn-danger {
-    font-size: 12px;
-    padding: 6px 12px;
-  }
-  .floating-contact {
-    right: 10px;
-    bottom: 10px;
-  }
+
   .contact-btn {
-    height: 42px;
-    min-width: 42px;
+    min-width: 44px;
+    height: 44px;
     font-size: 11px;
-    padding: 0 10px;
+    padding: 0 12px;
+  }
+}
+
+/* DESKTOP NAV */
+
+@media (min-width: 901px) {
+  .hamburger {
+    display: none;
   }
 }
