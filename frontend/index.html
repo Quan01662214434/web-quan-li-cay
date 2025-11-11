@@ -2,172 +2,225 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+    <title>Thanh Huyền Farm – Quản lý vườn sầu riêng</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thanh Huyền Farm 🌿</title>
     <link rel="stylesheet" href="style.css" />
+    <!-- ChartJS cho phần biểu đồ năng suất -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo-circle">TH</div>
-        <div class="brand-text">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-left">
+        <!-- 🔰 LOGO: anh chỉ cần đặt ảnh tại images/logo-thanh-huyen.png -->
+        <img
+          src="images/logo-thanh-huyen.png"
+          alt="Thanh Huyền Farm"
+          class="logo"
+        />
+        <div class="header-title">
           <div class="brand-name">Thanh Huyền Farm</div>
-          <div class="brand-sub">Quản lý vườn sầu riêng</div>
+          <div class="brand-subtitle">Quản lý vườn sầu riêng hữu cơ</div>
         </div>
       </div>
-      <div class="header-actions">
-        <button
-          id="display-config-btn"
-          class="btn-secondary small hidden"
-          type="button"
-        >
-          Hiển thị QR
-        </button>
-        <button
-          id="logout-btn"
-          class="btn-secondary small hidden"
-          type="button"
-        >
-          Đăng xuất
-        </button>
+      <div class="header-right">
+        <span id="user-info" class="user-info"></span>
+        <button id="logout-btn" class="btn-secondary hidden">Đăng xuất</button>
       </div>
     </header>
 
     <main>
-      <!-- LOGIN -->
-      <section id="login-section" class="card card-center">
-        <h2>Đăng nhập</h2>
-        <p class="sub">Dành cho chủ vườn / nhân viên</p>
-        <form id="login-form">
-          <input
-            type="text"
-            id="username"
-            placeholder="Tên đăng nhập"
-            required
-          />
-          <input
-            type="password"
-            id="password"
-            placeholder="Mật khẩu"
-            required
-          />
-          <button type="submit" class="btn-primary">Đăng nhập</button>
-        </form>
-        <p class="hint">
-          Tài khoản mặc định: <b>thanhhuyen</b> / <b>12345</b><br />
-          (Trước đó gọi
-          <code>https://api.thefram.site/auth/seed-owner</code> 1 lần để
-          tạo/reset)
+      <!-- TRANG CHỜ / LANDING + LOGIN -->
+      <section id="login-section" class="section section-landing">
+        <div class="landing-grid">
+          <div class="landing-text">
+            <h1>Hệ thống quản lý vườn sầu riêng 🌱</h1>
+            <p>
+              Theo dõi từng cây, mã VietGAP, tình trạng sức khỏe, năng suất
+              từng năm và lịch sử làm việc của nhân viên – tất cả trong một
+              màn hình.
+            </p>
+
+            <ul class="landing-bullets">
+              <li>Mỗi cây 1 mã QR – quét là thấy thông tin cần thiết</li>
+              <li>Nhân viên & chủ vườn cùng làm việc trên 1 hệ thống</li>
+              <li>Lưu vết mọi thay đổi – xem ai đã làm gì, lúc nào</li>
+            </ul>
+          </div>
+
+          <div class="card login-card">
+            <h2>Đăng nhập hệ thống 🌿</h2>
+            <form id="login-form" class="form-grid">
+              <div class="form-row">
+                <label for="username">Tài khoản</label>
+                <input
+                  id="username"
+                  type="text"
+                  placeholder="VD: thanhhuyen"
+                  required
+                />
+              </div>
+              <div class="form-row">
+                <label for="password">Mật khẩu</label>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Nhập mật khẩu"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn-primary full-width">
+                Đăng nhập
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <p class="landing-footer">
+          Thanh Huyền Farm | Vườn sầu riêng hữu cơ – Đức Trọng, Lâm Đồng 🌿
         </p>
       </section>
 
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="hidden">
-        <section class="card">
-          <h2>Chào mừng 🌿</h2>
-          <p id="user-info"></p>
-        </section>
-
-        <!-- QUẢN LÝ CÂY -->
-        <section class="card">
-          <h3>Thêm cây mới</h3>
-          <form id="create-tree-form">
-            <input
-              type="text"
-              id="tree-name"
-              placeholder="Tên cây (VD: SR-01)"
-              required
-            />
-            <input
-              type="text"
-              id="tree-species"
-              placeholder="Giống (VD: Ri6, Musang King)"
-              required
-            />
-
-            <!-- KHU VỰC -->
-            <div class="field-group">
-              <label for="tree-area" class="field-label">Khu vực</label>
-              <div class="field-inline">
-                <select id="tree-area"></select>
-                <button
-                  type="button"
-                  class="btn-secondary small"
-                  id="add-area-btn"
-                >
-                  + Thêm khu
-                </button>
+      <!-- DASHBOARD SAU KHI ĐĂNG NHẬP -->
+      <section id="dashboard" class="section hidden">
+        <div class="dashboard-grid">
+          <!-- TẠO CÂY MỚI -->
+          <section class="card">
+            <h2>Thêm cây mới</h2>
+            <form id="create-tree-form" class="form-grid">
+              <div class="form-row">
+                <label for="tree-name">Tên cây *</label>
+                <input
+                  id="tree-name"
+                  type="text"
+                  placeholder="VD: Sầu riêng A01"
+                  required
+                />
               </div>
-            </div>
 
-            <input
-              type="text"
-              id="tree-location"
-              placeholder="Vị trí chi tiết (VD: Hàng 2, Cây 5)"
-              required
-            />
-            <input type="date" id="tree-date" required />
-            <input
-              type="text"
-              id="tree-image"
-              placeholder="URL ảnh cây (tuỳ chọn)"
-            />
-            <button type="submit" class="btn-primary">
-              Lưu cây & tạo QR
-            </button>
-          </form>
-        </section>
+              <div class="form-row">
+                <label for="tree-species">Giống</label>
+                <input
+                  id="tree-species"
+                  type="text"
+                  placeholder="VD: Ri6, Dona..."
+                />
+              </div>
 
-        <section class="card">
-          <h3>Danh sách cây</h3>
-          <div id="tree-list" class="tree-list"></div>
-        </section>
+              <div class="form-row two-col">
+                <div>
+                  <label for="tree-area">Khu vực</label>
+                  <select id="tree-area"></select>
+                </div>
+                <div class="inline-control">
+                  <button
+                    type="button"
+                    id="add-area-btn"
+                    class="btn-link small"
+                  >
+                    + Khu mới
+                  </button>
+                </div>
+              </div>
 
-        <!-- QUẢN LÝ NHÂN VIÊN (chỉ chủ vườn thấy) -->
-        <section id="staff-section" class="card hidden">
-          <h3>Nhân viên vườn</h3>
-          <form id="staff-form">
-            <div class="field-group">
-              <span class="field-label">Tạo tài khoản nhân viên</span>
-              <input
-                type="text"
-                id="staff-username"
-                placeholder="Tên đăng nhập nhân viên"
-                required
-              />
-              <input
-                type="password"
-                id="staff-password"
-                placeholder="Mật khẩu"
-                required
-              />
-              <button type="submit" class="btn-primary small">
-                Tạo nhân viên
+              <div class="form-row">
+                <label for="tree-location">Vị trí trong vườn</label>
+                <input
+                  id="tree-location"
+                  type="text"
+                  placeholder="VD: Hàng A2 - Cây 15"
+                />
+              </div>
+
+              <div class="form-row">
+                <label for="tree-date">Ngày trồng</label>
+                <input id="tree-date" type="date" />
+              </div>
+
+              <div class="form-row">
+                <label for="tree-vietgap">Mã số VietGAP</label>
+                <input
+                  id="tree-vietgap"
+                  type="text"
+                  placeholder="VD: VG-TH-001"
+                />
+              </div>
+
+              <div class="form-row">
+                <label for="tree-image">Hình ảnh (URL – tùy chọn)</label>
+                <input
+                  id="tree-image"
+                  type="url"
+                  placeholder="https://..."
+                />
+              </div>
+
+              <button type="submit" class="btn-primary full-width">
+                Tạo cây & sinh QR
+              </button>
+            </form>
+          </section>
+
+          <!-- DANH SÁCH CÂY -->
+          <section class="card">
+            <div class="card-header">
+              <h2>Danh sách cây trong vườn</h2>
+              <button
+                id="display-config-btn"
+                class="btn-secondary small hidden"
+              >
+                Cấu hình hiển thị QR
               </button>
             </div>
-          </form>
-          <div class="staff-list" id="staff-list"></div>
-        </section>
+            <div id="tree-list" class="tree-list"></div>
+          </section>
 
-        <!-- LỊCH SỬ HOẠT ĐỘNG (chỉ chủ vườn thấy) -->
-        <section id="activity-section" class="card hidden">
-          <h3>Lịch sử hoạt động</h3>
-          <p class="sub">50 hoạt động gần nhất trong vườn.</p>
-          <div id="activity-list" class="activity-list"></div>
-        </section>
+          <!-- QUẢN LÝ NHÂN VIÊN (chỉ chủ vườn) -->
+          <section id="staff-section" class="card hidden">
+            <h2>Nhân viên vườn</h2>
+            <form id="staff-form" class="form-grid form-inline">
+              <div class="form-row">
+                <label for="staff-username">Tài khoản nhân viên</label>
+                <input
+                  id="staff-username"
+                  type="text"
+                  placeholder="VD: nhanvien01"
+                  required
+                />
+              </div>
+              <div class="form-row">
+                <label for="staff-password">Mật khẩu</label>
+                <input
+                  id="staff-password"
+                  type="password"
+                  placeholder="Mật khẩu"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn-primary">
+                Tạo nhân viên
+              </button>
+            </form>
+
+            <div id="staff-list" class="staff-list"></div>
+          </section>
+
+          <!-- LỊCH SỬ HOẠT ĐỘNG (chủ vườn) -->
+          <section id="activity-section" class="card hidden">
+            <h2>Lịch sử hoạt động</h2>
+            <div id="activity-list" class="activity-list"></div>
+          </section>
+        </div>
       </section>
     </main>
 
     <!-- MODAL QR -->
     <div id="qr-modal" class="modal hidden">
-      <div class="modal-content">
-        <h3>QR cây</h3>
-        <img id="qr-image" alt="QR" />
-        <p class="qr-note">
-          Quét QR này để xem thông tin cây (public) trên điện thoại.
-        </p>
-        <button class="btn-secondary small" onclick="closeModal('qr-modal')">
+      <div class="modal-backdrop" onclick="closeModal('qr-modal')"></div>
+      <div class="modal-content modal-qr">
+        <h2>Mã QR của cây</h2>
+        <img id="qr-image" alt="QR Code" />
+        <button class="btn-secondary" onclick="closeModal('qr-modal')">
           Đóng
         </button>
       </div>
@@ -175,166 +228,265 @@
 
     <!-- MODAL NĂNG SUẤT -->
     <div id="yield-modal" class="modal hidden">
+      <div class="modal-backdrop" onclick="closeModal('yield-modal')"></div>
       <div class="modal-content">
-        <h3>Năng suất cây theo năm</h3>
-        <canvas id="yield-chart"></canvas>
-        <form id="yield-form">
-          <input type="number" id="yield-year" placeholder="Năm" required />
-          <input
-            type="number"
-            id="yield-quantity"
-            placeholder="Sản lượng (kg)"
-            required
-          />
-          <button type="submit" class="btn-primary small">Lưu năng suất</button>
+        <h2>Năng suất theo năm</h2>
+        <canvas id="yield-chart" height="200"></canvas>
+
+        <form id="yield-form" class="form-grid">
+          <div class="form-row two-col">
+            <div>
+              <label for="yield-year">Năm</label>
+              <input
+                id="yield-year"
+                type="number"
+                min="2000"
+                max="2100"
+                value="2024"
+                required
+              />
+            </div>
+            <div>
+              <label for="yield-quantity">Sản lượng (kg)</label>
+              <input
+                id="yield-quantity"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="VD: 2000"
+                required
+              />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="closeModal('yield-modal')"
+            >
+              Đóng
+            </button>
+            <button type="submit" class="btn-primary">Lưu năng suất</button>
+          </div>
         </form>
-        <button class="btn-secondary small" onclick="closeModal('yield-modal')">
-          Đóng
-        </button>
       </div>
     </div>
 
     <!-- MODAL BỆNH -->
     <div id="disease-modal" class="modal hidden">
+      <div class="modal-backdrop" onclick="closeModal('disease-modal')"></div>
       <div class="modal-content">
-        <h3>Danh sách bệnh 🌱</h3>
+        <h2>Bệnh & vấn đề của cây</h2>
         <div id="disease-list" class="disease-list"></div>
 
-        <div class="add-disease">
+        <div class="form-row inline">
           <input
-            type="text"
             id="new-disease-name"
-            placeholder="Nhập tên bệnh mới (VD: Thối rễ)"
+            type="text"
+            placeholder="Nhập tên bệnh mới..."
           />
-          <button type="button" class="btn-secondary small" id="add-disease-btn">
+          <button id="add-disease-btn" class="btn-secondary small" type="button">
             + Thêm bệnh
           </button>
         </div>
 
-        <button class="btn-primary small" id="save-disease-btn">
-          Lưu bệnh cho cây
-        </button>
-        <button
-          class="btn-secondary small"
-          onclick="closeModal('disease-modal')"
-        >
-          Đóng
-        </button>
+        <div class="modal-actions">
+          <button
+            class="btn-secondary"
+            type="button"
+            onclick="closeModal('disease-modal')"
+          >
+            Đóng
+          </button>
+          <button id="save-disease-btn" class="btn-primary" type="button">
+            Lưu
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- MODAL TÌNH TRẠNG (DROPDOWN + THÊM MỚI) -->
+    <!-- MODAL TÌNH TRẠNG -->
     <div id="status-modal" class="modal hidden">
+      <div class="modal-backdrop" onclick="closeModal('status-modal')"></div>
       <div class="modal-content">
-        <h3>Cập nhật tình trạng</h3>
-        <div class="field-group">
-          <label class="field-label">Tình trạng</label>
-          <div class="field-inline">
+        <h2>Tình trạng & ghi chú</h2>
+
+        <div class="form-row">
+          <label for="status-select">Tình trạng</label>
+          <div class="status-row">
             <select id="status-select"></select>
             <button
+              id="add-status-btn"
               type="button"
               class="btn-secondary small"
-              id="add-status-btn"
             >
-              + Thêm
+              +
             </button>
           </div>
         </div>
-        <div class="field-group">
-          <label class="field-label">Ghi chú</label>
+
+        <div class="form-row">
+          <label for="status-notes">Ghi chú</label>
           <textarea
             id="status-notes"
-            placeholder="Nhập ghi chú thêm (tuỳ chọn)"
+            rows="3"
+            placeholder="VD: Cần bón bổ sung kali, tỉa cành..."
           ></textarea>
         </div>
-        <button class="btn-primary small" id="save-status-btn">
-          Lưu tình trạng
-        </button>
-        <button
-          class="btn-secondary small"
-          onclick="closeModal('status-modal')"
-        >
-          Đóng
-        </button>
+
+        <div class="modal-actions">
+          <button
+            class="btn-secondary"
+            type="button"
+            onclick="closeModal('status-modal')"
+          >
+            Đóng
+          </button>
+          <button id="save-status-btn" class="btn-primary" type="button">
+            Lưu
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- MODAL CẤU HÌNH HIỂN THỊ QR -->
     <div id="display-config-modal" class="modal hidden">
+      <div
+        class="modal-backdrop"
+        onclick="closeModal('display-config-modal')"
+      ></div>
       <div class="modal-content">
-        <h3>Tuỳ chọn hiển thị QR</h3>
-        <p class="sub">
-          Bật/tắt các trường sẽ xuất hiện khi khách quét QR cây.
+        <h2>Thông tin hiển thị cho khách khi quét QR</h2>
+        <p class="text-muted">
+          Tích chọn những mục anh muốn khách hàng nhìn thấy trên trang thông
+          tin cây.
         </p>
-        <div class="disease-list">
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-name" />
-            <label for="cfg-name">Tên cây</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-species" />
-            <label for="cfg-species">Giống</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-area" />
-            <label for="cfg-area">Khu vực</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-location" />
-            <label for="cfg-location">Vị trí</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-plantDate" />
-            <label for="cfg-plantDate">Ngày trồng</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-image" />
-            <label for="cfg-image">Ảnh cây</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-health" />
-            <label for="cfg-health">Tình trạng</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-notes" />
-            <label for="cfg-notes">Ghi chú</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-diseases" />
-            <label for="cfg-diseases">Bệnh</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-yield" />
-            <label for="cfg-yield">Năng suất</label>
-          </div>
-          <div class="disease-item">
-            <input type="checkbox" id="cfg-ownerName" />
-            <label for="cfg-ownerName">Tên chủ vườn</label>
-          </div>
+
+        <div class="display-config-grid">
+          <label>
+            <input id="cfg-name" type="checkbox" checked />
+            Tên cây
+          </label>
+          <label>
+            <input id="cfg-species" type="checkbox" checked />
+            Giống
+          </label>
+          <label>
+            <input id="cfg-area" type="checkbox" checked />
+            Khu vực
+          </label>
+          <label>
+            <input id="cfg-location" type="checkbox" checked />
+            Vị trí
+          </label>
+          <label>
+            <input id="cfg-plantDate" type="checkbox" checked />
+            Ngày trồng
+          </label>
+          <label>
+            <input id="cfg-image" type="checkbox" checked />
+            Hình ảnh
+          </label>
+          <label>
+            <input id="cfg-health" type="checkbox" checked />
+            Tình trạng hiện tại
+          </label>
+          <label>
+            <input id="cfg-notes" type="checkbox" checked />
+            Ghi chú
+          </label>
+          <label>
+            <input id="cfg-diseases" type="checkbox" checked />
+            Danh sách bệnh
+          </label>
+          <label>
+            <input id="cfg-yield" type="checkbox" checked />
+            Năng suất theo năm
+          </label>
+          <label>
+            <input id="cfg-ownerName" type="checkbox" checked />
+            Tên vườn / chủ vườn
+          </label>
         </div>
 
-        <button class="btn-primary small" id="save-display-config-btn">
-          Lưu cấu hình
-        </button>
-        <button
-          class="btn-secondary small"
-          onclick="closeModal('display-config-modal')"
-        >
-          Đóng
-        </button>
+        <div class="modal-actions">
+          <button
+            class="btn-secondary"
+            type="button"
+            onclick="closeModal('display-config-modal')"
+          >
+            Đóng
+          </button>
+          <button
+            id="save-display-config-btn"
+            class="btn-primary"
+            type="button"
+          >
+            Lưu cấu hình
+          </button>
+        </div>
       </div>
     </div>
 
-    <footer>
-      🌿 Thanh Huyền Farm – Vườn sầu riêng hữu cơ, Đức Trọng – Lâm Đồng
-    </footer>
+    <!-- MODAL CHỈNH THÔNG TIN CÂY (VỊ TRÍ / NGÀY / VIETGAP) -->
+    <div id="edit-tree-modal" class="modal hidden">
+      <div
+        class="modal-backdrop"
+        onclick="closeModal('edit-tree-modal')"
+      ></div>
+      <div class="modal-content">
+        <h2>Chỉnh thông tin cây</h2>
 
+        <form id="edit-tree-form" class="form-grid">
+          <div class="form-row">
+            <label for="edit-tree-location">Vị trí trong vườn</label>
+            <input
+              id="edit-tree-location"
+              type="text"
+              placeholder="VD: Hàng A2 - Cây 15"
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="edit-tree-date">Ngày trồng</label>
+            <input id="edit-tree-date" type="date" />
+          </div>
+
+          <div class="form-row">
+            <label for="edit-tree-vietgap">Mã số VietGAP</label>
+            <input
+              id="edit-tree-vietgap"
+              type="text"
+              placeholder="VD: VG-TH-001"
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="closeModal('edit-tree-modal')"
+            >
+              Huỷ
+            </button>
+            <button type="submit" class="btn-primary">Lưu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- =================== SCRIPT CHÍNH =================== -->
     <script>
-      // 🔧 BACKEND Render:
       const API_BASE = "https://api.thefram.site";
 
-      let token = null;
+      let token = localStorage.getItem("th_token") || null;
       let currentUser = null;
+      try {
+        currentUser = JSON.parse(localStorage.getItem("th_user") || "null");
+      } catch {
+        currentUser = null;
+      }
+
       let lastTrees = [];
       let currentYieldTreeId = null;
       let chartInstance = null;
@@ -347,6 +499,37 @@
       let currentStatusNotes = "";
 
       let displayConfig = null;
+
+      let currentEditTreeId = null;
+
+      // =============== UI SAU LOGIN ===============
+      async function setupAfterLogin() {
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        document.getElementById("logout-btn").classList.remove("hidden");
+        document
+          .getElementById("display-config-btn")
+          .classList.remove("hidden");
+
+        document.getElementById(
+          "user-info"
+        ).innerText = `Xin chào ${currentUser.username} – Vai trò: ${
+          currentUser.role
+        } – Vườn: ${currentUser.farmName || "Thanh Huyền Farm"}`;
+
+        await loadDisplayConfig();
+        loadTrees();
+
+        if (currentUser.role === "owner") {
+          document.getElementById("staff-section").classList.remove("hidden");
+          document.getElementById("activity-section").classList.remove("hidden");
+          loadStaff();
+          loadActivity();
+        } else {
+          document.getElementById("staff-section").classList.add("hidden");
+          document.getElementById("activity-section").classList.add("hidden");
+        }
+      }
 
       // =============== LOGIN ===============
       document
@@ -370,44 +553,21 @@
             token = data.token;
             currentUser = data.user;
 
-            document.getElementById("login-section").classList.add("hidden");
-            document.getElementById("dashboard").classList.remove("hidden");
-            document
-              .getElementById("logout-btn")
-              .classList.remove("hidden");
-            document
-              .getElementById("display-config-btn")
-              .classList.remove("hidden");
+            localStorage.setItem("th_token", token);
+            localStorage.setItem("th_user", JSON.stringify(currentUser));
 
-            document.getElementById(
-              "user-info"
-            ).innerText = `Xin chào ${currentUser.username} – Vai trò: ${
-              currentUser.role
-            } – Vườn: ${currentUser.farmName || "Thanh Huyền Farm"}`;
-
-            await loadDisplayConfig();
-            loadTrees();
-
-            // nếu chủ vườn thì hiện nhân viên + lịch sử
-            if (currentUser.role === "owner") {
-              document
-                .getElementById("staff-section")
-                .classList.remove("hidden");
-              document
-                .getElementById("activity-section")
-                .classList.remove("hidden");
-              loadStaff();
-              loadActivity();
-            }
+            setupAfterLogin();
           } catch (err) {
             console.error(err);
-            alert("Không kết nối được server (API).");
+            alert("Không kết nối được server.");
           }
         });
 
-      document
-        .getElementById("logout-btn")
-        .addEventListener("click", () => location.reload());
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("th_token");
+        localStorage.removeItem("th_user");
+        location.reload();
+      });
 
       // =============== KHU VỰC ===============
       function loadAreas() {
@@ -463,16 +623,19 @@
         .getElementById("create-tree-form")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
+          if (!token) {
+            alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+            return;
+          }
           const name = document.getElementById("tree-name").value.trim();
-          const species = document
-            .getElementById("tree-species")
-            .value.trim();
+          const species = document.getElementById("tree-species").value.trim();
           const area = document.getElementById("tree-area").value;
-          const location = document
-            .getElementById("tree-location")
-            .value.trim();
+          const location = document.getElementById("tree-location").value.trim();
           const plantDate = document.getElementById("tree-date").value;
           const imageURL = document.getElementById("tree-image").value.trim();
+          const vietGapCode = document
+            .getElementById("tree-vietgap")
+            .value.trim();
 
           try {
             const res = await fetch(`${API_BASE}/api/trees`, {
@@ -488,6 +651,7 @@
                 location,
                 plantDate,
                 imageURL,
+                vietGapCode,
               }),
             });
             const data = await res.json();
@@ -506,6 +670,7 @@
 
       // =============== DANH SÁCH CÂY ===============
       async function loadTrees() {
+        if (!token) return;
         try {
           const res = await fetch(`${API_BASE}/api/trees`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -527,6 +692,11 @@
             const card = document.createElement("div");
             card.className = "tree-card";
             const diseasesText = (t.diseases || []).join(", ");
+
+            const vietgapHtml = t.vietGapCode
+              ? `<div class="tree-vietgap">VietGAP: <b>${t.vietGapCode}</b></div>`
+              : "";
+
             card.innerHTML = `
               <div class="tree-main">
                 <div class="tree-title">#${t.numericId} – ${t.name}</div>
@@ -538,6 +708,7 @@
                 <div class="tree-health">Tình trạng: <b>${
                   t.currentHealth
                 }</b></div>
+                ${vietgapHtml}
                 ${
                   diseasesText
                     ? `<div class="tree-disease">Bệnh: ${diseasesText}</div>`
@@ -561,6 +732,12 @@
                 <button class="btn-secondary small" onclick="openDiseaseModal('${
                   t._id
                 }')">Bệnh</button>
+                <button class="btn-secondary small" onclick="openEditTree('${
+                  t._id
+                }')">Sửa</button>
+                <button class="btn-danger small" onclick="deleteTree('${
+                  t._id
+                }')">Xoá</button>
               </div>
             `;
             container.appendChild(card);
@@ -581,7 +758,7 @@
         document.getElementById(id).classList.add("hidden");
       }
 
-      // =============== DANH SÁCH BỆNH ===============
+      // =============== BỆNH ===============
       function loadDiseaseMaster() {
         try {
           diseaseMaster = JSON.parse(
@@ -597,10 +774,7 @@
             "Nấm Phytophthora",
             "Thán thư",
           ];
-          localStorage.setItem(
-            "diseaseMaster",
-            JSON.stringify(diseaseMaster)
-          );
+          localStorage.setItem("diseaseMaster", JSON.stringify(diseaseMaster));
         }
       }
 
@@ -646,22 +820,21 @@
 
         if (!diseaseMaster.includes(name)) {
           diseaseMaster.push(name);
-          localStorage.setItem(
-            "diseaseMaster",
-            JSON.stringify(diseaseMaster)
-          );
+          localStorage.setItem("diseaseMaster", JSON.stringify(diseaseMaster));
         }
         input.value = "";
         if (currentDiseaseTreeId) {
-          const tree = lastTrees.find(
-            (t) => t._id === currentDiseaseTreeId
-          );
+          const tree = lastTrees.find((t) => t._id === currentDiseaseTreeId);
           if (tree) renderDiseaseListForTree(tree);
         }
       }
 
       async function saveDiseaseForTree() {
         if (!currentDiseaseTreeId) return;
+        if (!token) {
+          alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+          return;
+        }
         const checkboxes = document.querySelectorAll(
           "#disease-list input[type='checkbox']:checked"
         );
@@ -693,7 +866,7 @@
         }
       }
 
-      // =============== TÌNH TRẠNG (DROPDOWN) ===============
+      // =============== TÌNH TRẠNG ===============
       function loadStatusMaster() {
         try {
           statusMaster = JSON.parse(
@@ -748,6 +921,10 @@
 
       async function saveStatusForTree() {
         if (!currentStatusTreeId) return;
+        if (!token) {
+          alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+          return;
+        }
         const status = document.getElementById("status-select").value;
         const notes = document.getElementById("status-notes").value;
 
@@ -784,6 +961,10 @@
       async function openYield(id) {
         currentYieldTreeId = id;
         document.getElementById("yield-modal").classList.remove("hidden");
+        if (!token) {
+          alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+          return;
+        }
 
         try {
           const res = await fetch(`${API_BASE}/api/trees`, {
@@ -791,9 +972,7 @@
           });
           const trees = await res.json();
           const tree = trees.find((t) => t._id === id);
-          const ctx = document
-            .getElementById("yield-chart")
-            .getContext("2d");
+          const ctx = document.getElementById("yield-chart").getContext("2d");
           if (chartInstance) chartInstance.destroy();
           const labels = (tree.yieldHistory || []).map((y) => y.year);
           const data = (tree.yieldHistory || []).map((y) => y.quantity);
@@ -825,6 +1004,10 @@
         .addEventListener("submit", async (e) => {
           e.preventDefault();
           if (!currentYieldTreeId) return;
+          if (!token) {
+            alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+            return;
+          }
           const year = document.getElementById("yield-year").value;
           const quantity = document.getElementById("yield-quantity").value;
 
@@ -855,7 +1038,7 @@
           }
         });
 
-      // =============== CẤU HÌNH HIỂN THỊ QR ===============
+      // =============== CẤU HÌNH QR ===============
       const DISPLAY_FIELDS = [
         { key: "showName", checkboxId: "cfg-name" },
         { key: "showSpecies", checkboxId: "cfg-species" },
@@ -871,6 +1054,7 @@
       ];
 
       async function loadDisplayConfig() {
+        if (!token) return;
         try {
           const res = await fetch(`${API_BASE}/api/display-config`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -906,6 +1090,10 @@
       }
 
       async function saveDisplayConfig() {
+        if (!token) {
+          alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+          return;
+        }
         const payload = {};
         DISPLAY_FIELDS.forEach(({ key, checkboxId }) => {
           const cb = document.getElementById(checkboxId);
@@ -936,8 +1124,9 @@
         }
       }
 
-      // =============== STAFF (NHÂN VIÊN) ===============
+      // =============== STAFF ===============
       async function loadStaff() {
+        if (!token) return;
         try {
           const res = await fetch(`${API_BASE}/api/staff`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -945,8 +1134,7 @@
           const data = await res.json();
           const list = document.getElementById("staff-list");
           if (!res.ok) {
-            list.innerHTML =
-              "<p>Không tải được danh sách nhân viên.</p>";
+            list.innerHTML = "<p>Không tải được danh sách nhân viên.</p>";
             return;
           }
           if (!data.length) {
@@ -960,7 +1148,9 @@
             row.className = "staff-row";
             row.innerHTML = `
               <span>${u.username}</span>
-              <button class="btn-secondary small" onclick="deleteStaff('${u._id}')">
+              <button class="btn-secondary small" onclick="deleteStaff('${
+                u._id
+              }')">
                 Xoá
               </button>
             `;
@@ -975,6 +1165,10 @@
 
       async function createStaff(e) {
         e.preventDefault();
+        if (!token) {
+          alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+          return;
+        }
         const username = document
           .getElementById("staff-username")
           .value.trim();
@@ -1007,6 +1201,10 @@
       }
 
       async function deleteStaff(id) {
+        if (!token) {
+          alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+          return;
+        }
         if (!confirm("Bạn chắc chắn muốn xoá nhân viên này?")) return;
         try {
           const res = await fetch(`${API_BASE}/api/staff/${id}`, {
@@ -1026,8 +1224,9 @@
         }
       }
 
-      // =============== ACTIVITY LOG (CHỈ CHỦ VƯỜN) ===============
+      // =============== ACTIVITY LOG ===============
       async function loadActivity() {
+        if (!token) return;
         try {
           const res = await fetch(`${API_BASE}/api/activity`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -1035,8 +1234,7 @@
           const data = await res.json();
           const list = document.getElementById("activity-list");
           if (!res.ok) {
-            list.innerHTML =
-              "<p>Không tải được lịch sử hoạt động.</p>";
+            list.innerHTML = "<p>Không tải được lịch sử hoạt động.</p>";
             return;
           }
           if (!data.length) {
@@ -1067,28 +1265,115 @@
         }
       }
 
+      // =============== SỬA CÂY (VỊ TRÍ / NGÀY / VIETGAP) ===============
+      function openEditTree(treeId) {
+        const tree = lastTrees.find((t) => t._id === treeId);
+        if (!tree) {
+          alert("Không tìm thấy cây.");
+          return;
+        }
+        currentEditTreeId = treeId;
+        document.getElementById("edit-tree-location").value =
+          tree.location || "";
+        document.getElementById("edit-tree-date").value =
+          tree.plantDate ? tree.plantDate.substring(0, 10) : "";
+        document.getElementById("edit-tree-vietgap").value =
+          tree.vietGapCode || "";
+        document.getElementById("edit-tree-modal").classList.remove("hidden");
+      }
+
+      document
+        .getElementById("edit-tree-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!currentEditTreeId) return;
+          if (!token) {
+            alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+            return;
+          }
+          const location = document
+            .getElementById("edit-tree-location")
+            .value.trim();
+          const plantDate = document.getElementById("edit-tree-date").value;
+          const vietGapCode = document
+            .getElementById("edit-tree-vietgap")
+            .value.trim();
+
+          try {
+            const res = await fetch(
+              `${API_BASE}/api/trees/${currentEditTreeId}`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ location, plantDate, vietGapCode }),
+              }
+            );
+            const data = await res.json();
+            if (!res.ok) {
+              alert(data.error || "Không thể cập nhật cây");
+              return;
+            }
+            alert("✅ Đã lưu thông tin cây");
+            closeModal("edit-tree-modal");
+            loadTrees();
+          } catch (err) {
+            console.error(err);
+            alert("Lỗi khi lưu thông tin cây");
+          }
+        });
+
+      // =============== XOÁ CÂY ===============
+      async function deleteTree(treeId) {
+        if (!token) {
+          alert("Phiên đăng nhập đã hết, hãy đăng nhập lại.");
+          return;
+        }
+        if (!confirm("Xoá cây này? Thao tác không thể hoàn tác.")) return;
+        try {
+          const res = await fetch(`${API_BASE}/api/trees/${treeId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            alert(data.error || "Không thể xoá cây");
+            return;
+          }
+          alert("✅ Đã xoá cây");
+          loadTrees();
+        } catch (err) {
+          console.error(err);
+          alert("Lỗi khi xoá cây");
+        }
+      }
+
       // =============== DOM READY ===============
       document.addEventListener("DOMContentLoaded", () => {
         loadAreas();
         loadDiseaseMaster();
         loadStatusMaster();
 
+        // event cho khu vực
         const addAreaBtn = document.getElementById("add-area-btn");
         if (addAreaBtn) addAreaBtn.addEventListener("click", addNewArea);
 
+        // bệnh
         const addDisBtn = document.getElementById("add-disease-btn");
         const saveDisBtn = document.getElementById("save-disease-btn");
         if (addDisBtn) addDisBtn.addEventListener("click", addNewDisease);
-        if (saveDisBtn)
-          saveDisBtn.addEventListener("click", saveDiseaseForTree);
+        if (saveDisBtn) saveDisBtn.addEventListener("click", saveDiseaseForTree);
 
+        // tình trạng
         const addStatusBtn = document.getElementById("add-status-btn");
         const saveStatusBtn = document.getElementById("save-status-btn");
-        if (addStatusBtn)
-          addStatusBtn.addEventListener("click", addNewStatus);
+        if (addStatusBtn) addStatusBtn.addEventListener("click", addNewStatus);
         if (saveStatusBtn)
           saveStatusBtn.addEventListener("click", saveStatusForTree);
 
+        // cấu hình hiển thị
         const displayBtn = document.getElementById("display-config-btn");
         const saveDisplayBtn = document.getElementById(
           "save-display-config-btn"
@@ -1098,17 +1383,25 @@
         if (saveDisplayBtn)
           saveDisplayBtn.addEventListener("click", saveDisplayConfig);
 
+        // nhân viên
         const staffForm = document.getElementById("staff-form");
         if (staffForm) staffForm.addEventListener("submit", createStaff);
+
+        // nếu đã có token thì vào thẳng dashboard
+        if (token && currentUser) {
+          setupAfterLogin();
+        }
       });
 
-      // GLOBAL
+      // global cho HTML gọi
       window.openQrModal = openQrModal;
       window.openYield = openYield;
       window.closeModal = closeModal;
       window.openDiseaseModal = openDiseaseModal;
       window.openStatusModal = openStatusModal;
       window.deleteStaff = deleteStaff;
+      window.deleteTree = deleteTree;
+      window.openEditTree = openEditTree;
     </script>
   </body>
 </html>
