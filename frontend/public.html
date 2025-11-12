@@ -3,217 +3,244 @@
   <head>
     <meta charset="UTF-8" />
     <title>Thông tin cây – Thanh Huyền Farm</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="theme-color" content="#2e7d32" />
     <style>
-      :root { color-scheme: light; }
-      body { background: #f4f7f4; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #1f2933; }
-      .public-container { max-width: 520px; margin: 16px auto 40px; padding: 0 16px; }
-      .public-card { background:#fff; border-radius:14px; padding:16px 16px 18px; box-shadow:0 10px 28px rgba(15,94,35,.10); border:1px solid #e0ece1; }
-      .public-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-      .public-logo { width:44px; height:44px; border-radius:50%; background:#fff; border:2px solid #2e7d32; display:flex; align-items:center; justify-content:center; font-weight:700; color:#2e7d32; }
-      .public-title { display:flex; flex-direction:column; }
-      .public-title h1 { font-size:18px; margin:0; }
-      .public-title p { font-size:13px; margin:.25rem 0 0; color:#4b5563; }
-      .vg-banner { margin:10px 0 12px; background:linear-gradient(135deg,#e4f9e7,#c8f0cf); border-radius:10px; padding:8px 10px; border:1px solid #a5d8a9; font-size:13px; color:#1f4b22; }
-      .tree-img { width:100%; max-height:230px; object-fit:cover; border-radius:10px; margin:8px 0 12px; border:1px solid #e6efe7; }
-      .tree-info { display:grid; gap:6px; }
-      .row { font-size:13px; display:flex; gap:6px; flex-wrap:wrap; }
-      .row b { font-weight:600; }
+      body { background: #f4f7f4; }
+      .public-wrap { max-width: 720px; margin: 18px auto 28px; padding: 0 16px; }
+      .card { background: #fff; border-radius: 16px; padding: 16px; border: 1px solid #e0ece1; box-shadow: 0 10px 28px rgba(15,94,35,.10); }
+      .head { display: grid; grid-template-columns: 72px 1fr auto; gap: 12px; align-items: center; }
+      .logo { width: 56px; height: 56px; border-radius: 50%; background: #fff; border: 2px solid #2e7d32; display: grid; place-items: center; color: #2e7d32; font-weight: 800; }
+      .title h1 { margin: 0; font-size: 18px; }
+      .title p { margin: 4px 0 0; font-size: 13px; color: #4b5563; }
+      .updated-at { font-size: 12px; color: #6b7280; text-align: right; }
+      .hero { margin: 12px 0 14px; border-radius: 14px; overflow: hidden; position: relative; background: #eaf4ec; min-height: 180px; display: grid; place-items: center; }
+      .hero img { width: 100%; max-height: 320px; object-fit: cover; display: block; }
+      .placeholder { width: 100%; height: 220px; display: grid; place-items: center; color: #2e7d32; background: repeating-linear-gradient(45deg,#e8f6eb,#e8f6eb 10px,#f5fbf6 10px,#f5fbf6 20px); font-weight: 600; }
+      .vg { margin: 10px 0 12px; background: linear-gradient(135deg,#e4f9e7,#c8f0cf); border: 1px solid #a5d8a9; border-radius: 12px; padding: 10px 12px; color: #1f4b22; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+      .vg-icon { font-size: 18px; }
+      .summary { display: grid; gap: 10px; margin: 10px 0 4px; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); }
+      .kv { background: #f9fbf9; border: 1px solid #e2efe4; border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+      .kv b { display: block; color: #1f2933; margin-bottom: 4px; }
+      .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
+      .st-normal { background: #e7f6ec; color: #1b5e20; border-color: #c9ebd2; }
+      .st-care   { background: #fff4e5; color: #9a5b00; border-color: #ffe2b7; }
+      .st-sick   { background: #fde8e8; color: #b42318; border-color: #fecaca; }
+      .st-other  { background: #eef2ff; color: #3730a3; border-color: #c7d2fe; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+      .chip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; background: #eef7ff; border: 1px solid #dbeafe; color: #1e3a8a; font-size: 12px; }
+      .section-title { margin: 14px 0 8px; font-size: 15px; font-weight: 700; }
+      .desc p { margin: 6px 0; font-size: 13px; }
+      .yield-card { margin-top: 8px; }
+      .yield-canvas-wrap { padding: 8px; background: #f9fbf9; border: 1px solid #e2efe4; border-radius: 12px; }
+      .center-muted { text-align: center; color: #6b7280; font-size: 14px; padding: 18px 0; }
+      /* Floating cho độc lập */
+      .floating-contact { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 999; }
+      .contact-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; height: 46px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #fff; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,.25); padding: 0 14px; }
+      .zalo-btn { background: #008fe5; } .fb-btn { background: #1877f2; }
       .area-badge { display:inline-block; padding:2px 8px; border:1px solid #a5d8a9; background:#e9f7ec; border-radius:999px; font-size:12px; color:#1e4620; line-height:1.6; }
-      .muted { color:#6b7280; font-size:12px; }
-      .loading { text-align:center; margin:40px 0; color:#6b7280; font-size:14px; }
-      .error { text-align:center; margin:40px 0; color:#b91c1c; font-size:14px; }
-
-      /* Nút nổi liên hệ */
-      .floating-contact { position: fixed; right: 16px; bottom: 16px; display:flex; flex-direction:column; gap:8px; z-index:999; }
-      .contact-btn { display:inline-flex; align-items:center; justify-content:center; min-width:46px; height:46px; border-radius:999px; font-size:12px; font-weight:600; color:#fff; text-decoration:none; box-shadow:0 4px 10px rgba(0,0,0,.25); padding:0 14px; }
-      .zalo-btn { background:#008fe5; }
-      .fb-btn { background:#1877f2; }
-
-      @media (max-width: 540px){
-        .public-container{ padding: 0 12px; }
-      }
     </style>
   </head>
   <body>
-    <div class="public-container">
-      <div id="public-card" class="public-card">
-        <div class="loading" id="loading">Đang tải thông tin cây...</div>
+    <div class="public-wrap">
+      <div id="root" class="card">
+        <div class="center-muted">Đang tải thông tin cây...</div>
       </div>
     </div>
 
-    <!-- Nút nổi liên hệ -->
+    <!-- Liên hệ nổi -->
     <div class="floating-contact">
       <a href="https://zalo.me/0906325133" class="contact-btn zalo-btn" target="_blank" rel="noopener">Zalo</a>
       <a href="https://facebook.com/ThanhHuyenFarm" class="contact-btn fb-btn" target="_blank" rel="noopener">FB</a>
     </div>
 
     <script>
-      // Chọn API_BASE tự động theo host
-      let API_BASE = "";
-      if (location.hostname === "thefram.site") {
-        API_BASE = "https://web-quan-li-cay.onrender.com";
-      } else if (location.hostname.includes("localhost")) {
-        API_BASE = "http://localhost:4000";
-      } else {
-        API_BASE = "https://web-quan-li-cay.onrender.com";
+      // ===== Cấu hình =====
+      const API_BASE = window.location.hostname.includes("localhost")
+        ? "http://localhost:4000"
+        : "https://api.thefram.site";
+      const FARM_ADDRESS_FALLBACK = "Ấp Suối Soong, Xã Phú Vinh, Tỉnh Đồng Nai";
+
+      const $ = (sel) => document.querySelector(sel);
+      const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+      const getTreeId = () => new URLSearchParams(location.search).get("treeId");
+      const fmtDate = (d) => { if (!d) return ""; const x = new Date(d); return isNaN(x) ? "" : x.toLocaleDateString("vi-VN"); };
+      const fmtDateTime = (d) => { if (!d) return ""; const x = new Date(d); return isNaN(x) ? "" : x.toLocaleString("vi-VN"); };
+
+      function statusClass(s){
+        const v = String(s || "").toLowerCase();
+        if (v.includes("bệnh")) return "st-sick";
+        if (v.includes("cần"))  return "st-care";
+        if (v.includes("bình")) return "st-normal";
+        return "st-other";
       }
 
-      // ===== Helpers =====
-      const $ = (id) => document.getElementById(id);
-      const el = (tag, className, text) => {
-        const n = document.createElement(tag);
-        if (className) n.className = className;
-        if (text != null) n.textContent = String(text);
-        return n;
-      };
-      const row = (label, value) => {
-        const r = el("div", "row");
-        const b = el("b", null, label);
-        const s = el("span", null, value);
-        r.append(b, s);
-        return r;
-      };
-      const rowFragment = (label, node) => {
-        const r = el("div", "row");
-        const b = el("b", null, label);
-        r.append(b, node);
-        return r;
-      };
-      const formatDateVN = (s) => {
-        if (!s) return "";
-        const d = new Date(s);
-        return isNaN(d) ? "" : d.toLocaleDateString("vi-VN");
-      };
-
-      function getTreeIdFromUrl() {
-        const params = new URLSearchParams(location.search);
-        return params.get("treeId");
+      function renderSkeleton(){
+        $("#root").innerHTML = `
+          <div class="head">
+            <div class="logo">TH</div>
+            <div class="title">
+              <div style="height:18px;width:180px;background:#eaeff1;border-radius:8px;"></div>
+              <div style="height:12px;width:220px;background:#eaeff1;border-radius:8px;margin-top:6px;"></div>
+            </div>
+            <div class="updated-at"><span style="height:12px;width:120px;display:inline-block;background:#eaeff1;border-radius:8px;"></span></div>
+          </div>
+          <div class="hero"><div style="height:220px;width:100%;background:#eaeff1;border-radius:12px;"></div></div>
+          <div class="vg"><span style="height:14px;width:60%;display:inline-block;background:#eaeff1;border-radius:8px;"></span></div>
+          <div class="summary">
+            <div class="kv"><div style="height:12px;width:40%;background:#eaeff1;border-radius:8px;"></div><div style="height:14px;background:#eaeff1;border-radius:8px;margin-top:8px;"></div></div>
+            <div class="kv"><div style="height:12px;width:40%;background:#eaeff1;border-radius:8px;"></div><div style="height:14px;background:#eaeff1;border-radius:8px;margin-top:8px;"></div></div>
+            <div class="kv"><div style="height:12px;width:40%;background:#eaeff1;border-radius:8px;"></div><div style="height:14px;background:#eaeff1;border-radius:8px;margin-top:8px;"></div></div>
+          </div>
+        `;
       }
 
-      async function loadPublicTree() {
-        const treeId = getTreeIdFromUrl();
-        const card = $("public-card");
-        const loading = $("loading");
+      async function main(){
+        renderSkeleton();
 
-        if (!treeId) {
-          card.innerHTML = "";
-          card.append(el("div", "error", "Thiếu tham số treeId."));
-          return;
-        }
+        const treeId = getTreeId();
+        if (!treeId){ $("#root").innerHTML = `<div class="center-muted">Thiếu tham số <b>treeId</b>.</div>`; return; }
 
-        try {
-          const res = await fetch(`${API_BASE}/public/tree/${encodeURIComponent(treeId)}`);
+        try{
+          const res = await fetch(`${API_BASE}/public/tree/${treeId}`);
           const payload = await res.json();
-          if (!res.ok) throw new Error(payload?.error || "Không tải được dữ liệu");
+          if (!res.ok){ $("#root").innerHTML = `<div class="center-muted">Không tải được dữ liệu. Vui lòng thử lại sau.</div>`; return; }
 
-          const { tree, displayConfig, farmName, farmVietGapCode } = payload;
+          const { tree, displayConfig, farmName, farmVietGapCode, farmAddress } = payload;
           const cfg = displayConfig || {};
-          card.innerHTML = "";
+          const addr = (farmAddress && String(farmAddress).trim()) || FARM_ADDRESS_FALLBACK;
 
-          // Header
-          const header = el("div", "public-header");
-          const logo = el("div", "public-logo", "TH");
-          const title = el("div", "public-title");
-          title.append(el("h1", null, farmName || "Ấp Suối Soong 1, Xã Phú Vinh, Tỉnh Đồng Nai"));
-          title.append(el("p", null, "Vườn sầu riêng hữu cơ – thông tin cây"));
-          header.append(logo, title);
-          card.append(header);
-
-          // VietGAP banner
-          if (farmVietGapCode && cfg.showVietGap !== false) {
-            const vg = el("div", "vg-banner");
-            vg.append(el("span", null, "🌿 Vườn đạt chuẩn VietGAP • Mã số: "));
-            const b = el("b", null, farmVietGapCode);
-            vg.append(b);
-            card.append(vg);
+          // acreage: chuỗi ưu tiên; vẫn hỗ trợ số cũ
+          let acreageText = "";
+          const rawAcreage = tree.acreage ?? tree.areaHa ?? tree.areaHA ?? tree.area_ha;
+          if (rawAcreage !== undefined && rawAcreage !== null && rawAcreage !== ""){
+            if (typeof rawAcreage === "number"){
+              const n = Number(rawAcreage).toFixed(2).replace(/\.?0+$/,"");
+              acreageText = n ? `${n} ha` : "";
+            } else {
+              acreageText = String(rawAcreage);
+            }
           }
+
+          const updatedAt = tree.updatedAt || tree.createdAt;
+
+          // Build UI
+          let html = `
+            <div class="head">
+              <div class="logo">TH</div>
+              <div class="title">
+                <h1>${esc(farmName || "Thanh Huyền Farm")}</h1>
+                <p>Vườn sầu riêng hữu cơ – thông tin cây</p>
+              </div>
+              <div class="updated-at">${updatedAt ? `Cập nhật: ${esc(fmtDateTime(updatedAt))}` : ""}</div>
+            </div>
+          `;
 
           // Ảnh
-          if (cfg.showImage !== false && tree.imageURL) {
-            const img = el("img", "tree-img");
-            img.alt = "Ảnh cây";
-            img.src = tree.imageURL;
-            img.referrerPolicy = "no-referrer";
-            card.append(img);
+          html += `<div class="hero">`;
+          if (cfg.showImage !== false && tree.imageURL){
+            html += `<img src="${esc(tree.imageURL)}" alt="Ảnh cây" />`;
+          } else {
+            html += `<div class="placeholder">Không có ảnh cây</div>`;
+          }
+          html += `</div>`;
+
+          // VietGAP
+          if (farmVietGapCode && cfg.showVietGap !== false){
+            html += `
+              <div class="vg">
+                <div class="vg-icon">🌿</div>
+                <div><b>Vườn đạt chuẩn VietGAP</b><br/>Mã số: <b>${esc(farmVietGapCode)}</b></div>
+              </div>
+            `;
           }
 
-          // Thông tin
-          const info = el("div", "tree-info");
+          // Summary grid
+          html += `<div class="summary">`;
+          if (cfg.showName !== false && tree.name){ html += `<div class="kv"><b>Tên cây</b><div>${esc(tree.name)}</div></div>`; }
+          if (cfg.showSpecies !== false && tree.species){ html += `<div class="kv"><b>Giống</b><div>${esc(tree.species)}</div></div>`; }
+          if (cfg.showArea !== false && tree.area){ html += `<div class="kv"><b>Khu vực</b><div>${esc(tree.area)}</div></div>`; }
+          if (cfg.showLocation !== false && tree.location){ html += `<div class="kv"><b>Vị trí</b><div>${esc(tree.location)}</div></div>`; }
+          if (cfg.showAcreage !== false && acreageText){ html += `<div class="kv"><b>Diện tích</b><div><span class="area-badge">${esc(acreageText)}</span></div></div>`; }
+          if (cfg.showPlantDate !== false && tree.plantDate){ html += `<div class="kv"><b>Ngày trồng</b><div>${esc(fmtDate(tree.plantDate))}</div></div>`; }
+          if (cfg.showOwnerName !== false){ html += `<div class="kv"><b>Địa chỉ</b><div>${esc(addr)}</div></div>`; }
+          html += `</div>`;
 
-          if (cfg.showName !== false && tree.name) {
-            info.append(row("Tên cây:", tree.name));
-          }
-          if (cfg.showSpecies !== false && tree.species) {
-            info.append(row("Giống:", tree.species));
-          }
-
-          if ((cfg.showArea !== false && tree.area) || (cfg.showLocation !== false && tree.location)) {
-            const r = el("div", "row");
-            if (cfg.showArea !== false && tree.area) {
-              r.append(el("b", null, "Khu vực:"));
-              r.append(el("span", null, " " + tree.area + " "));
-            }
-            if (cfg.showLocation !== false && tree.location) {
-              if (tree.area) r.append(el("span", "muted", "•"));
-              const spacer = el("span", null, " ");
-              r.append(spacer);
-              r.append(el("b", null, "Vị trí:"));
-              r.append(el("span", null, " " + tree.location));
-            }
-            info.append(r);
+          if (cfg.showCurrentHealth !== false && tree.currentHealth){
+            html += `<div class="section-title">Tình trạng</div>`;
+            html += `<div class="status-pill ${statusClass(tree.currentHealth)}">🩺 ${esc(tree.currentHealth)}</div>`;
           }
 
-          // Diện tích (chuỗi 'acreage' theo schema server)
-          if (cfg.showAcreage !== false && tree.acreage && String(tree.acreage).trim() !== "") {
-            const badge = el("span", "area-badge", String(tree.acreage).trim());
-            info.append(rowFragment("Diện tích:", badge));
+          if (cfg.showNotes !== false && tree.notes){
+            html += `<div class="section-title">Ghi chú</div><div class="desc"><p>${esc(tree.notes)}</p></div>`;
           }
 
-          if (cfg.showPlantDate !== false && tree.plantDate) {
-            info.append(row("Ngày trồng:", formatDateVN(tree.plantDate)));
+          if (cfg.showDiseases !== false && Array.isArray(tree.diseases) && tree.diseases.length){
+            html += `<div class="section-title">Bệnh &amp; vấn đề</div><div class="chips">`;
+            for (const d of tree.diseases){ html += `<span class="chip">🧪 ${esc(d)}</span>`; }
+            html += `</div>`;
           }
 
-          if (cfg.showCurrentHealth !== false && tree.currentHealth) {
-            info.append(row("Tình trạng:", tree.currentHealth));
+          // Trường tuỳ biến
+          if (Array.isArray(tree.extraFields) && tree.extraFields.some(f => f && f.showPublic && (f.value ?? "") !== "")){
+            html += `<div class="section-title">Thông tin thêm</div><div class="summary">`;
+            tree.extraFields
+              .filter(f => f && f.showPublic && (f.value ?? "") !== "")
+              .forEach(f => {
+                const label = f.label || f.key || "Thông tin";
+                html += `<div class="kv"><b>${esc(label)}</b><div>${esc(f.value)}</div></div>`;
+              });
+            html += `</div>`;
           }
 
-          if (cfg.showNotes !== false && tree.notes) {
-            info.append(row("Ghi chú:", tree.notes));
+          // Năng suất
+          const hasYield = (cfg.showYield !== false) && Array.isArray(tree.yieldHistory) && tree.yieldHistory.length;
+          if (hasYield){
+            html += `<div class="section-title">Năng suất (kg)</div>
+              <div class="yield-card"><div class="yield-canvas-wrap">
+                <canvas id="yieldChart" height="160"></canvas>
+              </div></div>`;
           }
 
-          if (cfg.showDiseases !== false && Array.isArray(tree.diseases) && tree.diseases.length) {
-            info.append(row("Bệnh:", tree.diseases.join(", ")));
+          // Liên hệ
+          html += `
+            <div class="section-title" style="margin-top:16px;">Liên hệ</div>
+            <div class="kv">
+              <div><b>Điện thoại / Zalo</b></div>
+              <div><a href="tel:0906325133">0906 325 133</a></div>
+            </div>
+            <div class="kv" style="margin-top:8px;">
+              <div><b>Facebook</b></div>
+              <div><a href="https://facebook.com/ThanhHuyenFarm" target="_blank" rel="noopener">Fanpage Thanh Huyền Farm</a></div>
+            </div>
+            <div class="kv" style="margin-top:8px;">
+              <div><b>Địa chỉ</b></div>
+              <div>${esc(addr)}</div>
+            </div>
+          `;
+
+          $("#root").innerHTML = html;
+
+          if (hasYield && window.Chart){
+            const sorted = [...tree.yieldHistory].sort((a,b) => a.year - b.year);
+            const labels = sorted.map(x => String(x.year));
+            const data   = sorted.map(x => Number(x.quantity) || 0);
+            const ctx = document.getElementById("yieldChart").getContext("2d");
+            new Chart(ctx, {
+              type: "bar",
+              data: { labels, datasets: [{ label: "kg", data }] },
+              options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
           }
-
-          if (cfg.showYield !== false && Array.isArray(tree.yieldHistory) && tree.yieldHistory.length) {
-            const sorted = [...tree.yieldHistory].sort((a, b) => Number(a.year) - Number(b.year));
-            const text = sorted.map(y => `${y.year}: ${y.quantity}kg`).join(" • ");
-            info.append(row("Năng suất:", text));
-          }
-
-          if (cfg.showOwnerName !== false) {
-            info.append(row("Địa chỉ:", farmName || "Ấp Suối Soong 1, Xã Phú Vinh, Tỉnh Đồng Nai"));
-          }
-
-          // ID & ghi chú phụ
-          const meta = el("div", "muted");
-          const idText = `Mã cây: #${tree.numericId ?? "—"}`;
-          meta.textContent = idText;
-          info.append(meta);
-
-          card.append(info);
-
-        } catch (e) {
+        } catch (e){
           console.error(e);
-          card.innerHTML = "";
-          card.append(el("div", "error", "Không tải được thông tin cây. Vui lòng thử lại sau."));
+          $("#root").innerHTML = `<div class="center-muted">Có lỗi khi tải dữ liệu. Vui lòng thử lại.</div>`;
         }
       }
 
-      document.addEventListener("DOMContentLoaded", loadPublicTree);
+      document.addEventListener("DOMContentLoaded", main);
     </script>
   </body>
 </html>
