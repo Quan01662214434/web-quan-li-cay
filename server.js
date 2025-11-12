@@ -56,7 +56,8 @@ const treeSchema = new mongoose.Schema(
     species: String,
     area: String,
     location: String,
-    acreage: String,            // ✅ Diện tích (m²/ha) dạng text cho linh hoạt
+    acreage: String,            // ✅ Diện tích legacy dạng text để tương thích
+    acreageHa: { type: Number, default: null }, // ✅ Diện tích chuẩn hoá (ha)
     plantDate: Date,
     imageURL: String,
     vietGapCode: String,
@@ -132,6 +133,60 @@ async function logActivity({ ownerId, user, role, action, tree }) {
   } catch (err) {
     console.error("Lỗi ghi activity:", err);
   }
+}
+
+function normalizeAcreageString(raw) {
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const withoutUnit = trimmed.replace(/(hecta(re)?s?|ha)\b/gi, "");
+  const compact = withoutUnit.replace(/\s+/g, "");
+  if (!compact) return null;
+  let normalized = compact;
+  if (normalized.includes(",") && normalized.includes(".")) {
+    const lastComma = normalized.lastIndexOf(",");
+    const lastDot = normalized.lastIndexOf(".");
+    if (lastComma > lastDot) {
+      // Trường hợp 1.234,5 => bỏ dấu chấm phân tách nghìn, đổi phẩy thành chấm.
+      normalized = normalized.replace(/\./g, "");
+      normalized = normalized.replace(/,/g, ".");
+    } else {
+      // Trường hợp 1,234.5 => bỏ dấu phẩy phân tách nghìn.
+      normalized = normalized.replace(/,/g, "");
+    }
+  } else if (normalized.includes(",")) {
+    normalized = normalized.replace(/,/g, ".");
+  }
+  return normalized;
+}
+
+function parseAcreageHa(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === "string") {
+    const normalizedString = normalizeAcreageString(value);
+    if (!normalizedString) return null;
+    const parsed = Number.parseFloat(normalizedString);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  return null;
+}
+
+function legacyAcreageValue(rawInput, normalizedValue) {
+  if (rawInput !== undefined && rawInput !== null) {
+    if (typeof rawInput === "string") {
+      const trimmed = rawInput.trim();
+      if (trimmed) return trimmed;
+    } else if (typeof rawInput === "number" && Number.isFinite(rawInput)) {
+      return rawInput.toString();
+    }
+  }
+  if (normalizedValue !== null && normalizedValue !== undefined) {
+    return normalizedValue.toString();
+  }
+  return "";
 }
 
 // ===================
@@ -224,7 +279,15 @@ app.get("/api/trees", auth, async (req, res) => {
   try {
     const ownerId = await getOwnerIdFromUser(req.user);
     const trees = await Tree.find({ owner: ownerId }).sort({ numericId: 1 }).lean();
-    res.json(trees);
+    const normalizedTrees = trees.map((tree) => {
+      const normalized = { ...tree };
+      if (normalized.acreageHa == null) {
+        const fallback = parseAcreageHa(normalized.acreage);
+        if (fallback !== null) normalized.acreageHa = fallback;
+      }
+      return normalized;
+    });
+    res.json(normalizedTrees);
   } catch (err) {
     console.error("Lỗi get /api/trees:", err);
     res.status(500).json({ error: "Lỗi server" });
@@ -235,8 +298,29 @@ app.post("/api/trees", auth, async (req, res) => {
   try {
     const ownerId = await getOwnerIdFromUser(req.user);
     const {
-      name, species, area, location, acreage, plantDate, imageURL, vietGapCode
+      name,
+      species,
+      area,
+      location,
+      plantDate,
+      imageURL,
+      vietGapCode,
+      acreageHa,
     } = req.body;
+
+    let normalizedAcreageHa = null;
+    if (acreageHa !== undefined) {
+      normalizedAcreageHa = parseAcreageHa(acreageHa);
+    }
+    if (normalizedAcreageHa === null && req.body.acreage !== undefined) {
+      const fallbackNormalized = parseAcreageHa(req.body.acreage);
+      if (fallbackNormalized !== null) normalizedAcreageHa = fallbackNormalized;
+    }
+
+    const legacyAcreage = legacyAcreageValue(
+      req.body.acreage !== undefined ? req.body.acreage : req.body.acreageHa,
+      normalizedAcreageHa
+    );
 
     if (!name) return res.status(400).json({ error: "Tên cây là bắt buộc" });
 
@@ -250,7 +334,8 @@ app.post("/api/trees", auth, async (req, res) => {
       species,
       area,
       location,
-      acreage: acreage || "",         // ✅
+      acreage: legacyAcreage, // ✅ lưu dạng text cho tương thích cũ
+      acreageHa: normalizedAcreageHa,
       plantDate: plantDate || null,
       imageURL,
       vietGapCode,
@@ -287,13 +372,24 @@ app.patch("/api/trees/:id", auth, async (req, res) => {
   try {
     const ownerId = await getOwnerIdFromUser(req.user);
     const { id } = req.params;
-    const { location, acreage, plantDate, vietGapCode } = req.body;
+    const { location, plantDate, vietGapCode, acreageHa } = req.body;
+    const { acreage } = req.body;
 
     const tree = await Tree.findOne({ _id: id, owner: ownerId });
     if (!tree) return res.status(404).json({ error: "Không tìm thấy cây" });
 
     if (location !== undefined) tree.location = location;
-    if (acreage !== undefined) tree.acreage = acreage; // ✅
+    if (acreageHa !== undefined) {
+      const normalized = parseAcreageHa(acreageHa);
+      tree.acreageHa = normalized;
+      const rawForLegacy =
+        req.body.acreage !== undefined ? req.body.acreage : acreageHa;
+      tree.acreage = legacyAcreageValue(rawForLegacy, normalized);
+    } else if (acreage !== undefined) {
+      const normalizedLegacy = parseAcreageHa(acreage);
+      tree.acreage = legacyAcreageValue(acreage, normalizedLegacy);
+      tree.acreageHa = normalizedLegacy;
+    }
     if (plantDate !== undefined) tree.plantDate = plantDate || null;
     if (vietGapCode !== undefined) tree.vietGapCode = vietGapCode;
 
@@ -562,6 +658,11 @@ app.get("/public/tree/:id", async (req, res) => {
     const { id } = req.params;
     const tree = await Tree.findById(id).lean();
     if (!tree) return res.status(404).json({ error: "Không tìm thấy cây" });
+    const normalizedTree = { ...tree };
+    if (normalizedTree.acreageHa == null) {
+      const fallback = parseAcreageHa(normalizedTree.acreage);
+      if (fallback !== null) normalizedTree.acreageHa = fallback;
+    }
 
     const display = await DisplayConfig.findOne({ owner: tree.owner }).lean();
 
@@ -579,7 +680,7 @@ app.get("/public/tree/:id", async (req, res) => {
     }
 
     res.json({
-      tree,
+      tree: normalizedTree,
       displayConfig: display || {},
       farmName: "Thanh Huyền Farm",
       farmVietGapCode: farmVietGap,
