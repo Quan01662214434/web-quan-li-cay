@@ -3,208 +3,213 @@
   <head>
     <meta charset="UTF-8" />
     <title>Thông tin cây – Thanh Huyền Farm</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="format-detection" content="telephone=no" />
     <link rel="stylesheet" href="style.css" />
     <style>
-      body { background: #f4f7f4; }
-      .public-container { max-width: 480px; margin: 16px auto 32px; padding: 0 16px; }
-      .public-card { background:#fff; border-radius:14px; padding:16px 16px 18px; box-shadow:0 8px 24px rgba(15,94,35,.08); border:1px solid #e0ece1; }
-      .public-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-      .public-header-logo { width:44px; height:44px; border-radius:50%; background:#fff; border:2px solid #2e7d32; display:flex; align-items:center; justify-content:center; font-weight:700; color:#2e7d32; }
-      .public-header-text h1 { font-size:18px; margin:0; }
-      .public-header-text p { font-size:13px; margin:2px 0 0; color:#4b5563; }
+      :root { color-scheme: light; }
+      body { background: #f4f7f4; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #1f2933; }
+      .public-container { max-width: 520px; margin: 16px auto 40px; padding: 0 16px; }
+      .public-card { background:#fff; border-radius:14px; padding:16px 16px 18px; box-shadow:0 10px 28px rgba(15,94,35,.10); border:1px solid #e0ece1; }
+      .public-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+      .public-logo { width:44px; height:44px; border-radius:50%; background:#fff; border:2px solid #2e7d32; display:flex; align-items:center; justify-content:center; font-weight:700; color:#2e7d32; }
+      .public-title { display:flex; flex-direction:column; }
+      .public-title h1 { font-size:18px; margin:0; }
+      .public-title p { font-size:13px; margin:.25rem 0 0; color:#4b5563; }
       .vg-banner { margin:10px 0 12px; background:linear-gradient(135deg,#e4f9e7,#c8f0cf); border-radius:10px; padding:8px 10px; border:1px solid #a5d8a9; font-size:13px; color:#1f4b22; }
-      .vg-banner b { font-weight:700; }
-      .tree-img { width:100%; max-height:220px; object-fit:cover; border-radius:10px; margin:8px 0 10px; }
-      .tree-info p { margin:4px 0; font-size:13px; }
-      .tree-info b { font-weight:600; }
-
-      .farm-contact { background:linear-gradient(180deg,#eaf9ef,#d3f0d8); border-top:1px solid #b7e3be; padding:12px 12px 10px; border-radius:10px; margin-top:16px; font-size:13px; color:#1e4620; }
-      .farm-contact h3 { font-size:14px; margin:0 0 6px; color:#14531e; }
-      .farm-contact p { margin:3px 0; }
-      .farm-contact a { color:#207b2f; text-decoration:none; }
-      .farm-contact a:hover { text-decoration:underline; }
-      .loading { text-align:center; margin-top:40px; color:#6b7280; font-size:14px; }
-
-      /* Diện tích (ha) */
-      .area-line { margin:4px 0; font-size:13px; }
+      .tree-img { width:100%; max-height:230px; object-fit:cover; border-radius:10px; margin:8px 0 12px; border:1px solid #e6efe7; }
+      .tree-info { display:grid; gap:6px; }
+      .row { font-size:13px; display:flex; gap:6px; flex-wrap:wrap; }
+      .row b { font-weight:600; }
       .area-badge { display:inline-block; padding:2px 8px; border:1px solid #a5d8a9; background:#e9f7ec; border-radius:999px; font-size:12px; color:#1e4620; line-height:1.6; }
+      .muted { color:#6b7280; font-size:12px; }
+      .loading { text-align:center; margin:40px 0; color:#6b7280; font-size:14px; }
+      .error { text-align:center; margin:40px 0; color:#b91c1c; font-size:14px; }
+
+      /* Nút nổi liên hệ */
+      .floating-contact { position: fixed; right: 16px; bottom: 16px; display:flex; flex-direction:column; gap:8px; z-index:999; }
+      .contact-btn { display:inline-flex; align-items:center; justify-content:center; min-width:46px; height:46px; border-radius:999px; font-size:12px; font-weight:600; color:#fff; text-decoration:none; box-shadow:0 4px 10px rgba(0,0,0,.25); padding:0 14px; }
+      .zalo-btn { background:#008fe5; }
+      .fb-btn { background:#1877f2; }
+
+      @media (max-width: 540px){
+        .public-container{ padding: 0 12px; }
+      }
     </style>
   </head>
   <body>
     <div class="public-container">
-      <div id="public-content" class="public-card">
-        <div class="loading">Đang tải thông tin cây...</div>
+      <div id="public-card" class="public-card">
+        <div class="loading" id="loading">Đang tải thông tin cây...</div>
       </div>
     </div>
 
     <!-- Nút nổi liên hệ -->
     <div class="floating-contact">
-      <a
-        href="https://zalo.me/0906325133"
-        class="contact-btn zalo-btn"
-        target="_blank"
-        rel="noopener"
-      >Zalo</a>
-      <a
-        href="https://facebook.com/ThanhHuyenFarm"
-        class="contact-btn fb-btn"
-        target="_blank"
-        rel="noopener"
-      >FB</a>
+      <a href="https://zalo.me/0906325133" class="contact-btn zalo-btn" target="_blank" rel="noopener">Zalo</a>
+      <a href="https://facebook.com/ThanhHuyenFarm" class="contact-btn fb-btn" target="_blank" rel="noopener">FB</a>
     </div>
 
     <script>
-      // ✅ Xác định API_BASE tự động theo môi trường
+      // Chọn API_BASE tự động theo host
       let API_BASE = "";
-      if (window.location.hostname === "thefram.site") {
-        API_BASE = "https://web-quan-li-cay.onrender.com"; // 👉 Đổi thành URL backend thật của anh nếu khác
-      } else if (window.location.hostname.includes("localhost")) {
+      if (location.hostname === "thefram.site") {
+        API_BASE = "https://web-quan-li-cay.onrender.com";
+      } else if (location.hostname.includes("localhost")) {
         API_BASE = "http://localhost:4000";
       } else {
         API_BASE = "https://web-quan-li-cay.onrender.com";
       }
-      console.log("🔗 API_BASE đang dùng:", API_BASE);
+
+      // ===== Helpers =====
+      const $ = (id) => document.getElementById(id);
+      const el = (tag, className, text) => {
+        const n = document.createElement(tag);
+        if (className) n.className = className;
+        if (text != null) n.textContent = String(text);
+        return n;
+      };
+      const row = (label, value) => {
+        const r = el("div", "row");
+        const b = el("b", null, label);
+        const s = el("span", null, value);
+        r.append(b, s);
+        return r;
+      };
+      const rowFragment = (label, node) => {
+        const r = el("div", "row");
+        const b = el("b", null, label);
+        r.append(b, node);
+        return r;
+      };
+      const formatDateVN = (s) => {
+        if (!s) return "";
+        const d = new Date(s);
+        return isNaN(d) ? "" : d.toLocaleDateString("vi-VN");
+      };
 
       function getTreeIdFromUrl() {
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(location.search);
         return params.get("treeId");
-      }
-
-      function formatDate(dateStr) {
-        if (!dateStr) return "";
-        const d = new Date(dateStr);
-        if (isNaN(d.getTime())) return "";
-        return d.toLocaleDateString("vi-VN");
-      }
-
-      // Gọn số ha: 2.00 -> 2 ; 2.50 -> 2.5 ; 2.345 -> 2.35
-      function formatHa(val) {
-        const n = Number(val);
-        if (Number.isNaN(n)) return "";
-        const s = n.toFixed(2);
-        return s.replace(/\.?0+$/, ""); // bỏ 0 thừa
       }
 
       async function loadPublicTree() {
         const treeId = getTreeIdFromUrl();
-        const container = document.getElementById("public-content");
+        const card = $("public-card");
+        const loading = $("loading");
 
         if (!treeId) {
-          container.innerHTML = "<p>Không tìm thấy cây (thiếu tham số treeId).</p>";
+          card.innerHTML = "";
+          card.append(el("div", "error", "Thiếu tham số treeId."));
           return;
         }
 
         try {
-          const res = await fetch(`${API_BASE}/public/tree/${treeId}`);
-          const data = await res.json();
+          const res = await fetch(`${API_BASE}/public/tree/${encodeURIComponent(treeId)}`);
+          const payload = await res.json();
+          if (!res.ok) throw new Error(payload?.error || "Không tải được dữ liệu");
 
-          if (!res.ok) {
-            container.innerHTML = "<p>Không tải được thông tin cây. Vui lòng thử lại sau.</p>";
-            return;
-          }
-
-          const { tree, displayConfig, farmName, farmVietGapCode } = data;
+          const { tree, displayConfig, farmName, farmVietGapCode } = payload;
           const cfg = displayConfig || {};
+          card.innerHTML = "";
 
-          // Chấp nhận nhiều key để tương thích (areaHa | areaHA | area_ha)
-          const rawAreaHa = tree.areaHa ?? tree.areaHA ?? tree.area_ha;
-          const showAreaHa = (cfg.showAreaHa !== false); // mặc định hiện nếu chưa có cờ
+          // Header
+          const header = el("div", "public-header");
+          const logo = el("div", "public-logo", "TH");
+          const title = el("div", "public-title");
+          title.append(el("h1", null, farmName || "Thanh Huyền Farm"));
+          title.append(el("p", null, "Vườn sầu riêng hữu cơ – thông tin cây"));
+          header.append(logo, title);
+          card.append(header);
 
-          let html = `
-            <div class="public-header">
-              <div class="public-header-logo">TH</div>
-              <div class="public-header-text">
-                <h1>${farmName || "Thanh Huyền Farm"}</h1>
-                <p>Vườn sầu riêng hữu cơ – thông tin cây</p>
-              </div>
-            </div>
-          `;
-
+          // VietGAP banner
           if (farmVietGapCode && cfg.showVietGap !== false) {
-            html += `
-              <div class="vg-banner">
-                🌿 <b>Vườn đạt chuẩn VietGAP</b><br/>
-                Mã số: <b>${farmVietGapCode}</b>
-              </div>
-            `;
+            const vg = el("div", "vg-banner");
+            vg.append(el("span", null, "🌿 Vườn đạt chuẩn VietGAP • Mã số: "));
+            const b = el("b", null, farmVietGapCode);
+            vg.append(b);
+            card.append(vg);
           }
 
-          html += `<div class="tree-info">`;
-
+          // Ảnh
           if (cfg.showImage !== false && tree.imageURL) {
-            html += `<img class="tree-img" src="${tree.imageURL}" alt="Ảnh cây" />`;
+            const img = el("img", "tree-img");
+            img.alt = "Ảnh cây";
+            img.src = tree.imageURL;
+            img.referrerPolicy = "no-referrer";
+            card.append(img);
           }
 
-          if (cfg.showName !== false) {
-            html += `<p><b>Tên cây:</b> ${tree.name}</p>`;
-          }
+          // Thông tin
+          const info = el("div", "tree-info");
 
+          if (cfg.showName !== false && tree.name) {
+            info.append(row("Tên cây:", tree.name));
+          }
           if (cfg.showSpecies !== false && tree.species) {
-            html += `<p><b>Giống:</b> ${tree.species}</p>`;
+            info.append(row("Giống:", tree.species));
           }
 
-          if (cfg.showArea !== false || cfg.showLocation !== false) {
-            html += `<p>`;
+          if ((cfg.showArea !== false && tree.area) || (cfg.showLocation !== false && tree.location)) {
+            const r = el("div", "row");
             if (cfg.showArea !== false && tree.area) {
-              html += `<b>Khu vực:</b> ${tree.area}`;
+              r.append(el("b", null, "Khu vực:"));
+              r.append(el("span", null, " " + tree.area + " "));
             }
             if (cfg.showLocation !== false && tree.location) {
-              if (tree.area) html += " • ";
-              html += `<b>Vị trí:</b> ${tree.location}`;
+              if (tree.area) r.append(el("span", "muted", "•"));
+              const spacer = el("span", null, " ");
+              r.append(spacer);
+              r.append(el("b", null, "Vị trí:"));
+              r.append(el("span", null, " " + tree.location));
             }
-            html += `</p>`;
+            info.append(r);
           }
 
-          // ✅ Diện tích (ha) – chỉ hiển thị khi có dữ liệu & không bị tắt
-          if (showAreaHa && rawAreaHa != null && rawAreaHa !== "") {
-            const areaText = formatHa(rawAreaHa);
-            if (areaText !== "") {
-              html += `<p class="area-line"><b>Diện tích:</b> <span class="area-badge">${areaText} ha</span></p>`;
-            }
+          // Diện tích (chuỗi 'acreage' theo schema server)
+          if (cfg.showAcreage !== false && tree.acreage && String(tree.acreage).trim() !== "") {
+            const badge = el("span", "area-badge", String(tree.acreage).trim());
+            info.append(rowFragment("Diện tích:", badge));
           }
 
           if (cfg.showPlantDate !== false && tree.plantDate) {
-            html += `<p><b>Ngày trồng:</b> ${formatDate(tree.plantDate)}</p>`;
+            info.append(row("Ngày trồng:", formatDateVN(tree.plantDate)));
           }
 
           if (cfg.showCurrentHealth !== false && tree.currentHealth) {
-            html += `<p><b>Tình trạng:</b> ${tree.currentHealth}</p>`;
+            info.append(row("Tình trạng:", tree.currentHealth));
           }
 
           if (cfg.showNotes !== false && tree.notes) {
-            html += `<p><b>Ghi chú:</b> ${tree.notes}</p>`;
+            info.append(row("Ghi chú:", tree.notes));
           }
 
-          if (cfg.showDiseases !== false && tree.diseases && tree.diseases.length) {
-            html += `<p><b>Bệnh:</b> ${tree.diseases.join(", ")}</p>`;
+          if (cfg.showDiseases !== false && Array.isArray(tree.diseases) && tree.diseases.length) {
+            info.append(row("Bệnh:", tree.diseases.join(", ")));
           }
 
-          if (cfg.showYield !== false && tree.yieldHistory && tree.yieldHistory.length) {
-            const sorted = [...tree.yieldHistory].sort((a, b) => a.year - b.year);
-            const text = sorted.map((y) => `${y.year}: ${y.quantity}kg`).join(" • ");
-            html += `<p><b>Năng suất:</b> ${text}</p>`;
+          if (cfg.showYield !== false && Array.isArray(tree.yieldHistory) && tree.yieldHistory.length) {
+            const sorted = [...tree.yieldHistory].sort((a, b) => Number(a.year) - Number(b.year));
+            const text = sorted.map(y => `${y.year}: ${y.quantity}kg`).join(" • ");
+            info.append(row("Năng suất:", text));
           }
 
           if (cfg.showOwnerName !== false) {
-            html += `<p><b>Thuộc vườn:</b> ${farmName || "Thanh Huyền Farm"}</p>`;
+            info.append(row("Thuộc vườn:", farmName || "Thanh Huyền Farm"));
           }
 
-          html += `</div>`;
+          // ID & ghi chú phụ
+          const meta = el("div", "muted");
+          const idText = `Mã cây: #${tree.numericId ?? "—"}`;
+          meta.textContent = idText;
+          info.append(meta);
 
-          html += `
-            <div class="farm-contact">
-              <h3>📞 Liên hệ chủ vườn – Thanh Huyền Farm</h3>
-              <p><b>Điện thoại / Zalo:</b> <a href="tel:0906325133">0906 325 133</a></p>
-              <p><b>Facebook:</b> <a href="https://facebook.com/ThanhHuyenFarm" target="_blank">Fanpage Thanh Huyền Farm</a></p>
-              <p><b>Địa chỉ:</b> Xã Phú Vinh, Tỉnh Đồng Nai</p>
-            </div>
-          `;
+          card.append(info);
 
-          container.innerHTML = html;
-        } catch (err) {
-          console.error(err);
-          container.innerHTML = "<p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>";
+        } catch (e) {
+          console.error(e);
+          card.innerHTML = "";
+          card.append(el("div", "error", "Không tải được thông tin cây. Vui lòng thử lại sau."));
         }
       }
 

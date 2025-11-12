@@ -76,7 +76,7 @@ const displayConfigSchema = new mongoose.Schema(
     showSpecies: { type: Boolean, default: true },
     showArea: { type: Boolean, default: true },
     showLocation: { type: Boolean, default: true },
-    showAcreage: { type: Boolean, default: true },  // ✅ hiển thị Diện tích
+    showAcreage: { type: Boolean, default: true },
     showPlantDate: { type: Boolean, default: true },
     showVietGap: { type: Boolean, default: true },
     showImage: { type: Boolean, default: true },
@@ -235,13 +235,22 @@ app.post("/api/trees", auth, async (req, res) => {
   try {
     const ownerId = await getOwnerIdFromUser(req.user);
     const {
-      name, species, area, location, acreage, plantDate, imageURL, vietGapCode
+      name, species, area, location, acreage, acreageHa, plantDate, imageURL, vietGapCode
     } = req.body;
 
     if (!name) return res.status(400).json({ error: "Tên cây là bắt buộc" });
 
+    // Lấy số thứ tự
     const lastTree = await Tree.findOne({ owner: ownerId }).sort({ numericId: -1 }).lean();
     const nextNumericId = lastTree ? (lastTree.numericId || 0) + 1 : 1;
+
+    // Tương thích: nếu FE gửi acreageHa (number) thì convert sang string "<val> ha"
+    let acreageStr = "";
+    if (typeof acreage === "string" && acreage.trim() !== "") {
+      acreageStr = acreage.trim();
+    } else if (typeof acreageHa === "number" && Number.isFinite(acreageHa)) {
+      acreageStr = String(acreageHa);
+    }
 
     const tree = await Tree.create({
       owner: ownerId,
@@ -250,7 +259,7 @@ app.post("/api/trees", auth, async (req, res) => {
       species,
       area,
       location,
-      acreage: acreage || "",         // ✅
+      acreage: acreageStr,         // ✅ lưu đúng schema cũ
       plantDate: plantDate || null,
       imageURL,
       vietGapCode,
@@ -287,15 +296,21 @@ app.patch("/api/trees/:id", auth, async (req, res) => {
   try {
     const ownerId = await getOwnerIdFromUser(req.user);
     const { id } = req.params;
-    const { location, acreage, plantDate, vietGapCode } = req.body;
+    const { location, acreage, acreageHa, plantDate, vietGapCode } = req.body;
 
     const tree = await Tree.findOne({ _id: id, owner: ownerId });
     if (!tree) return res.status(404).json({ error: "Không tìm thấy cây" });
 
     if (location !== undefined) tree.location = location;
-    if (acreage !== undefined) tree.acreage = acreage; // ✅
     if (plantDate !== undefined) tree.plantDate = plantDate || null;
     if (vietGapCode !== undefined) tree.vietGapCode = vietGapCode;
+
+    // Tương thích acreage/acreageHa
+    if (typeof acreage === "string") {
+      tree.acreage = acreage.trim();
+    } else if (typeof acreageHa === "number" && Number.isFinite(acreageHa)) {
+      tree.acreage = String(acreageHa);
+    }
 
     await tree.save();
 
@@ -401,9 +416,15 @@ app.post("/api/trees/:id/yield", auth, async (req, res) => {
     const tree = await Tree.findOne({ _id: id, owner: ownerId });
     if (!tree) return res.status(404).json({ error: "Không tìm thấy cây" });
 
-    const existing = tree.yieldHistory.find((y) => y.year === Number(year));
-    if (existing) existing.quantity = Number(quantity);
-    else tree.yieldHistory.push({ year: Number(year), quantity: Number(quantity) });
+    const yr = Number(year);
+    const qty = Number(quantity);
+    if (!Number.isFinite(yr) || !Number.isFinite(qty)) {
+      return res.status(400).json({ error: "Dữ liệu năng suất không hợp lệ" });
+    }
+
+    const existing = tree.yieldHistory.find((y) => y.year === yr);
+    if (existing) existing.quantity = qty;
+    else tree.yieldHistory.push({ year: yr, quantity: qty });
 
     await tree.save();
 
@@ -411,7 +432,7 @@ app.post("/api/trees/:id/yield", auth, async (req, res) => {
       ownerId,
       user: req.user.username,
       role: req.user.role,
-      action: `Cập nhật năng suất năm ${year}: ${quantity}kg`,
+      action: `Cập nhật năng suất năm ${yr}: ${qty}kg`,
       tree: tree.name,
     });
 
@@ -447,7 +468,7 @@ app.patch("/api/display-config", auth, async (req, res) => {
       "showSpecies",
       "showArea",
       "showLocation",
-      "showAcreage",     // ✅
+      "showAcreage",
       "showPlantDate",
       "showVietGap",
       "showImage",

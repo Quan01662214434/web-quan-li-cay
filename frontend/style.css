@@ -936,3 +936,50 @@ input[type="number"] {
 .tree-info .area-line b {
   font-weight: 600;
 }
+/* ===== APPEND: A11Y FOCUS ===== */
+:where(button, [type="button"], [type="submit"], a, input, select, textarea):focus-visible{
+  outline:3px solid color-mix(in srgb, var(--green-main) 60%, white);
+  outline-offset:2px; box-shadow:0 0 0 2px rgba(46,125,50,.15);
+}
+
+/* ===== APPEND: REDUCE MOTION ===== */
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+
+/* ===== APPEND: STATUS BADGES ===== */
+.status-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid;line-height:1.6}
+.status-normal{background:#e9f7ec;color:#1e4620;border-color:#a5d8a9}
+.status-need-care{background:#fff8e1;color:#7a5300;border-color:#f3d67a}
+.status-severe{background:#fdecea;color:#7a1a16;border-color:#f5b5b0}
+
+/* ===== APPEND: SCROLLBAR & STICKY TOOLBAR ===== */
+.tree-list{scrollbar-gutter:stable;overscroll-behavior:contain}
+.tree-list::-webkit-scrollbar{width:10px}
+.tree-list::-webkit-scrollbar-thumb{background:#cfe6d2;border-radius:999px}
+.tree-toolbar{position:sticky;top:0;z-index:1;background:white;padding-top:6px}
+
+/* ===== APPEND: LOADING & DISABLED BUTTONS ===== */
+button[disabled]{opacity:.6;cursor:not-allowed}
+button.is-loading{position:relative;pointer-events:none}
+button.is-loading::after{content:"";width:1em;height:1em;border-radius:50%;border:2px solid currentColor;border-top-color:transparent;animation:spin .8s linear infinite;margin-left:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== APPEND: PRINT ===== */
+@media print{
+  .app-header,.tree-actions,.tree-toolbar,.modal,.floating-contact{display:none !important}
+  .card,.tree-card{box-shadow:none;border:1px solid #ccc}
+  body{background:white}
+}
+
+/* ===== APPEND: SR-ONLY ===== */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ===== APPEND: DARK MODE ===== */
+@media (prefers-color-scheme: dark){
+  :root{--bg-body:#0f1712;--text-main:#e7efe8;--text-muted:#9fb3a6;--border-color:#23402a;--shadow-soft:0 10px 30px rgba(0,0,0,.35)}
+  .card,.modal-content{background:#132018;border-color:#23402a}
+  .tree-card,.staff-row,.activity-item{background:#0f1a12;border-color:#203924}
+  .tree-list::-webkit-scrollbar-thumb{background:#2a4b31}
+  .tree-toolbar{background:var(--bg-body)}
+}
