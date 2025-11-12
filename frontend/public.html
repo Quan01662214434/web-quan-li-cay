@@ -6,105 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <style>
-      body {
-        background: #f4f7f4;
-      }
-      .public-container {
-        max-width: 480px;
-        margin: 16px auto 32px;
-        padding: 0 16px;
-      }
-      .public-card {
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 16px 16px 18px;
-        box-shadow: 0 8px 24px rgba(15, 94, 35, 0.08);
-        border: 1px solid #e0ece1;
-      }
-      .public-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 12px;
-      }
-      .public-header-logo {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 2px solid #2e7d32;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        color: #2e7d32;
-      }
-      .public-header-text h1 {
-        font-size: 18px;
-        margin: 0;
-      }
-      .public-header-text p {
-        font-size: 13px;
-        margin: 2px 0 0;
-        color: #4b5563;
-      }
-      .vg-banner {
-        margin: 10px 0 12px;
-        background: linear-gradient(135deg, #e4f9e7, #c8f0cf);
-        border-radius: 10px;
-        padding: 8px 10px;
-        border: 1px solid #a5d8a9;
-        font-size: 13px;
-        color: #1f4b22;
-      }
-      .vg-banner b {
-        font-weight: 700;
-      }
-      .tree-img {
-        width: 100%;
-        max-height: 220px;
-        object-fit: cover;
-        border-radius: 10px;
-        margin: 8px 0 10px;
-      }
-      .tree-info p {
-        margin: 4px 0;
-        font-size: 13px;
-      }
-      .tree-info b {
-        font-weight: 600;
-      }
+      body { background: #f4f7f4; }
+      .public-container { max-width: 480px; margin: 16px auto 32px; padding: 0 16px; }
+      .public-card { background:#fff; border-radius:14px; padding:16px 16px 18px; box-shadow:0 8px 24px rgba(15,94,35,.08); border:1px solid #e0ece1; }
+      .public-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+      .public-header-logo { width:44px; height:44px; border-radius:50%; background:#fff; border:2px solid #2e7d32; display:flex; align-items:center; justify-content:center; font-weight:700; color:#2e7d32; }
+      .public-header-text h1 { font-size:18px; margin:0; }
+      .public-header-text p { font-size:13px; margin:2px 0 0; color:#4b5563; }
+      .vg-banner { margin:10px 0 12px; background:linear-gradient(135deg,#e4f9e7,#c8f0cf); border-radius:10px; padding:8px 10px; border:1px solid #a5d8a9; font-size:13px; color:#1f4b22; }
+      .vg-banner b { font-weight:700; }
+      .tree-img { width:100%; max-height:220px; object-fit:cover; border-radius:10px; margin:8px 0 10px; }
+      .tree-info p { margin:4px 0; font-size:13px; }
+      .tree-info b { font-weight:600; }
 
-      .farm-contact {
-        background: linear-gradient(180deg, #eaf9ef, #d3f0d8);
-        border-top: 1px solid #b7e3be;
-        padding: 12px 12px 10px;
-        border-radius: 10px;
-        margin-top: 16px;
-        font-size: 13px;
-        color: #1e4620;
-      }
-      .farm-contact h3 {
-        font-size: 14px;
-        margin: 0 0 6px;
-        color: #14531e;
-      }
-      .farm-contact p {
-        margin: 3px 0;
-      }
-      .farm-contact a {
-        color: #207b2f;
-        text-decoration: none;
-      }
-      .farm-contact a:hover {
-        text-decoration: underline;
-      }
-      .loading {
-        text-align: center;
-        margin-top: 40px;
-        color: #6b7280;
-        font-size: 14px;
-      }
+      .farm-contact { background:linear-gradient(180deg,#eaf9ef,#d3f0d8); border-top:1px solid #b7e3be; padding:12px 12px 10px; border-radius:10px; margin-top:16px; font-size:13px; color:#1e4620; }
+      .farm-contact h3 { font-size:14px; margin:0 0 6px; color:#14531e; }
+      .farm-contact p { margin:3px 0; }
+      .farm-contact a { color:#207b2f; text-decoration:none; }
+      .farm-contact a:hover { text-decoration:underline; }
+      .loading { text-align:center; margin-top:40px; color:#6b7280; font-size:14px; }
+
+      /* Diện tích (ha) */
+      .area-line { margin:4px 0; font-size:13px; }
+      .area-badge { display:inline-block; padding:2px 8px; border:1px solid #a5d8a9; background:#e9f7ec; border-radius:999px; font-size:12px; color:#1e4620; line-height:1.6; }
     </style>
   </head>
   <body>
@@ -121,34 +45,25 @@
         class="contact-btn zalo-btn"
         target="_blank"
         rel="noopener"
-      >
-        Zalo
-      </a>
+      >Zalo</a>
       <a
         href="https://facebook.com/ThanhHuyenFarm"
         class="contact-btn fb-btn"
         target="_blank"
         rel="noopener"
-      >
-        FB
-      </a>
+      >FB</a>
     </div>
 
     <script>
       // ✅ Xác định API_BASE tự động theo môi trường
       let API_BASE = "";
-
       if (window.location.hostname === "thefram.site") {
-        // Nếu chạy thật trên domain chính
-        API_BASE = "https://web-quan-li-cay.onrender.com"; // 👉 Đổi thành URL backend thật của anh
+        API_BASE = "https://web-quan-li-cay.onrender.com"; // 👉 Đổi thành URL backend thật của anh nếu khác
       } else if (window.location.hostname.includes("localhost")) {
-        // Nếu đang test local
         API_BASE = "http://localhost:4000";
       } else {
-        // Nếu đang chạy ở môi trường khác (subdomain / staging)
         API_BASE = "https://web-quan-li-cay.onrender.com";
       }
-
       console.log("🔗 API_BASE đang dùng:", API_BASE);
 
       function getTreeIdFromUrl() {
@@ -163,13 +78,20 @@
         return d.toLocaleDateString("vi-VN");
       }
 
+      // Gọn số ha: 2.00 -> 2 ; 2.50 -> 2.5 ; 2.345 -> 2.35
+      function formatHa(val) {
+        const n = Number(val);
+        if (Number.isNaN(n)) return "";
+        const s = n.toFixed(2);
+        return s.replace(/\.?0+$/, ""); // bỏ 0 thừa
+      }
+
       async function loadPublicTree() {
         const treeId = getTreeIdFromUrl();
         const container = document.getElementById("public-content");
 
         if (!treeId) {
-          container.innerHTML =
-            "<p>Không tìm thấy cây (thiếu tham số treeId).</p>";
+          container.innerHTML = "<p>Không tìm thấy cây (thiếu tham số treeId).</p>";
           return;
         }
 
@@ -178,13 +100,16 @@
           const data = await res.json();
 
           if (!res.ok) {
-            container.innerHTML =
-              "<p>Không tải được thông tin cây. Vui lòng thử lại sau.</p>";
+            container.innerHTML = "<p>Không tải được thông tin cây. Vui lòng thử lại sau.</p>";
             return;
           }
 
           const { tree, displayConfig, farmName, farmVietGapCode } = data;
           const cfg = displayConfig || {};
+
+          // Chấp nhận nhiều key để tương thích (areaHa | areaHA | area_ha)
+          const rawAreaHa = tree.areaHa ?? tree.areaHA ?? tree.area_ha;
+          const showAreaHa = (cfg.showAreaHa !== false); // mặc định hiện nếu chưa có cờ
 
           let html = `
             <div class="public-header">
@@ -231,6 +156,14 @@
             html += `</p>`;
           }
 
+          // ✅ Diện tích (ha) – chỉ hiển thị khi có dữ liệu & không bị tắt
+          if (showAreaHa && rawAreaHa != null && rawAreaHa !== "") {
+            const areaText = formatHa(rawAreaHa);
+            if (areaText !== "") {
+              html += `<p class="area-line"><b>Diện tích:</b> <span class="area-badge">${areaText} ha</span></p>`;
+            }
+          }
+
           if (cfg.showPlantDate !== false && tree.plantDate) {
             html += `<p><b>Ngày trồng:</b> ${formatDate(tree.plantDate)}</p>`;
           }
@@ -247,24 +180,14 @@
             html += `<p><b>Bệnh:</b> ${tree.diseases.join(", ")}</p>`;
           }
 
-          if (
-            cfg.showYield !== false &&
-            tree.yieldHistory &&
-            tree.yieldHistory.length
-          ) {
-            const sorted = [...tree.yieldHistory].sort(
-              (a, b) => a.year - b.year
-            );
-            const text = sorted
-              .map((y) => `${y.year}: ${y.quantity}kg`)
-              .join(" • ");
+          if (cfg.showYield !== false && tree.yieldHistory && tree.yieldHistory.length) {
+            const sorted = [...tree.yieldHistory].sort((a, b) => a.year - b.year);
+            const text = sorted.map((y) => `${y.year}: ${y.quantity}kg`).join(" • ");
             html += `<p><b>Năng suất:</b> ${text}</p>`;
           }
 
           if (cfg.showOwnerName !== false) {
-            html += `<p><b>Thuộc vườn:</b> ${
-              farmName || "Thanh Huyền Farm"
-            }</p>`;
+            html += `<p><b>Thuộc vườn:</b> ${farmName || "Thanh Huyền Farm"}</p>`;
           }
 
           html += `</div>`;
@@ -274,15 +197,14 @@
               <h3>📞 Liên hệ chủ vườn – Thanh Huyền Farm</h3>
               <p><b>Điện thoại / Zalo:</b> <a href="tel:0906325133">0906 325 133</a></p>
               <p><b>Facebook:</b> <a href="https://facebook.com/ThanhHuyenFarm" target="_blank">Fanpage Thanh Huyền Farm</a></p>
-              <p><b>Địa chỉ:</b> Xã Phú Vinh, Tỉnh Đồng Nai </p>
+              <p><b>Địa chỉ:</b> Xã Phú Vinh, Tỉnh Đồng Nai</p>
             </div>
           `;
 
           container.innerHTML = html;
         } catch (err) {
           console.error(err);
-          container.innerHTML =
-            "<p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>";
+          container.innerHTML = "<p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>";
         }
       }
 

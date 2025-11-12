@@ -205,6 +205,18 @@
                 />
               </div>
 
+              <!-- ✅ Diện tích (ha) -->
+              <div class="form-row">
+                <label for="tree-acreage">Diện tích (ha)</label>
+                <input
+                  id="tree-acreage"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="VD: 0.15"
+                />
+              </div>
+
               <button type="submit" class="btn-primary full-width">
                 Tạo cây & sinh QR
               </button>
@@ -477,6 +489,12 @@
             Mã số VietGAP
           </label>
 
+          <!-- ✅ Diện tích (ha) -->
+          <label>
+            <input id="cfg-acreage" type="checkbox" checked />
+            Diện tích (ha)
+          </label>
+
           <label>
             <input id="cfg-image" type="checkbox" checked />
             Hình ảnh
@@ -552,6 +570,18 @@
               id="edit-tree-vietgap"
               type="text"
               placeholder="VD: VG-TH-001"
+            />
+          </div>
+
+          <!-- ✅ Diện tích (ha) -->
+          <div class="form-row">
+            <label for="edit-tree-acreage">Diện tích (ha)</label>
+            <input
+              id="edit-tree-acreage"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="VD: 0.15"
             />
           </div>
 
@@ -737,6 +767,12 @@
           const vietGapCode = document
             .getElementById("tree-vietgap")
             .value.trim();
+
+          // ✅ Diện tích (ha)
+          const acreageStr = document.getElementById("tree-acreage").value;
+          const acreageHa =
+            acreageStr === "" ? null : Number.parseFloat(acreageStr);
+
           try {
             const res = await fetch(`${API_BASE}/api/trees`, {
               method: "POST",
@@ -752,6 +788,7 @@
                 plantDate,
                 imageURL,
                 vietGapCode,
+                acreageHa, // ✅ gửi lên server
               }),
             });
             const data = await res.json();
@@ -827,6 +864,10 @@
           const vietgapHtml = t.vietGapCode
             ? `<div class="tree-vietgap">VietGAP: <b>${t.vietGapCode}</b></div>`
             : "";
+          const acreageHtml =
+            typeof t.acreageHa === "number"
+              ? `<div class="tree-vietgap">Diện tích: <b>${t.acreageHa} ha</b></div>`
+              : "";
           card.innerHTML = `
             <div class="tree-main">
               <div class="tree-title">#${t.numericId} – ${t.name}</div>
@@ -839,6 +880,7 @@
                 t.currentHealth || "Chưa cập nhật"
               }</b></div>
               ${vietgapHtml}
+              ${acreageHtml}
               ${
                 diseasesText
                   ? `<div class="tree-disease">Bệnh: ${diseasesText}</div>`
@@ -1182,6 +1224,7 @@
         { key: "showLocation", checkboxId: "cfg-location" },
         { key: "showPlantDate", checkboxId: "cfg-plantDate" },
         { key: "showVietGap", checkboxId: "cfg-vietgap" }, // VietGAP
+        { key: "showAcreage", checkboxId: "cfg-acreage" }, // ✅ Diện tích
         { key: "showImage", checkboxId: "cfg-image" },
         { key: "showCurrentHealth", checkboxId: "cfg-health" },
         { key: "showNotes", checkboxId: "cfg-notes" },
@@ -1413,6 +1456,9 @@
           : "";
         document.getElementById("edit-tree-vietgap").value =
           tree.vietGapCode || "";
+        // ✅ Diện tích
+        document.getElementById("edit-tree-acreage").value =
+          typeof tree.acreageHa === "number" ? tree.acreageHa : "";
         document.getElementById("edit-tree-modal").classList.remove("hidden");
       }
 
@@ -1432,6 +1478,12 @@
           const vietGapCode = document
             .getElementById("edit-tree-vietgap")
             .value.trim();
+          const acreageStr = document
+            .getElementById("edit-tree-acreage")
+            .value;
+          const acreageHa =
+            acreageStr === "" ? null : Number.parseFloat(acreageStr);
+
           try {
             const res = await fetch(
               `${API_BASE}/api/trees/${currentEditTreeId}`,
@@ -1441,7 +1493,7 @@
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ location, plantDate, vietGapCode }),
+                body: JSON.stringify({ location, plantDate, vietGapCode, acreageHa }),
               }
             );
             const data = await res.json();

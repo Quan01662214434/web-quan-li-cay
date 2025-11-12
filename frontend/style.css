@@ -878,3 +878,61 @@ button {
     display: none;
   }
 }
+/* ============ AREA (ha) – ADDONS ============ */
+
+/* Ô nhập có hậu tố đơn vị (ví dụ "ha") */
+.form-row .with-suffix {
+  position: relative;
+}
+
+.form-row .with-suffix input[type="number"],
+.form-row .with-suffix input[type="text"] {
+  padding-right: 56px; /* chừa chỗ cho nhãn "ha" */
+}
+
+.input-suffix {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Ẩn mũi tên tăng/giảm của input number (WebKit) để nhìn gọn */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+/* Dòng hiển thị diện tích trong card cây */
+.tree-areaha {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+/* Badge nhỏ gắn sau tên hoặc dưới thông tin */
+.area-ha-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid #a5d8a9;
+  background: #e9f7ec;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #1e4620;
+  line-height: 1.6;
+}
+
+/* Hiển thị đẹp trong trang QR (public.html) */
+.tree-info .area-line {
+  margin: 4px 0;
+  font-size: 13px;
+}
+.tree-info .area-line b {
+  font-weight: 600;
+}
