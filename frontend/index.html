@@ -632,6 +632,42 @@
       let treeSearchTerm = "";
       let treeStatusFilter = "all";
 
+      function parseAcreageInput(raw) {
+        if (raw === null || raw === undefined) return null;
+        if (typeof raw === "number") {
+          return Number.isFinite(raw) ? raw : null;
+        }
+        if (typeof raw === "string") {
+          const trimmed = raw.trim();
+          if (!trimmed) return null;
+          const withoutUnit = trimmed.replace(/(hecta(re)?s?|ha)\b/gi, "");
+          const compact = withoutUnit.replace(/\s+/g, "");
+          if (!compact) return null;
+          let normalized = compact;
+          if (normalized.includes(",") && normalized.includes(".")) {
+            const lastComma = normalized.lastIndexOf(",");
+            const lastDot = normalized.lastIndexOf(".");
+            if (lastComma > lastDot) {
+              normalized = normalized.replace(/\./g, "");
+              normalized = normalized.replace(/,/g, ".");
+            } else {
+              normalized = normalized.replace(/,/g, "");
+            }
+          } else if (normalized.includes(",")) {
+            normalized = normalized.replace(/,/g, ".");
+          }
+          const parsed = Number.parseFloat(normalized);
+          return Number.isNaN(parsed) ? null : parsed;
+        }
+        return null;
+      }
+
+      function formatAcreageValue(raw) {
+        const parsed = parseAcreageInput(raw);
+        if (parsed === null) return null;
+        return Number(parsed.toFixed(2)).toString();
+      }
+
       async function setupAfterLogin() {
         document.getElementById("login-section").classList.add("hidden");
         document.getElementById("dashboard").classList.remove("hidden");
@@ -769,9 +805,23 @@
             .value.trim();
 
           // ✅ Diện tích (ha)
-          const acreageStr = document.getElementById("tree-acreage").value;
-          const acreageHa =
-            acreageStr === "" ? null : Number.parseFloat(acreageStr);
+          const acreageInput = document.getElementById("tree-acreage");
+          const acreageStr = acreageInput ? acreageInput.value : "";
+          const acreageHa = parseAcreageInput(acreageStr);
+
+          const payload = {
+            name,
+            species,
+            area,
+            location,
+            plantDate,
+            imageURL,
+            vietGapCode,
+            acreageHa,
+          };
+          if (acreageStr && acreageStr.trim()) {
+            payload.acreage = acreageStr.trim();
+          }
 
           try {
             const res = await fetch(`${API_BASE}/api/trees`, {
@@ -780,16 +830,7 @@
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({
-                name,
-                species,
-                area,
-                location,
-                plantDate,
-                imageURL,
-                vietGapCode,
-                acreageHa, // ✅ gửi lên server
-              }),
+              body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (!res.ok) {
@@ -864,9 +905,13 @@
           const vietgapHtml = t.vietGapCode
             ? `<div class="tree-vietgap">VietGAP: <b>${t.vietGapCode}</b></div>`
             : "";
+          let acreageDisplay = formatAcreageValue(t.acreageHa);
+          if (acreageDisplay === null) {
+            acreageDisplay = formatAcreageValue(t.acreage);
+          }
           const acreageHtml =
-            typeof t.acreageHa === "number"
-              ? `<div class="tree-vietgap">Diện tích: <b>${t.acreageHa} ha</b></div>`
+            acreageDisplay !== null
+              ? `<div class="tree-vietgap">Diện tích: <b>${acreageDisplay} ha</b></div>`
               : "";
           card.innerHTML = `
             <div class="tree-main">
@@ -1457,8 +1502,18 @@
         document.getElementById("edit-tree-vietgap").value =
           tree.vietGapCode || "";
         // ✅ Diện tích
-        document.getElementById("edit-tree-acreage").value =
-          typeof tree.acreageHa === "number" ? tree.acreageHa : "";
+        let editAcreageValue = "";
+        const preferredAcreageSource =
+          tree.acreageHa !== undefined && tree.acreageHa !== null
+            ? tree.acreageHa
+            : tree.acreage;
+        const parsedEditAcreage = parseAcreageInput(preferredAcreageSource);
+        if (parsedEditAcreage !== null) {
+          editAcreageValue = parsedEditAcreage.toString();
+        } else if (typeof tree.acreage === "string" && tree.acreage.trim()) {
+          editAcreageValue = tree.acreage.trim();
+        }
+        document.getElementById("edit-tree-acreage").value = editAcreageValue;
         document.getElementById("edit-tree-modal").classList.remove("hidden");
       }
 
@@ -1478,11 +1533,14 @@
           const vietGapCode = document
             .getElementById("edit-tree-vietgap")
             .value.trim();
-          const acreageStr = document
-            .getElementById("edit-tree-acreage")
-            .value;
-          const acreageHa =
-            acreageStr === "" ? null : Number.parseFloat(acreageStr);
+          const acreageInputEl = document.getElementById("edit-tree-acreage");
+          const acreageStr = acreageInputEl ? acreageInputEl.value : "";
+          const acreageHa = parseAcreageInput(acreageStr);
+
+          const payload = { location, plantDate, vietGapCode, acreageHa };
+          if (acreageStr && acreageStr.trim()) {
+            payload.acreage = acreageStr.trim();
+          }
 
           try {
             const res = await fetch(
@@ -1493,7 +1551,7 @@
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ location, plantDate, vietGapCode, acreageHa }),
+                body: JSON.stringify(payload),
               }
             );
             const data = await res.json();

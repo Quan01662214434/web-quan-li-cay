@@ -78,11 +78,41 @@
         return d.toLocaleDateString("vi-VN");
       }
 
+      function parseHaValue(raw) {
+        if (raw === null || raw === undefined) return null;
+        if (typeof raw === "number") {
+          return Number.isFinite(raw) ? raw : null;
+        }
+        if (typeof raw === "string") {
+          const trimmed = raw.trim();
+          if (!trimmed) return null;
+          const withoutUnit = trimmed.replace(/(hecta(re)?s?|ha)\b/gi, "");
+          const compact = withoutUnit.replace(/\s+/g, "");
+          if (!compact) return null;
+          let normalized = compact;
+          if (normalized.includes(",") && normalized.includes(".")) {
+            const lastComma = normalized.lastIndexOf(",");
+            const lastDot = normalized.lastIndexOf(".");
+            if (lastComma > lastDot) {
+              normalized = normalized.replace(/\./g, "");
+              normalized = normalized.replace(/,/g, ".");
+            } else {
+              normalized = normalized.replace(/,/g, "");
+            }
+          } else if (normalized.includes(",")) {
+            normalized = normalized.replace(/,/g, ".");
+          }
+          const parsed = Number.parseFloat(normalized);
+          return Number.isNaN(parsed) ? null : parsed;
+        }
+        return null;
+      }
+
       // Gọn số ha: 2.00 -> 2 ; 2.50 -> 2.5 ; 2.345 -> 2.35
       function formatHa(val) {
-        const n = Number(val);
-        if (Number.isNaN(n)) return "";
-        const s = n.toFixed(2);
+        const parsed = parseHaValue(val);
+        if (parsed === null) return "";
+        const s = parsed.toFixed(2);
         return s.replace(/\.?0+$/, ""); // bỏ 0 thừa
       }
 
@@ -107,8 +137,13 @@
           const { tree, displayConfig, farmName, farmVietGapCode } = data;
           const cfg = displayConfig || {};
 
-          // Chấp nhận nhiều key để tương thích (areaHa | areaHA | area_ha)
-          const rawAreaHa = tree.areaHa ?? tree.areaHA ?? tree.area_ha;
+          // Chấp nhận nhiều key để tương thích (acreageHa mới + areaHa legacy)
+          const rawAreaHa =
+            tree.acreageHa ??
+            tree.areaHa ??
+            tree.areaHA ??
+            tree.area_ha ??
+            tree.acreage;
           const showAreaHa = (cfg.showAreaHa !== false); // mặc định hiện nếu chưa có cờ
 
           let html = `
