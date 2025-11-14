@@ -944,6 +944,7 @@
         document.getElementById("edit-tree-location").value = tree.location || "";
         document.getElementById("edit-tree-date").value = tree.plantDate ? tree.plantDate.substring(0, 10) : "";
         document.getElementById("edit-tree-vietgap").value = tree.vietGapCode || "";
+        document.getElementById("edit-tree-image").value = tree.imageURL || "";
         document.getElementById("edit-tree-acreage").value = typeof tree.acreage === "string" ? tree.acreage : (tree.acreage ?? "");
         document.getElementById("edit-tree-modal").classList.remove("hidden");
       }
