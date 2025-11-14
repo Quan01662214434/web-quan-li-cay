@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -179,7 +179,7 @@ function pickAddress(area, farmAddressFromServer) {
           if (cfg.showLocation !== false && tree.location){ html += `<div class="kv"><b>Vị trí</b><div>${esc(tree.location)}</div></div>`; }
           if (cfg.showAcreage !== false && acreageText){ html += `<div class="kv"><b>Diện tích</b><div><span class="area-badge">${esc(acreageText)}</span></div></div>`; }
           if (cfg.showPlantDate !== false && tree.plantDate){ html += `<div class="kv"><b>Ngày trồng</b><div>${esc(fmtDate(tree.plantDate))}</div></div>`; }
-          if (cfg.showOwnerName !== false){ html += `<div class="kv"><b>Địa chỉ</b><div>${esc(addr)}</div></div>`; }
+          if (cfg.showOwnerName !== false){ html += `<div class="kv"><b>Địa chỉ</b><div>${esc(addressText)}</div></div>`; }
           html += `</div>`;
 
           if (cfg.showCurrentHealth !== false && tree.currentHealth){
@@ -231,7 +231,7 @@ function pickAddress(area, farmAddressFromServer) {
             </div>
             <div class="kv" style="margin-top:8px;">
               <div><b>Địa chỉ</b></div>
-              <div>${esc(addr)}</div>
+              <div>${esc(addressText)}</div>
             </div>
           `;
 
