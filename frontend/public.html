@@ -75,7 +75,7 @@
      //  theo khu; nếu server có farmAddress thì ưu tiên
      function pickAddress(area, farmAddressFromServer) {
        const a = normalizeVN(area);
-       if (a === "khu c" || /\bkhu\s*c\b/.test(a) || a === "c") {
+       if (a.startsWith("khu c") || a === "c"){
           return AREA_C_ADDRESS;
         }
         return (farmAddressFromServer && String(farmAddressFromServer).trim()) || DEFAULT_ADDRESS;
@@ -127,8 +127,7 @@
           if (!res.ok){ $("#root").innerHTML = `<div class="center-muted">Không tải được dữ liệu. Vui lòng thử lại sau.</div>`; return; }
 
           const { tree, displayConfig, farmName, farmVietGapCode, farmAddress } = payload;
-          const addr = pickAddress(tree.area, farmAddress);
-
+         
                     const FARM_NAME_OVERRIDE = "Thanh Huyền Farm";
           const farmNameFinal = (FARM_NAME_OVERRIDE && FARM_NAME_OVERRIDE.trim()) || farmName || "Thanh Huyền Farm";
           const cfg = displayConfig || {};
