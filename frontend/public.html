@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -117,14 +117,17 @@ function pickAddress(area, farmAddressFromServer) {
         try{
           const res = await fetch(`${API_BASE}/public/tree/${treeId}`);
           const payload = await res.json();
-          if (!res.ok){ $("#root").innerHTML = `<div class="center-muted">Không tải được dữ liệu. Vui lòng thử lại sau.</div>`; return; }
-
+          // --- KHAI BÁO BIẾN DÙNG CHUNG (CHỈ 1 LẦN) ---
           const { tree, displayConfig, farmName, farmVietGapCode, farmAddress } = payload;
-         
-                    const FARM_NAME_OVERRIDE = "Thanh Huyền Farm";
-          const farmNameFinal = (FARM_NAME_OVERRIDE && FARM_NAME_OVERRIDE.trim()) || farmName || "Thanh Huyền Farm";
+
+          const FARM_NAME_OVERRIDE = "Thanh Huyền Farm";
+          const farmNameFinal =
+           (FARM_NAME_OVERRIDE && FARM_NAME_OVERRIDE.trim()) || farmName || "Thanh Huyền Farm";
+
           const cfg = displayConfig || {};
-         const addr = pickAddress(tree.area, farmAddress);
+
+          // 👉 Biến địa chỉ dùng chung cho toàn bộ phần render
+          const addressText = pickAddress(tree.area, farmAddress);
 
           // acreage: chuỗi ưu tiên; vẫn hỗ trợ số cũ
           let acreageText = "";
