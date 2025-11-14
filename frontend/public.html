@@ -66,20 +66,13 @@
      const DEFAULT_ADDRESS = "Ấp Suối Soong 1, Xã Phú Vinh, Tỉnh Đồng Nai";
 
      // Chuẩn hóa bỏ dấu, không phân biệt hoa/thường
-     const normalizeVN = (s) =>
-       (s || "")
-         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-         .toLowerCase().replace(/\s+/g, " ").trim();
-
-     // Chọn 
-     //  theo khu; nếu server có farmAddress thì ưu tiên
-     function pickAddress(area, farmAddressFromServer) {
-       const a = normalizeVN(area);
-       if (a.startsWith("khu c") || a === "c"){
-          return AREA_C_ADDRESS;
-        }
-        return (farmAddressFromServer && String(farmAddressFromServer).trim()) || DEFAULT_ADDRESS;
-      }
+    // ✅ Chọn địa chỉ theo khu — an toàn trên webview cũ (không dùng normalize)
+function pickAddress(area, farmAddressFromServer) {
+  const a = String(area || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  // Bắt mọi biến thể "Khu C..." (Khu C, Khu C4, Khu c - ...)
+  if (a.startsWith('khu c') || a === 'c') return AREA_C_ADDRESS;
+  return (farmAddressFromServer && String(farmAddressFromServer).trim()) || DEFAULT_ADDRESS;
+}
 
       const $ = (sel) => document.querySelector(sel);
       const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
