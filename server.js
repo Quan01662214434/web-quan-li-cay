@@ -606,7 +606,7 @@ app.get("/public/tree/:id", async (req, res) => {
     // Địa chỉ cố định hoặc ENV
     const farmAddress =
       process.env.FARM_ADDRESS ||
-      "Ấp Suối Soong, Xã Phú Vinh, Tỉnh Đồng Nai";
+      "Ấp Suối Soong 1 , Xã Phú Vinh, Tỉnh Đồng Nai";
 
     res.json({
       tree,
