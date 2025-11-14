@@ -61,7 +61,24 @@
       const API_BASE = window.location.hostname.includes("localhost")
         ? "http://localhost:4000"
         : "https://api.thefram.site";
-      const FARM_ADDRESS_FALLBACK = "Ấp Suối Soong, Xã Phú Vinh, Tỉnh Đồng Nai";
+      +      // Địa chỉ theo khu
+     const AREA_C_ADDRESS  = "Ấp 3, Xã Phú Vinh, Tỉnh Đồng Nai";
+     const DEFAULT_ADDRESS = "Ấp Suối Soong 1, Xã Phú Vinh, Tỉnh Đồng Nai";
+
+     // Chuẩn hóa bỏ dấu, không phân biệt hoa/thường
+     const normalizeVN = (s) =>
+       (s || "")
+         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+         .toLowerCase().replace(/\s+/g, " ").trim();
+
+     // Chọn địa chỉ theo khu; nếu server có farmAddress thì ưu tiên
+     function pickAddress(area, farmAddressFromServer) {
+       const a = normalizeVN(area);
+       if (a === "khu c" || /\bkhu\s*c\b/.test(a) || a === "c") {
+          return AREA_C_ADDRESS;
+        }
+        return (farmAddressFromServer && String(farmAddressFromServer).trim()) || DEFAULT_ADDRESS;
+      }
 
       const $ = (sel) => document.querySelector(sel);
       const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
@@ -93,7 +110,7 @@
             <div class="kv"><div style="height:12px;width:40%;background:#eaeff1;border-radius:8px;"></div><div style="height:14px;background:#eaeff1;border-radius:8px;margin-top:8px;"></div></div>
             <div class="kv"><div style="height:12px;width:40%;background:#eaeff1;border-radius:8px;"></div><div style="height:14px;background:#eaeff1;border-radius:8px;margin-top:8px;"></div></div>
             <div class="kv"><div style="height:12px;width:40%;background:#eaeff1;border-radius:8px;"></div><div style="height:14px;background:#eaeff1;border-radius:8px;margin-top:8px;"></div></div>
-          </div>
+          </div>  
         `;
       }
 
@@ -112,7 +129,7 @@
                     const FARM_NAME_OVERRIDE = "Thanh Huyền Farm";
           const farmNameFinal = (FARM_NAME_OVERRIDE && FARM_NAME_OVERRIDE.trim()) || farmName || "Thanh Huyền Farm";
           const cfg = displayConfig || {};
-          const addr = (farmAddress && String(farmAddress).trim()) || FARM_ADDRESS_FALLBACK;
+         const addr = pickAddress(tree.area, farmAddress);
 
           // acreage: chuỗi ưu tiên; vẫn hỗ trợ số cũ
           let acreageText = "";
