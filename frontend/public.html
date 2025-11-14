@@ -67,11 +67,13 @@
 
      // Chuẩn hóa bỏ dấu, không phân biệt hoa/thường
     // ✅ Chọn địa chỉ theo khu — an toàn trên webview cũ (không dùng normalize)
-function pickAddress(area, farmAddressFromServer) {
-  const a = String(area || '').toLowerCase().replace(/\s+/g, ' ').trim();
-  // Bắt mọi biến thể "Khu C..." (Khu C, Khu C4, Khu c - ...)
-  if (a.startsWith('khu c') || a === 'c') return AREA_C_ADDRESS;
-  return (farmAddressFromServer && String(farmAddressFromServer).trim()) || DEFAULT_ADDRESS;
+      function pickAddress(area, farmAddressFromServer) {
+  const a = normalizeVN(area);
+  // Khu C thì luôn dùng địa chỉ riêng
+  if (a.startsWith("khu c") || a === "c") return "Ấp 3, Xã Phú Vinh, Tỉnh Đồng Nai";
+  // Các khu còn lại: ƯU TIÊN dùng địa chỉ do server trả về, nếu không có thì fallback
+  return (farmAddressFromServer && String(farmAddressFromServer).trim())
+         || "Ấp Suối Soong 1, Xã Phú Vinh, Tỉnh Đồng Nai";
 }
 
       const $ = (sel) => document.querySelector(sel);
