@@ -127,6 +127,8 @@
           if (!res.ok){ $("#root").innerHTML = `<div class="center-muted">Không tải được dữ liệu. Vui lòng thử lại sau.</div>`; return; }
 
           const { tree, displayConfig, farmName, farmVietGapCode, farmAddress } = payload;
+          const addr = pickAddress(tree.area, farmAddress);
+
                     const FARM_NAME_OVERRIDE = "Thanh Huyền Farm";
           const farmNameFinal = (FARM_NAME_OVERRIDE && FARM_NAME_OVERRIDE.trim()) || farmName || "Thanh Huyền Farm";
           const cfg = displayConfig || {};
