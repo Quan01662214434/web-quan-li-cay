@@ -285,7 +285,8 @@ app.patch("/api/trees/:id", auth, async (req, res) => {
   try {
     const ownerId = await getOwnerIdFromUser(req.user);
     const { id } = req.params;
-    const { location, acreage, plantDate, vietGapCode } = req.body;
+    const { location, acreage, plantDate, vietGapCode, imageURL } = req.body;
+
 
     const tree = await Tree.findOne({ _id: id, owner: ownerId });
     if (!tree) return res.status(404).json({ error: "Không tìm thấy cây" });
@@ -294,6 +295,7 @@ app.patch("/api/trees/:id", auth, async (req, res) => {
     if (acreage !== undefined) tree.acreage = acreage;
     if (plantDate !== undefined) tree.plantDate = plantDate || null;
     if (vietGapCode !== undefined) tree.vietGapCode = vietGapCode;
+    if (imageURL !== undefined) tree.imageURL = imageURL;
 
     await tree.save();
 
