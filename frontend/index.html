@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -957,11 +957,13 @@
         const plantDate = document.getElementById("edit-tree-date").value;
         const vietGapCode = document.getElementById("edit-tree-vietgap").value.trim();
         const acreage = document.getElementById("edit-tree-acreage").value.trim();
+        const imageURL = document.getElementById("edit-tree-image").value.trim();
+
         try {
           const res = await fetch(`${API_BASE}/api/trees/${currentEditTreeId}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ location, plantDate, vietGapCode, acreage }),
+            body: JSON.stringify({ location, plantDate, vietGapCode, acreage,imageURL }),
           });
           const data = await res.json();
           if (!res.ok) { alert(data.error || "Không thể cập nhật cây"); return; }
