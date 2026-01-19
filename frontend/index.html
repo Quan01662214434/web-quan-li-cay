@@ -8,10 +8,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
+  <div class="app-layout">
+   <aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="images/logo-thanh-huyen.png" alt="Thanh Huyền Farm" class="sidebar-logo">
+    <div>Thanh Huyền Farm</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-item active" data-scroll-target="dashboard">🌱 Cây & QR</a>
+    <a class="nav-item" data-scroll-target="staff-section">👨‍🌾 Nhân viên</a>
+    <a class="nav-item" data-scroll-target="activity-section">📜 Lịch sử</a>
+  </nav>
+</aside>
+
     <!-- HEADER -->
-    <header class="app-header">
+    <div class="main-area">
+     <header class="app-header">
       <div class="header-left">
-        <img src="images/logo.jpg" alt="Thanh Huyền Farm" class="logo"/>
+        <img src="images/logo-thanh-huyen.png" alt="Thanh Huyền Farm" class="logo"/>
         <div class="header-title">
           <div class="brand-name">Thanh Huyền Farm</div>
           <div class="brand-subtitle">Quản lý vườn sầu riêng hữu cơ</div>
@@ -68,8 +83,37 @@
 
       <!-- DASHBOARD -->
       <section id="dashboard" class="section hidden">
+         <div class="stats-grid" id="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon">🌳</div>
+    <div class="stat-info">
+      <div class="stat-label">Tổng số cây</div>
+      <div class="stat-value" id="stat-total">0</div>
+    </div>
+  </div>
+
+  <div class="stat-card warning">
+    <div class="stat-icon">⚠️</div>
+    <div class="stat-info">
+      <div class="stat-label">Cần chăm sóc</div>
+      <div class="stat-value" id="stat-care">0</div>
+    </div>
+  </div>
+
+  <div class="stat-card danger">
+    <div class="stat-icon">🦠</div>
+    <div class="stat-info">
+      <div class="stat-label">Bệnh nặng</div>
+      <div class="stat-value" id="stat-sick">0</div>
+    </div>
+  </div>
+</div>
         <!-- VietGAP Farm badge -->
         <div id="farm-vietgap-wrapper" class="farm-vietgap-card hidden">
+         
+
+          <!-- DASHBOARD STATS -->
+
           <div class="farm-vietgap-left">
             <div class="vietgap-logo-circle"><span class="vg-text">VG</span></div>
           </div>
@@ -189,6 +233,7 @@
         </div>
       </section>
     </main>
+    </div> <!-- end main-area -->
 
     <!-- MODALS -->
     <!-- QR -->
@@ -526,7 +571,9 @@
         container.innerHTML = "";
         if (!lastTrees.length) {
           container.innerHTML = "<p>Chưa có cây nào. Hãy thêm cây mới.</p>";
-          updateFarmVietGapBadge(); return;
+          updateFarmVietGapBadge(); 
+         } else {
+         
         }
         const term = (treeSearchTerm || "").trim().toLowerCase();
         const filtered = lastTrees.filter((t) => {
@@ -546,7 +593,8 @@
 
         if (!filtered.length) {
           container.innerHTML = "<p>Không tìm thấy cây nào khớp với bộ lọc hiện tại.</p>";
-          updateFarmVietGapBadge(); return;
+          updateFarmVietGapBadge(); 
+          }  else {
         }
 
         filtered.forEach((t) => {
@@ -579,6 +627,23 @@
           container.appendChild(card);
         });
         updateFarmVietGapBadge();
+        // ====== Update dashboard stats ======
+              const total = lastTrees.length;
+              const needCare = lastTrees.filter(
+                t => (t.currentHealth || "").trim() === "Cần chăm sóc"
+              ).length;
+              const sick = lastTrees.filter(
+                t => (t.currentHealth || "").trim() === "Bệnh nặng"
+              ).length;
+
+              const totalEl = document.getElementById("stat-total");
+              const careEl = document.getElementById("stat-care");
+              const sickEl = document.getElementById("stat-sick");
+
+              if (totalEl) totalEl.innerText = total;
+              if (careEl) careEl.innerText = needCare;
+              if (sickEl) sickEl.innerText = sick;
+
       }
 
       async function loadTrees() {
@@ -1059,33 +1124,42 @@
         loadAreas(); loadDiseaseMaster(); loadStatusMaster();
 
         // Menu 3 gạch
-        const hamburger = document.getElementById("hamburger-btn");
-        const mainNav = document.getElementById("main-nav");
-        const navLinks = document.querySelectorAll(".nav-link");
-        if (hamburger && mainNav) {
-          hamburger.addEventListener("click", () => {
-            hamburger.classList.toggle("open");
-            mainNav.classList.toggle("open");
-          });
-        }
-        navLinks.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const targetId = btn.getAttribute("data-scroll-target");
-            if (targetId) {
-              const section = document.getElementById(targetId);
-              if (section) {
-                section.scrollIntoView({ behavior: "smooth", block: "start" });
-              }
-            }
-            navLinks.forEach((b) => b.classList.remove("active"));
-            btn.classList.add("active");
-            if (mainNav && hamburger) {
-              mainNav.classList.remove("open");
-              hamburger.classList.remove("open");
-            }
-          });
-        });
+        // ====== Sidebar & Hamburger (Mobile) ======
+const hamburger = document.getElementById("hamburger-btn");
+const sidebar = document.querySelector(".sidebar");
+const sidebarLinks = document.querySelectorAll(".sidebar .nav-item");
 
+if (hamburger && sidebar) {
+  hamburger.addEventListener("click", () => {
+    hamburger.classList.toggle("open");
+    sidebar.classList.toggle("open");
+  });
+}
+
+sidebarLinks.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const targetId = btn.getAttribute("data-scroll-target");
+    if (targetId) {
+      const section = document.getElementById(targetId);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+
+    }
+
+    // Active state
+    sidebarLinks.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // Đóng sidebar trên mobile
+    sidebar.classList.remove("open");
+    hamburger.classList.remove("open");
+  });
+});
+ 
+
+;
         // Area
         const addAreaBtn = document.getElementById("add-area-btn");
         if (addAreaBtn) addAreaBtn.addEventListener("click", addNewArea);
@@ -1151,5 +1225,7 @@
       window.openEditTree = openEditTree;
       window.openExtrasModal = openExtrasModal;
     </script>
+  </div> <!-- end app-layout -->
+
   </body>
 </html>
