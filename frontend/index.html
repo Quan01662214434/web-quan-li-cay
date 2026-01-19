@@ -457,6 +457,7 @@
             }, { once: true });
           });
         }
+        showOnlySection("dashboard");
       }
 
       // ====== Login ======
@@ -1125,38 +1126,47 @@
 
         // Menu 3 gạch
         // ====== Sidebar & Hamburger (Mobile) ======
-const hamburger = document.getElementById("hamburger-btn");
-const sidebar = document.querySelector(".sidebar");
-const sidebarLinks = document.querySelectorAll(".sidebar .nav-item");
+        // ====== Sidebar navigation: show / hide section ======
+            const hamburger = document.getElementById("hamburger-btn");
+            const sidebar = document.querySelector(".sidebar");
+            const sidebarLinks = document.querySelectorAll(".sidebar .nav-item");
 
-if (hamburger && sidebar) {
-  hamburger.addEventListener("click", () => {
-    hamburger.classList.toggle("open");
-    sidebar.classList.toggle("open");
-  });
-}
+            // danh sách section được phép hiển thị
+            const sections = ["dashboard", "staff-section", "activity-section"];
 
-sidebarLinks.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const targetId = btn.getAttribute("data-scroll-target");
-    if (targetId) {
-      const section = document.getElementById(targetId);
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+            function showOnlySection(id) {
+              sections.forEach(secId => {
+                const el = document.getElementById(secId);
+                if (!el) return;
+                el.classList.toggle("hidden", secId !== id);
+              });
+            }
 
+            if (hamburger && sidebar) {
+              hamburger.addEventListener("click", () => {
+                hamburger.classList.toggle("open");
+                sidebar.classList.toggle("open");
+              });
+            }
 
-    }
+            sidebarLinks.forEach(btn => {
+              btn.addEventListener("click", () => {
+                const targetId = btn.getAttribute("data-scroll-target");
+                if (!targetId) return;
 
-    // Active state
-    sidebarLinks.forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
+                // chỉ hiện đúng màn hình
+                showOnlySection(targetId);
 
-    // Đóng sidebar trên mobile
-    sidebar.classList.remove("open");
-    hamburger.classList.remove("open");
-  });
-});
+                // active state
+                sidebarLinks.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                // đóng sidebar mobile
+                sidebar.classList.remove("open");
+                hamburger.classList.remove("open");
+              });
+            });
+
  
 
 ;
