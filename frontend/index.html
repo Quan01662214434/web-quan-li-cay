@@ -50,7 +50,7 @@
 </div>
 
 <script>
-fetch("/api/trees")
+fetch(`${API_BASE}/api/trees`)
   .then(r => r.json())
   .then(data => {
     total.innerText = data.length;
