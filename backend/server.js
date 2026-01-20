@@ -1,4 +1,5 @@
 require("dotenv").config();
+const PORT = process.env.PORT || 4000;
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -19,4 +20,6 @@ app.get("*", (_, res) =>
   res.sendFile(path.join(__dirname, "../frontend/index.html"))
 );
 
-app.listen(process.env.PORT || 5000);
+app.listen(PORT, () => {
+  console.log("🚀 Server running on port " + PORT);
+});
