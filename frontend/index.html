@@ -143,41 +143,55 @@
       </div>
 
       <form id="create-tree-form" class="form-grid">
-        <!-- giữ nguyên form của bạn -->
-      </form>
+  <div class="form-row">
+    <label>Tên cây</label>
+    <input id="tree-name" required />
+  </div>
+
+  <div class="form-row">
+    <label>Giống</label>
+    <input id="tree-species" />
+  </div>
+
+  <div class="form-row">
+    <label>Khu vực</label>
+    <select id="tree-area"></select>
+    <button type="button" id="add-area-btn" class="btn-secondary small">+ Khu</button>
+  </div>
+
+  <div class="form-row">
+    <label>Vị trí</label>
+    <input id="tree-location" />
+  </div>
+
+  <div class="form-row">
+    <label>Ngày trồng</label>
+    <input id="tree-date" type="date" />
+  </div>
+
+  <div class="form-row">
+    <label>Mã VietGAP</label>
+    <input id="tree-vietgap" />
+  </div>
+
+  <div class="form-row">
+    <label>Diện tích</label>
+    <input id="tree-acreage" placeholder="VD: 0.15 ha hoặc 1500 m²" />
+  </div>
+
+  <div class="form-row">
+    <label>Hình ảnh (URL)</label>
+    <input id="tree-image" type="url" />
+  </div>
+
+  <button type="submit" class="btn-primary full-width">
+    ➕ Tạo cây & QR
+  </button>
+</form>
     </section>
 
     <!-- DANH SÁCH CÂY -->
-    <section class="card">
-      <div class="card-header">
-        <h2>Danh sách cây trong vườn</h2>
-        <button id="display-config-btn"
-                class="btn-secondary small hidden">
-          Cấu hình hiển thị QR
-        </button>
-      </div>
-
-      <div class="tree-toolbar">
-        <div class="tree-tabs">
-          <button class="btn-secondary small tab active"
-                  data-tree-filter="all">Tất cả</button>
-          <button class="btn-secondary small tab"
-                  data-tree-filter="need-care">Cần chăm sóc</button>
-          <button class="btn-secondary small tab"
-                  data-tree-filter="sick">Bệnh nặng</button>
-        </div>
-
-        <div class="tree-search">
-          <input id="tree-search-input" type="search"
-                 placeholder="🔍 Tìm cây..." />
-        </div>
-      </div>
-
-      <div id="tree-list" class="tree-list"></div>
-    </section>
-
-  </div>
-</section>
+  
 <!-- ============== END DASHBOARD ============== -->
 
 
@@ -202,15 +216,6 @@
     <div id="staff-list"></div>
   </div>
 </section>
-
-<!-- LỊCH SỬ -->
-<section id="activity-section" class="section hidden">
-  <div class="card">
-    <h2>📜 Lịch sử hoạt động</h2>
-    <div id="activity-list"></div>
-  </div>
-</section>
-
 <!-- ================= ACTIVITY ================= -->
 <section id="activity-section" class="section hidden">
   <div class="card">
@@ -220,57 +225,7 @@
 </section>
 
 
-          <!-- DANH SÁCH CÂY -->
-          <section class="card">
-            <div class="card-header">
-              <h2>Danh sách cây trong vườn</h2>
-              <div style="display:flex; gap:8px; align-items:center;">
-                <button id="display-config-btn" class="btn-secondary small hidden">Cấu hình hiển thị QR</button>
-              </div>
-            </div>
-
-            <!-- TOOLBAR: FILTER + SEARCH -->
-            <div class="tree-toolbar">
-              <div class="tree-tabs">
-                <button class="btn-secondary small tab active" type="button" data-tree-filter="all">Tất cả</button>
-                <button class="btn-secondary small tab" type="button" data-tree-filter="need-care">Cần chăm sóc</button>
-                <button class="btn-secondary small tab" type="button" data-tree-filter="sick">Bệnh nặng</button>
-              </div>
-
-              <div class="tree-search">
-                <input id="tree-search-input" type="search" placeholder="🔍 Tìm tên, mã, VietGAP, khu, vị trí..." />
-                <span class="search-icon">🔍</span>
-              </div>
-            </div>
-
-            <div id="tree-list" class="tree-list"></div>
-          </section>
-
-          <!-- NHÂN VIÊN -->
-          <section id="staff-section" class="card hidden">
-            <h2>Nhân viên vườn</h2>
-            <form id="staff-form" class="form-grid form-inline">
-              <div class="form-row">
-                <label for="staff-username">Tài khoản nhân viên</label>
-                <input id="staff-username" type="text" placeholder="VD: nhanvien01" required />
-              </div>
-              <div class="form-row">
-                <label for="staff-password">Mật khẩu</label>
-                <input id="staff-password" type="password" placeholder="Mật khẩu" required />
-              </div>
-              <button type="submit" class="btn-primary">Tạo nhân viên</button>
-            </form>
-
-            <div id="staff-list" class="staff-list"></div>
-          </section>
-
           <!-- LỊCH SỬ HOẠT ĐỘNG -->
-          <section id="activity-section" class="card hidden">
-            <h2>Lịch sử hoạt động</h2>
-            <div id="activity-list" class="activity-list"></div>
-          </section>
-        </div>
-      </section>
     </main>
     </div> <!-- end main-area -->
 
@@ -1236,9 +1191,6 @@ function updateStats() {
                 hamburger.classList.remove("open");
               });
             });
-
- 
-
 ;
         // Area
         const addAreaBtn = document.getElementById("add-area-btn");
