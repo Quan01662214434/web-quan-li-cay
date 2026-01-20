@@ -1,43 +1,61 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <title>Quản lý cây</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
-<h2>Quản lý cây</h2>
 
-<input id="health" placeholder="Tình trạng">
-<textarea id="notes" placeholder="Ghi chú"></textarea>
-<button onclick="updateHealth()">Cập nhật</button>
+<div class="layout">
+  <aside class="sidebar">
+    <h2>🌱 Thanh Huyền</h2>
+    <a href="/">⬅ Quay lại</a>
+  </aside>
 
-<hr>
+  <main class="main">
+    <h1>Quản lý cây</h1>
 
-<input type="file" id="image">
-<button onclick="uploadImage()">Upload ảnh</button>
+    <div class="card">
+      <h3>Cập nhật tình trạng</h3>
+      <input id="health" placeholder="Tình trạng">
+      <textarea id="notes" placeholder="Ghi chú"></textarea>
+      <button class="btn" onclick="updateHealth()">Cập nhật</button>
+    </div>
 
-<hr>
+    <div class="card">
+      <h3>Ảnh cây</h3>
+      <input type="file" id="image">
+      <button class="btn outline" onclick="uploadImage()">Upload ảnh</button>
+    </div>
 
-<select id="staff"></select>
-<button onclick="assignStaff()">Gán nhân viên</button>
+    <div class="card">
+      <h3>Gán nhân viên</h3>
+      <select id="staff"></select>
+      <button class="btn" onclick="assignStaff()">Gán</button>
+    </div>
 
-<hr>
-
-<input id="disease" placeholder="Tên bệnh">
-<input id="status" placeholder="Trạng thái">
-<button onclick="addDisease()">Thêm bệnh</button>
+    <div class="card">
+      <h3>Bệnh</h3>
+      <input id="disease" placeholder="Tên bệnh">
+      <input id="status" placeholder="Trạng thái">
+      <button class="btn outline" onclick="addDisease()">Thêm</button>
+    </div>
+  </main>
+</div>
 
 <script>
 const id = new URLSearchParams(location.search).get("id");
 
 fetch("/api/users")
   .then(r => r.json())
-  .then(d => {
-    staff.innerHTML = d.map(s =>
-      `<option value="${s._id}">${s.name}</option>`
-    ).join("");
-  });
+  .then(d => staff.innerHTML =
+    d.map(s => `<option value="${s._id}">${s.name}</option>`).join("")
+  );
 
 function updateHealth() {
   fetch(`/api/trees/${id}/health`, {
-    method: "PUT",
-    headers: {"Content-Type":"application/json"},
+    method:"PUT",
+    headers:{"Content-Type":"application/json"},
     body: JSON.stringify({
       currentHealth: health.value,
       notes: notes.value
@@ -54,7 +72,7 @@ function uploadImage() {
 function assignStaff() {
   fetch(`/api/trees/${id}/assign`, {
     method:"PUT",
-    headers: {"Content-Type":"application/json"},
+    headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ staffId: staff.value })
   });
 }
@@ -62,7 +80,7 @@ function assignStaff() {
 function addDisease() {
   fetch(`/api/trees/${id}/diseases`, {
     method:"POST",
-    headers: {"Content-Type":"application/json"},
+    headers:{"Content-Type":"application/json"},
     body: JSON.stringify({
       name: disease.value,
       status: status.value
@@ -70,5 +88,6 @@ function addDisease() {
   });
 }
 </script>
+
 </body>
 </html>

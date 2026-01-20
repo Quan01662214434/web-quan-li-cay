@@ -1,28 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Quản lý cây</title>
+  <title>Thanh Huyền Farm</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Danh sách cây</h1>
-<div id="trees"></div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h2>🌱 Thanh Huyền</h2>
+    <a class="active">🌳 Cây trồng</a>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1>Quản lý cây trồng</h1>
+      <p>Danh sách cây & mã QR</p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Tổng số cây</h3>
+        <b id="total">0</b>
+      </div>
+      <div class="card">
+        <h3>Cây khỏe</h3>
+        <b id="healthy">0</b>
+      </div>
+      <div class="card">
+        <h3>Cây bệnh</h3>
+        <b id="sick">0</b>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Tên cây</th>
+          <th>Khu</th>
+          <th>Vị trí</th>
+          <th>Tình trạng</th>
+          <th>QR</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="trees"></tbody>
+    </table>
+  </main>
+</div>
 
 <script>
 fetch("/api/trees")
   .then(r => r.json())
   .then(data => {
-    document.getElementById("trees").innerHTML =
-      data.map(t => `
-        <div class="card">
-          <h3>${t.name} (${t.species})</h3>
-          <p>${t.area} - ${t.location}</p>
-          <p><b>${t.currentHealth}</b></p>
-          <img src="${t.qrCode}" width="120" />
-          <a href="tree-edit.html?id=${t._id}">Quản lý</a>
-        </div>
-      `).join("");
+    total.innerText = data.length;
+    healthy.innerText = data.filter(t => t.currentHealth === "Bình thường").length;
+    sick.innerText = data.length - healthy.innerText;
+
+    trees.innerHTML = data.map(t => `
+      <tr>
+        <td>${t.name} (${t.species})</td>
+        <td>${t.area}</td>
+        <td>${t.location}</td>
+        <td>${t.currentHealth}</td>
+        <td><img src="${t.qrCode}" width="60"></td>
+        <td>
+          <a class="btn outline" href="tree-edit.html?id=${t._id}">
+            Quản lý
+          </a>
+        </td>
+      </tr>
+    `).join("");
   });
 </script>
+
 </body>
 </html>

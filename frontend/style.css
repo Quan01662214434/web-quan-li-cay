@@ -1,8 +1,124 @@
-body { font-family: Arial; background:#f6faf6; }
+:root {
+  --green: #2e7d32;
+  --green-light: #e8f5e9;
+  --bg: #f4f7f6;
+  --text: #263238;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: var(--green);
+  color: #fff;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin: 0 0 30px;
+  font-size: 22px;
+}
+
+.sidebar a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 30px;
+}
+
+/* Header */
+.header {
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+/* Cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
 .card {
-  background:#fff;
-  padding:15px;
-  margin:10px;
-  border-radius:8px;
-  box-shadow:0 0 5px #ccc;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: var(--green-light);
+  text-align: left;
+}
+
+/* Buttons */
+.btn {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn.outline {
+  background: none;
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+
+/* Form */
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }

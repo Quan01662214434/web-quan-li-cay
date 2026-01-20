@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
-<body>
-<h2 id="name"></h2>
-<p>Giống: <span id="species"></span></p>
-<p>Khu: <span id="area"></span></p>
-<p>Vị trí: <span id="location"></span></p>
-<p>Tình trạng: <b id="health"></b></p>
-<img id="qr" width="200"/>
+<head>
+  <title>Thông tin cây</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="padding:30px">
+
+<div class="card">
+  <h2 id="name"></h2>
+  <p><b>Giống:</b> <span id="species"></span></p>
+  <p><b>Khu:</b> <span id="area"></span></p>
+  <p><b>Vị trí:</b> <span id="location"></span></p>
+  <p><b>Tình trạng:</b> <span id="health"></span></p>
+  <img id="qr" width="200">
+</div>
 
 <script>
 const id = location.pathname.split("/").pop();
-
 fetch("/api/trees/" + id)
   .then(r => r.json())
   .then(t => {
@@ -22,5 +28,6 @@ fetch("/api/trees/" + id)
     qr.src = t.qrCode;
   });
 </script>
+
 </body>
 </html>
