@@ -1,186 +1,26 @@
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <title>Thông tin cây – Farm Manager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#2e7d32" />
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-
+<html>
 <body>
-  <div class="public-wrap">
-    <div id="root" class="card">
-      <div class="empty-state">
-        <h3>Đang tải thông tin cây…</h3>
-        <p>Vui lòng chờ trong giây lát</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Floating contact -->
-  <div class="floating-contact">
-    <a href="https://zalo.me/0938213219" class="contact-btn zalo-btn" target="_blank">Zalo</a>
-    <a href="https://facebook.com/ThanhHuyenFarm" class="contact-btn fb-btn" target="_blank">FB</a>
-  </div>
+<h2 id="name"></h2>
+<p>Giống: <span id="species"></span></p>
+<p>Khu: <span id="area"></span></p>
+<p>Vị trí: <span id="location"></span></p>
+<p>Tình trạng: <b id="health"></b></p>
+<img id="qr" width="200"/>
 
 <script>
-/* ===============================
-   CONFIG – KHÔNG ĐỔI QR
-   =============================== */
-const API_BASE = location.hostname.includes("localhost")
-  ? "http://localhost:4000"
-  : "https://api.thefram.site";
+const id = location.pathname.split("/").pop();
 
-const $ = s => document.querySelector(s);
-const esc = s => String(s ?? "")
-  .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-  .replace(/>/g,"&gt;").replace(/"/g,"&quot;")
-  .replace(/'/g,"&#039;");
-
-const getTreeId = () => new URLSearchParams(location.search).get("treeId");
-const fmtDate = d => d ? new Date(d).toLocaleDateString("vi-VN") : "";
-const fmtDateTime = d => d ? new Date(d).toLocaleString("vi-VN") : "";
-
-/* ===============================
-   STATUS COLOR
-   =============================== */
-function statusClass(s){
-  const v = String(s || "").toLowerCase();
-  if (v.includes("bệnh")) return "health-bad";
-  if (v.includes("cần")) return "health-warn";
-  return "health-good";
-}
-
-/* ===============================
-   MAIN
-   =============================== */
-async function main(){
-  const treeId = getTreeId();
-  if (!treeId) {
-    $("#root").innerHTML = `
-      <div class="empty-state">
-        <h3>Thiếu mã cây</h3>
-        <p>QR không hợp lệ</p>
-      </div>`;
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_BASE}/public/tree/${treeId}`);
-    const data = await res.json();
-
-    if (!data.tree) throw new Error("No tree");
-
-    const { tree, farmName, farmVietGapCode, farmAddress, displayConfig = {} } = data;
-
-    let html = `
-      <div class="page-head">
-        <h1>${esc(farmName || "Farm Manager")}</h1>
-        <p>Cập nhật: ${fmtDateTime(tree.updatedAt || tree.createdAt)}</p>
-      </div>
-
-      <div class="card">
-        ${
-          tree.imageURL
-            ? `<img src="${esc(tree.imageURL)}" style="width:100%;border-radius:12px;max-height:320px;object-fit:cover" />`
-            : `<div class="empty-state"><p>Chưa có ảnh cây</p></div>`
-        }
-      </div>
-
-      ${
-        farmVietGapCode
-          ? `<div class="card" style="background:#e8f5ea">
-              🌿 <b>VietGAP</b><br/>
-              Mã số: <b>${esc(farmVietGapCode)}</b>
-            </div>`
-          : ""
-      }
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-info">
-            <div class="stat-label">Tên cây</div>
-            <div class="stat-value">${esc(tree.name || "-")}</div>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-info">
-            <div class="stat-label">Giống</div>
-            <div class="stat-value">${esc(tree.species || "-")}</div>
-          </div>
-        </div>
-
-        <div class="stat-card ${statusClass(tree.currentHealth)}">
-          <div class="stat-info">
-            <div class="stat-label">Tình trạng</div>
-            <div class="stat-value">${esc(tree.currentHealth || "Chưa cập nhật")}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <b>📍 Khu vực</b><br/>
-        ${esc(tree.area || "-")} ${esc(tree.location || "")}
-      </div>
-
-      ${
-        tree.notes
-          ? `<div class="card"><b>📝 Ghi chú</b><br/>${esc(tree.notes)}</div>`
-          : ""
-      }
-
-      ${
-        Array.isArray(tree.diseases) && tree.diseases.length
-          ? `<div class="card">
-              <b>🧪 Bệnh / vấn đề</b><br/>
-              ${tree.diseases.map(d => `<span class="tree-health-badge health-warn">${esc(d)}</span>`).join(" ")}
-            </div>`
-          : ""
-      }
-
-      <div class="card">
-        <b>🏡 Địa chỉ vườn</b><br/>
-        ${esc(farmAddress || "-")}
-      </div>
-    `;
-
-    if (Array.isArray(tree.yieldHistory) && tree.yieldHistory.length) {
-      html += `
-        <div class="card">
-          <b>📊 Năng suất (kg)</b>
-          <canvas id="yieldChart" height="180"></canvas>
-        </div>
-      `;
-    }
-
-    $("#root").innerHTML = html;
-
-    if (tree.yieldHistory?.length) {
-      const sorted = [...tree.yieldHistory].sort((a,b)=>a.year-b.year);
-      new Chart(document.getElementById("yieldChart"), {
-        type: "bar",
-        data: {
-          labels: sorted.map(x=>x.year),
-          datasets: [{ data: sorted.map(x=>x.quantity || 0) }]
-        },
-        options: { plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
-      });
-    }
-
-  } catch (e) {
-    $("#root").innerHTML = `
-      <div class="empty-state">
-        <h3>Lỗi tải dữ liệu</h3>
-        <p>Vui lòng thử lại sau</p>
-      </div>`;
-  }
-}
-
-document.addEventListener("DOMContentLoaded", main);
+fetch("/api/trees/" + id)
+  .then(r => r.json())
+  .then(t => {
+    name.innerText = t.name;
+    species.innerText = t.species;
+    area.innerText = t.area;
+    location.innerText = t.location;
+    health.innerText = t.currentHealth;
+    qr.src = t.qrCode;
+  });
 </script>
-
 </body>
 </html>

@@ -1,195 +1,28 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Quản lý vườn – Enterprise</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <title>Quản lý cây</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="app-layout">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <img src="images/logo.jpg" class="sidebar-logo" />
-      <span>Farm Manager</span>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="showSection('trees')">🌳 Cây & QR</div>
-      <div class="nav-item" onclick="showSection('staff')">👨‍🌾 Nhân viên</div>
-      <div class="nav-item" onclick="showSection('activity')">📜 Lịch sử</div>
-    </nav>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main-area">
-
-    <!-- TREES -->
-    <section class="section" id="section-trees">
-      <div class="page-head">
-        <h1>🌳 Quản lý cây trồng</h1>
-        <p>Danh sách cây và mã QR – tối ưu cho nhiều vườn</p>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">🌳</div>
-          <div class="stat-info">
-            <div class="stat-label">Tổng số cây</div>
-            <div class="stat-value" id="stat-total">0</div>
-          </div>
-        </div>
-
-        <div class="stat-card warning">
-          <div class="stat-icon">⚠️</div>
-          <div class="stat-info">
-            <div class="stat-label">Cần chăm sóc</div>
-            <div class="stat-value" id="stat-warning">0</div>
-          </div>
-        </div>
-
-        <div class="stat-card danger">
-          <div class="stat-icon">🩺</div>
-          <div class="stat-info">
-            <div class="stat-label">Cây bệnh</div>
-            <div class="stat-value" id="stat-danger">0</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <input
-          type="text"
-          placeholder="🔍 Tìm cây theo tên, khu, vị trí..."
-          style="width:100%;padding:10px;border-radius:10px;border:1px solid #e2efe4"
-          oninput="onSearch(this.value)"
-        />
-      </div>
-
-      <div class="tree-list" id="tree-list"></div>
-    </section>
-
-    <!-- STAFF -->
-    <section class="section hidden" id="section-staff">
-      <div class="page-head">
-        <h1>👨‍🌾 Nhân viên</h1>
-        <p>Quản lý người tham gia chăm sóc vườn</p>
-      </div>
-
-      <div class="empty-state">
-        <h3>Chưa có dữ liệu nhân viên</h3>
-        <p>Tính năng sẽ được mở khi mở rộng cho nhiều vườn.</p>
-      </div>
-    </section>
-
-    <!-- ACTIVITY -->
-    <section class="section hidden" id="section-activity">
-      <div class="page-head">
-        <h1>📜 Lịch sử hoạt động</h1>
-        <p>Theo dõi các thao tác trong hệ thống</p>
-      </div>
-
-      <div class="activity-timeline" id="activity-list">
-        <div class="activity-item">
-          <b>Hệ thống</b> đã khởi tạo thành công
-        </div>
-      </div>
-    </section>
-
-  </main>
-</div>
+<h1>Danh sách cây</h1>
+<div id="trees"></div>
 
 <script>
-/* ===============================
-   DATA MOCK – KHÔNG ĐỤNG DB
-   =============================== */
-let lastTrees = [];
-let treeSearchTerm = "";
-
-/* ===============================
-   NAV
-   =============================== */
-function showSection(name) {
-  document.querySelectorAll(".section").forEach(s => s.classList.add("hidden"));
-  document.getElementById("section-" + name).classList.remove("hidden");
-
-  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-  event.target.classList.add("active");
-}
-
-/* ===============================
-   SEARCH
-   =============================== */
-function onSearch(val) {
-  treeSearchTerm = val;
-  renderTreeList();
-}
-
-/* ===============================
-   TREE RENDER (SAFE – KHÔNG MẤT DATA)
-   =============================== */
-function renderTreeList() {
-  const container = document.getElementById("tree-list");
-  container.innerHTML = "";
-
-  const term = treeSearchTerm.toLowerCase();
-  const filtered = lastTrees.filter(t =>
-    !term || `${t.name} ${t.area} ${t.location}`.toLowerCase().includes(term)
-  );
-
-  const MAX = 120;
-  filtered.slice(0, MAX).forEach(t => {
-    const health =
-      t.currentHealth?.includes("Bệnh") ? "health-bad" :
-      t.currentHealth?.includes("Cần") ? "health-warn" :
-      "health-good";
-
-    const el = document.createElement("div");
-    el.className = "tree-card";
-    el.innerHTML = `
-      <div class="tree-card-header">
-        <div class="tree-title">🌳 ${t.name || "Chưa đặt tên"}</div>
-        <span class="tree-health-badge ${health}">
-          ${t.currentHealth || "Chưa cập nhật"}
-        </span>
-      </div>
-      <div class="tree-sub">
-        📍 ${t.area || "-"} ${t.location || ""}
-      </div>
-      <div class="tree-actions">
-        <button class="btn-qr">QR</button>
-        <button>Sửa</button>
-      </div>
-    `;
-    container.appendChild(el);
+fetch("/api/trees")
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("trees").innerHTML =
+      data.map(t => `
+        <div class="card">
+          <h3>${t.name} (${t.species})</h3>
+          <p>${t.area} - ${t.location}</p>
+          <p><b>${t.currentHealth}</b></p>
+          <img src="${t.qrCode}" width="120" />
+          <a href="tree-edit.html?id=${t._id}">Quản lý</a>
+        </div>
+      `).join("");
   });
-
-  updateStats(filtered);
-}
-
-/* ===============================
-   KPI
-   =============================== */
-function updateStats(list) {
-  document.getElementById("stat-total").textContent = list.length;
-  document.getElementById("stat-warning").textContent =
-    list.filter(t => t.currentHealth?.includes("Cần")).length;
-  document.getElementById("stat-danger").textContent =
-    list.filter(t => t.currentHealth?.includes("Bệnh")).length;
-}
-
-/* ===============================
-   INIT (KHÔNG ĐỘNG DB)
-   =============================== */
-document.addEventListener("DOMContentLoaded", () => {
-  // MOCK: sau này thay bằng fetch API cũ của bạn
-  lastTrees = []; // dữ liệu thật của bạn vẫn giữ nguyên ở backend
-  renderTreeList();
-});
 </script>
-
 </body>
 </html>

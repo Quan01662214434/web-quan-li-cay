@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Quản lý cây</h2>
+
+<input id="health" placeholder="Tình trạng">
+<textarea id="notes" placeholder="Ghi chú"></textarea>
+<button onclick="updateHealth()">Cập nhật</button>
+
+<hr>
+
+<input type="file" id="image">
+<button onclick="uploadImage()">Upload ảnh</button>
+
+<hr>
+
+<select id="staff"></select>
+<button onclick="assignStaff()">Gán nhân viên</button>
+
+<hr>
+
+<input id="disease" placeholder="Tên bệnh">
+<input id="status" placeholder="Trạng thái">
+<button onclick="addDisease()">Thêm bệnh</button>
+
+<script>
+const id = new URLSearchParams(location.search).get("id");
+
+fetch("/api/users")
+  .then(r => r.json())
+  .then(d => {
+    staff.innerHTML = d.map(s =>
+      `<option value="${s._id}">${s.name}</option>`
+    ).join("");
+  });
+
+function updateHealth() {
+  fetch(`/api/trees/${id}/health`, {
+    method: "PUT",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      currentHealth: health.value,
+      notes: notes.value
+    })
+  });
+}
+
+function uploadImage() {
+  const fd = new FormData();
+  fd.append("image", image.files[0]);
+  fetch(`/api/trees/${id}/image`, { method:"PUT", body: fd });
+}
+
+function assignStaff() {
+  fetch(`/api/trees/${id}/assign`, {
+    method:"PUT",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ staffId: staff.value })
+  });
+}
+
+function addDisease() {
+  fetch(`/api/trees/${id}/diseases`, {
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      name: disease.value,
+      status: status.value
+    })
+  });
+}
+</script>
+</body>
+</html>
