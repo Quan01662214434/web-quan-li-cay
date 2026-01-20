@@ -992,3 +992,11 @@ input[type="number"] { -moz-appearance: textfield; }
   background: #fde8e8;
   color: #b42318;
 }
+/* ===== SECTION SHOW / HIDE (BẮT BUỘC) ===== */
+.section {
+  display: block;
+}
+
+.section.hidden {
+  display: none !important;
+}

@@ -82,112 +82,143 @@
       </section>
 
       <!-- DASHBOARD -->
-      <section id="dashboard" class="section hidden">
-        <h2 class="dashboard-title">📊 Tổng quan vườn</h2>
-        <div class="page-head">
-        <h1>Quản lý vườn 🌱</h1>
-        <p>Tổng quan tình trạng vườn và cây trồng</p>
+      <!-- ================= DASHBOARD ================= -->
+<section id="dashboard" class="section hidden">
+  <h2 class="dashboard-title">📊 Tổng quan vườn</h2>
+
+  <div class="page-head">
+    <h1>Quản lý vườn 🌱</h1>
+    <p>Tổng quan tình trạng vườn và cây trồng</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🌳</div>
+      <div class="stat-info">
+        <div class="stat-label">Tổng số cây</div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
     </div>
 
-         <div class="stats-grid" id="stats-grid">
-  <div class="stat-card">
-    <div class="stat-icon">🌳</div>
-    <div class="stat-info">
-      <div class="stat-label">Tổng số cây</div>
-      <div class="stat-value" id="stat-total">0</div>
+    <div class="stat-card warning">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-info">
+        <div class="stat-label">Cần chăm sóc</div>
+        <div class="stat-value" id="stat-care">0</div>
+      </div>
+    </div>
+
+    <div class="stat-card danger">
+      <div class="stat-icon">🦠</div>
+      <div class="stat-info">
+        <div class="stat-label">Bệnh nặng</div>
+        <div class="stat-value" id="stat-sick">0</div>
+      </div>
     </div>
   </div>
 
-  <div class="stat-card warning">
-    <div class="stat-icon">⚠️</div>
-    <div class="stat-info">
-      <div class="stat-label">Cần chăm sóc</div>
-      <div class="stat-value" id="stat-care">0</div>
+  <!-- VietGAP -->
+  <div id="farm-vietgap-wrapper" class="farm-vietgap-card hidden">
+    <div class="farm-vietgap-left">
+      <div class="vietgap-logo-circle"><span class="vg-text">VG</span></div>
     </div>
+    <div class="farm-vietgap-info">
+      <div class="farm-vietgap-title">Vườn đạt chuẩn VietGAP</div>
+      <div class="farm-vietgap-detail">
+        Mã số VietGAP: <span id="farm-vietgap-code">—</span>
+      </div>
+    </div>
+    <div class="farm-vietgap-status">✅</div>
   </div>
 
-  <div class="stat-card danger">
-    <div class="stat-icon">🦠</div>
-    <div class="stat-info">
-      <div class="stat-label">Bệnh nặng</div>
-      <div class="stat-value" id="stat-sick">0</div>
-    </div>
-  </div>
-</div>
-        <!-- VietGAP Farm badge -->
-        <div id="farm-vietgap-wrapper" class="farm-vietgap-card hidden">
-         
+  <!-- GRID -->
+  <div class="dashboard-grid">
 
-          <!-- DASHBOARD STATS -->
+    <!-- FORM TẠO CÂY -->
+    <section class="card collapsible">
+      <div class="card-header clickable"
+           onclick="this.parentElement.classList.toggle('open')">
+        <h2>➕ Thêm cây mới</h2>
+      </div>
 
-          <div class="farm-vietgap-left">
-            <div class="vietgap-logo-circle"><span class="vg-text">VG</span></div>
-          </div>
-          <div class="farm-vietgap-info">
-            <div class="farm-vietgap-title">Vườn đạt chuẩn VietGAP</div>
-            <div class="farm-vietgap-detail">Mã số VietGAP (từ cây): <span id="farm-vietgap-code">—</span></div>
-            <div class="farm-vietgap-note">(Lấy theo mã VietGAP đã nhập trên một cây trong vườn)</div>
-          </div>
-          <div class="farm-vietgap-status">✅</div>
+      <form id="create-tree-form" class="form-grid">
+        <!-- giữ nguyên form của bạn -->
+      </form>
+    </section>
+
+    <!-- DANH SÁCH CÂY -->
+    <section class="card">
+      <div class="card-header">
+        <h2>Danh sách cây trong vườn</h2>
+        <button id="display-config-btn"
+                class="btn-secondary small hidden">
+          Cấu hình hiển thị QR
+        </button>
+      </div>
+
+      <div class="tree-toolbar">
+        <div class="tree-tabs">
+          <button class="btn-secondary small tab active"
+                  data-tree-filter="all">Tất cả</button>
+          <button class="btn-secondary small tab"
+                  data-tree-filter="need-care">Cần chăm sóc</button>
+          <button class="btn-secondary small tab"
+                  data-tree-filter="sick">Bệnh nặng</button>
         </div>
 
-        <div class="dashboard-grid">
-          <!-- TẠO CÂY MỚI -->
-          <section class="card collapsible">
-           <div class="card-header clickable" onclick="this.parentElement.classList.toggle('open')">
-             <h2>➕ Thêm cây mới</h2>
+        <div class="tree-search">
+          <input id="tree-search-input" type="search"
+                 placeholder="🔍 Tìm cây..." />
         </div>
-            <form id="create-tree-form" class="form-grid">
-              <div class="form-row">
-                <label for="tree-name">Tên cây *</label>
-                <input id="tree-name" type="text" placeholder="VD: Sầu riêng A01" required />
-              </div>
+      </div>
 
-              <div class="form-row">
-                <label for="tree-species">Giống</label>
-                <input id="tree-species" type="text" placeholder="VD: Ri6, Dona..." />
-              </div>
+      <div id="tree-list" class="tree-list"></div>
+    </section>
 
-              <div class="form-row two-col">
-                <div>
-                  <label for="tree-area">Khu vực</label>
-                  <select id="tree-area"></select>
-                </div>
-                <div class="inline-control">
-                  <button type="button" id="add-area-btn" class="btn-link small">+ Khu mới</button>
-                </div>
-              </div>
+  </div>
+</section>
+<!-- ============== END DASHBOARD ============== -->
 
-              <div class="form-row">
-                <label for="tree-location">Vị trí trong vườn</label>
-                <input id="tree-location" type="text" placeholder="VD: Hàng A2 - Cây 15" />
-              </div>
 
-              <div class="form-row">
-                <label for="tree-date">Ngày trồng</label>
-                <input id="tree-date" type="date" />
-              </div>
+<!-- ================= STAFF ================= -->
+<!-- NHÂN VIÊN -->
+<section id="staff-section" class="section hidden">
+  <div class="card">
+    <h2>👨‍🌾 Nhân viên vườn</h2>
 
-              <div class="form-row">
-                <label for="tree-vietgap">Mã số VietGAP (nếu có)</label>
-                <input id="tree-vietgap" type="text" placeholder="VD: VG-TH-001" />
-              </div>
+    <form id="staff-form" class="form-grid form-inline">
+      <div class="form-row">
+        <label>Tài khoản</label>
+        <input id="staff-username" required />
+      </div>
+      <div class="form-row">
+        <label>Mật khẩu</label>
+        <input id="staff-password" type="password" required />
+      </div>
+      <button class="btn-primary">Tạo nhân viên</button>
+    </form>
 
-              <div class="form-row">
-                <label for="tree-image">Hình ảnh (URL – tùy chọn)</label>
-                <input id="tree-image" type="url" placeholder="https://..." />
-              </div>
+    <div id="staff-list"></div>
+  </div>
+</section>
 
-              <!-- ✅ Diện tích (chuỗi) -->
-              <div class="form-row with-suffix">
-                <label for="tree-acreage">Diện tích</label>
-                <input id="tree-acreage" type="text" placeholder="VD: 0.15 ha hoặc 1500 m²" />
-                <span class="input-suffix">tuỳ ý</span>
-              </div>
+<!-- LỊCH SỬ -->
+<section id="activity-section" class="section hidden">
+  <div class="card">
+    <h2>📜 Lịch sử hoạt động</h2>
+    <div id="activity-list"></div>
+  </div>
+</section>
 
-              <button type="submit" class="btn-primary full-width">Tạo cây & sinh QR</button>
-            </form>
-          </section>
+<!-- ================= ACTIVITY ================= -->
+<section id="activity-section" class="section hidden">
+  <div class="card">
+    <h2>📜 Lịch sử hoạt động</h2>
+    <div id="activity-list"></div>
+  </div>
+</section>
+
 
           <!-- DANH SÁCH CÂY -->
           <section class="card">
