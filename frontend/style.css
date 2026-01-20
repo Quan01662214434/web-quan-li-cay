@@ -1,308 +1,68 @@
+/* ===============================
+   ENTERPRISE FARM UI – STYLE.CSS
+   SAFE TO OVERWRITE – NO DATA TOUCH
+   =============================== */
 
 :root {
   --green-main: #2e7d32;
-  --green-light: #e5f6e8;
   --green-dark: #1b5e20;
-  --accent: #ffd54f;
-  --border-color: #dde5dd;
+  --green-soft: #e8f5ea;
   --bg-body: #f4f7f4;
+  --card-bg: #ffffff;
+  --border-soft: #e2efe4;
   --text-main: #1f2933;
   --text-muted: #6b7280;
-  --danger: #e53935;
-  --radius-lg: 14px;
-  --radius-md: 10px;
-  --shadow-soft: 0 10px 30px rgba(15, 94, 35, 0.08);
+  --danger: #d32f2f;
+  --warning: #f9a825;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --shadow-soft: 0 10px 30px rgba(15,94,35,.10);
 }
 
+/* RESET */
 *,
 *::before,
 *::after { box-sizing: border-box; }
 
 html, body {
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: var(--bg-body); color: var(--text-main);
+  background: var(--bg-body);
+  color: var(--text-main);
 }
 
-/* HEADER */
-.app-header {
-  position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 5vw;
-  background: linear-gradient(90deg, var(--green-main), var(--green-dark));
-  color: white; box-shadow: 0 4px 12px rgba(0,0,0,.12);
-}
+/* ===============================
+   LAYOUT
+   =============================== */
 
-.header-left { display: flex; align-items: center; gap: 14px; }
-.logo { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: white; padding: 4px; }
-.header-title { display: flex; flex-direction: column; }
-.brand-name { font-weight: 700; font-size: 20px; letter-spacing: .5px; }
-.brand-subtitle { font-size: 13px; opacity: .9; }
-.header-right { display: flex; align-items: center; gap: 12px; }
-.user-info { font-size: 13px; }
-
-/* NAV */
-.main-nav { display: flex; align-items: center; gap: 8px; margin: 0 16px; }
-.nav-link {
-  background: transparent; border-radius: 999px; border: none; padding: 6px 12px;
-  font-size: 13px; color: #e9f5eb; cursor: pointer; transition: background .15s, color .15s, transform .1s;
-}
-.nav-link:hover { background: rgba(255,255,255,.16); transform: translateY(-1px); }
-.nav-link.active { background: #fff; color: var(--green-main); }
-
-/* Disabled tabs for non-owner */
-.nav-link.disabled { opacity: .5; cursor: not-allowed; }
-.nav-link.disabled:hover { background: transparent; transform: none; }
-
-/* 3-gach */
-.hamburger {
-  display: none; width: 34px; height: 34px; border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.5); background: transparent; padding: 0;
-  align-items: center; justify-content: center; flex-direction: column; gap: 4px; cursor: pointer;
-}
-.hamburger span { width: 18px; height: 2px; background: #fff; border-radius: 999px; transition: transform .2s, opacity .2s; }
-.hamburger.open span:nth-child(1){ transform: translateY(6px) rotate(45deg); }
-.hamburger.open span:nth-child(2){ opacity: 0; }
-.hamburger.open span:nth-child(3){ transform: translateY(-6px) rotate(-45deg); }
-
-/* LAYOUT */
-main { padding: 24px 5vw 40px; }
-.section { max-width: 1200px; margin: 0 auto; }
-.section-landing { margin-top: 24px; }
-.hidden { display: none !important; }
-
-/* LANDING */
-.landing-grid { display: grid; grid-template-columns: minmax(0,3fr) minmax(0,2fr); gap: 24px; align-items: center; }
-.landing-text h1 { font-size: 30px; margin-bottom: 12px; }
-.landing-text p { font-size: 15px; color: var(--text-muted); max-width: 480px; }
-.landing-bullets { margin-top: 12px; padding-left: 20px; color: var(--text-main); font-size: 14px; }
-.landing-bullets li + li { margin-top: 6px; }
-.landing-footer { margin-top: 28px; text-align: center; font-size: 13px; color: var(--text-muted); }
-
-/* CARD */
-.card {
-  background: #fff; border-radius: var(--radius-lg); padding: 18px 18px 20px;
-  box-shadow: var(--shadow-soft); border: 1px solid #e0ece1;
-}
-.card h2 { margin-top: 0; font-size: 18px; }
-.card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-
-/* LOGIN CARD */
-.login-card { max-width: 380px; margin-left: auto; }
-.login-card h2 { text-align: center; }
-
-/* FORM */
-.form-grid { display: grid; gap: 10px; }
-.form-row { display: flex; flex-direction: column; gap: 4px; }
-.form-row.two-col { display: grid; grid-template-columns: 1.5fr .8fr; gap: 8px; }
-.form-inline { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end; }
-
-label { font-size: 13px; color: var(--text-muted); }
-input, select, textarea {
-  padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);
-  font-size: 14px; outline: none; transition: border-color .15s, box-shadow .15s; background: #fff;
-}
-input:focus, select:focus, textarea:focus { border-color: var(--green-main); box-shadow: 0 0 0 1px rgba(46,125,50,.15); }
-textarea { resize: vertical; }
-
-/* Buttons */
-button { font-family: inherit; }
-.btn-primary, .btn-secondary, .btn-danger, .btn-link {
-  border-radius: 999px; padding: 8px 16px; font-size: 14px; border: none; cursor: pointer;
-  display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;
-}
-.btn-primary { background: linear-gradient(135deg,#2e7d32,#1b5e20); color: #fff; box-shadow: 0 6px 14px rgba(27,94,32,.25); }
-.btn-primary:hover { background: linear-gradient(135deg,#29692d,#174f1a); transform: translateY(-.5px); }
-.btn-secondary { background: #fff; color: var(--green-main); border: 1px solid rgba(46,125,50,.3); }
-.btn-secondary:hover { background: #f3faf4; }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-danger:hover { background: #c62828; }
-.btn-link { background: transparent; color: var(--green-main); padding-inline: 0; }
-.btn-link.small { font-size: 13px; }
-.small { padding: 4px 10px; font-size: 12px; }
-.full-width { width: 100%; }
-
-/* DASHBOARD GRID */
-.dashboard-grid { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,3fr); gap: 20px; }
-.dashboard-grid > .card:nth-child(3), .dashboard-grid > .card:nth-child(4) { grid-column: 1 / -1; }
-
-/* FARM VIETGAP CARD */
-.farm-vietgap-card {
-  display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg,#e4f9e7,#c8f0cf);
-  border: 1px solid #a5d8a9; border-radius: 12px; padding: 10px 14px; box-shadow: 0 2px 5px rgba(0,60,0,.08); margin-bottom: 14px;
-}
-.farm-vietgap-left { display: flex; align-items: center; }
-.vietgap-logo-circle { width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 2px solid #4caf50; display: flex; align-items: center; justify-content: center; }
-.vg-text { font-weight: 700; color: #2e7d32; font-size: 16px; }
-.farm-vietgap-info { flex: 1; }
-.farm-vietgap-title { font-weight: 700; font-size: 14px; color: #1e4620; }
-.farm-vietgap-detail { font-size: 13px; color: #245c2a; }
-.farm-vietgap-note { font-size: 11px; color: #3d6f40; }
-.farm-vietgap-status { font-size: 22px; color: #2c882e; }
-
-/* TREE LIST */
-.tree-list {
-  display: flex; flex-direction: column; gap: 10px; max-height: 540px; overflow-y: auto; padding-right: 4px;
-}
-.tree-card {
-  display: grid; grid-template-columns: minmax(0,3fr) minmax(0,2fr); gap: 8px;
-  padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid #e0ece1; background: #f9fbf9;
-}
-.tree-main { display: flex; flex-direction: column; gap: 2px; }
-.tree-title { font-weight: 600; font-size: 15px; }
-.tree-sub { font-size: 13px; color: var(--text-muted); }
-.tree-health { font-size: 13px; margin-top: 3px; }
-.tree-vietgap { font-size: 13px; color: var(--text-main); }
-.tree-areaha { font-size: 13px; color: var(--text-main); }
-.tree-disease { font-size: 12px; color: #b45309; }
-.tree-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; align-items: flex-start; }
-
-/* STAFF & ACTIVITY */
-.staff-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-.staff-row { display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius-md); padding: 6px 10px; background: #f7faf7; border: 1px solid #e2efe4; font-size: 14px; }
-
-.activity-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
-.activity-item { border-radius: var(--radius-md); border: 1px solid #e2efe4; padding: 8px 10px; background: #f7faf7; font-size: 13px; }
-.activity-meta { color: var(--text-muted); font-size: 12px; }
-
-/* MODALS */
-.modal { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; }
-.modal-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.55); }
-.modal-content {
-  position: relative; z-index: 1; background: #fff; border-radius: var(--radius-lg); padding: 18px 18px 20px;
-  box-shadow: 0 18px 40px rgba(15,23,42,.35); max-width: 560px; width: 100%;
-}
-.modal-qr { text-align: center; max-width: 320px; }
-.modal-qr img { width: 220px; height: 220px; margin-bottom: 12px; }
-.modal-actions { margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px; }
-
-/* DISEASE */
-.disease-list {
-  border-radius: var(--radius-md); border: 1px solid #e2efe4; padding: 8px 10px; max-height: 220px; overflow-y: auto;
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 4px 8px; font-size: 13px;
-}
-.disease-item { display: flex; align-items: center; gap: 6px; }
-
-/* STATUS */
-.status-row { display: flex; gap: 6px; }
-.status-row select { flex: 1; }
-
-/* DISPLAY CONFIG */
-.display-config-grid {
-  margin-top: 10px; border-radius: var(--radius-md); border: 1px solid #e2efe4; padding: 10px 10px 8px;
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; font-size: 13px;
-}
-.display-config-grid label { display: flex; align-items: center; gap: 6px; }
-.text-muted { font-size: 13px; color: var(--text-muted); }
-
-/* TREE TOOLBAR */
-.tree-toolbar { margin: 8px 0 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.tree-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
-.tree-tabs .tab { border-radius: 999px; }
-.tree-tabs .tab.active { background: var(--green-main); color: #fff; border-color: var(--green-main); }
-.tree-search { position: relative; max-width: 260px; width: 100%; }
-.tree-search input { width: 100%; padding-right: 28px; }
-.search-icon { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-muted); pointer-events: none; }
-
-/* Floating contact (public.html dùng) */
-.floating-contact { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 999; }
-.contact-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; height: 46px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #fff; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,.25); padding: 0 14px; }
-.zalo-btn { background: #008fe5; }
-.fb-btn { background: #1877f2; }
-
-/* ====== Extras (Trường tuỳ biến) ====== */
-.extras-list { display: flex; flex-direction: column; gap: 8px; border: 1px solid #e2efe4; padding: 8px; border-radius: 10px; max-height: 260px; overflow-y: auto; }
-.extras-row {
-  display: grid; grid-template-columns: 1.2fr 1.5fr auto auto; gap: 8px; align-items: center;
-  background: #f9fbf9; border: 1px solid #e2efe4; border-radius: 8px; padding: 8px;
-}
-.ex-label, .ex-value { width: 100%; }
-.ex-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-main); }
-.empty-row { padding: 10px; text-align: center; color: var(--text-muted); }
-
-/* AREA (ha) – addons */
-.form-row .with-suffix { position: relative; }
-.form-row .with-suffix input[type="number"],
-.form-row .with-suffix input[type="text"] { padding-right: 56px; }
-.input-suffix { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-muted); pointer-events: none; }
-
-/* Number arrows hidden */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input[type="number"] { -moz-appearance: textfield; }
-
-/* RESPONSIVE */
-@media (max-width: 900px) {
-  .app-header { padding-inline: 4vw; flex-wrap: wrap; row-gap: 6px; }
-  .header-left { flex: 1 1 auto; }
-  .header-right { width: 100%; justify-content: space-between; font-size: 12px; }
-  main { padding: 16px 4vw 32px; }
-  .landing-grid { grid-template-columns: minmax(0,1fr); gap: 16px; }
-  .landing-text h1 { font-size: 22px; }
-  .landing-text p, .landing-bullets { font-size: 13px; }
-  .login-card { max-width: 100%; margin: 0; }
-  .dashboard-grid { grid-template-columns: minmax(0,1fr); gap: 16px; }
-  .tree-card { grid-template-columns: minmax(0,1fr); padding: 10px; }
-  .tree-main { gap: 3px; }
-  .tree-title { font-size: 14px; }
-  .tree-sub, .tree-health, .tree-vietgap, .tree-disease { font-size: 12px; }
-  .tree-toolbar { flex-direction: column; align-items: stretch; }
-  .tree-search { max-width: none; }
-  .main-nav { order: 3; width: 100%; margin: 6px 0 0; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.25); display: none; justify-content: flex-start; flex-wrap: wrap; }
-  .main-nav.open { display: flex; }
-  .hamburger { display: inline-flex; }
-}
-
-@media (max-width: 600px) {
-  .brand-name { font-size: 18px; }
-  .brand-subtitle { font-size: 11px; }
-  .user-info { font-size: 11px; }
-  .tree-actions { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
-  .tree-actions .btn-secondary, .tree-actions .btn-danger { flex: 0 0 auto; font-size: 11px; padding: 5px 9px; }
-  .staff-row, .activity-item { font-size: 12px; }
-  .activity-meta { font-size: 11px; }
-  .floating-contact { right: 12px; bottom: 12px; gap: 6px; }
-  .contact-btn { min-width: 44px; height: 44px; font-size: 11px; padding: 0 12px; }
-}
-
-/* DESKTOP NAV */
-@media (min-width: 901px) {
-  .hamburger { display: none; }
-}
-/* ====== APP LAYOUT + SIDEBAR ====== */
 .app-layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* SIDEBAR */
 .sidebar {
   width: 240px;
-  background: linear-gradient(180deg, #1b5e20, #2e7d32);
+  background: linear-gradient(180deg, var(--green-dark), var(--green-main));
   color: #e9f5eb;
-  display: flex;
-  flex-direction: column;
-  padding: 18px 14px;
-  box-shadow: 4px 0 14px rgba(0,0,0,.08);
   position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  z-index: 15;
+  inset: 0 auto 0 0;
+  padding: 18px 14px;
+  z-index: 20;
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
   font-weight: 700;
   font-size: 15px;
+  margin-bottom: 20px;
 }
 
 .sidebar-logo {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #fff;
   padding: 4px;
@@ -317,10 +77,8 @@ input[type="number"] { -moz-appearance: textfield; }
 
 .sidebar-nav .nav-item {
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 14px;
-  color: #e9f5eb;
-  text-decoration: none;
   cursor: pointer;
   transition: background .15s, transform .1s;
 }
@@ -331,277 +89,94 @@ input[type="number"] { -moz-appearance: textfield; }
 }
 
 .sidebar-nav .nav-item.active {
-  background: #fff;
+  background: #ffffff;
   color: var(--green-main);
   font-weight: 600;
 }
 
-/* MAIN AREA */
-.main-area {
-  margin-left: 240px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-}
-/* ====== SIDEBAR MOBILE ====== */
-@media (max-width: 900px) {
-  .sidebar {
-    position: fixed;
-    transform: translateX(-100%);
-    transition: transform .25s ease;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .main-area {
-    margin-left: 0;
-  }
-}
 /* ===============================
-   ENTERPRISE LAYOUT FIX
+   MAIN AREA
    =============================== */
 
-/* Header chừa chỗ cho sidebar (desktop) */
-@media (min-width: 901px) {
-  .app-header {
-    left: 240px;
-    width: calc(100% - 240px);
-  }
+.main-area {
+  margin-left: 240px;
+  flex: 1;
+  padding: 24px 5vw 40px;
 }
 
-/* Header full width trên mobile */
-@media (max-width: 900px) {
-  .app-header {
-    left: 0;
-    width: 100%;
-  }
-}
-/* ====== POLISH UI (Enterprise feel) ====== */
-
-/* Card hover nhẹ */
-.card {
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(15,94,35,.12);
+.section {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Tree card rõ ràng hơn */
-.tree-card {
-  transition: background .15s, border-color .15s;
-}
-.tree-card:hover {
-  background: #f3faf4;
-  border-color: #b7dfc0;
-}
-
-/* Sidebar active rõ hơn */
-.sidebar-nav .nav-item.active {
-  box-shadow: inset 0 0 0 2px rgba(46,125,50,.15);
-}
-
-/* Header chữ mượt hơn */
-.brand-name {
-  text-shadow: 0 1px 2px rgba(0,0,0,.15);
-}
-/* ====== DASHBOARD STATS ====== */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.stat-card {
-  background: linear-gradient(135deg, #f4fff6, #e6f6ea);
-  border: 1px solid #cfe8d4;
-  border-radius: 16px;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  box-shadow: 0 10px 30px rgba(15,94,35,.08);
-}
-
-.stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #2e7d32;
-  color: #fff;
-  font-size: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: #355f3b;
-}
-
-.stat-value {
-  font-size: 26px;
-  font-weight: 700;
-  color: #1b5e20;
-}
-
-/* trạng thái */
-.stat-card.warning .stat-icon {
-  background: #f9a825;
-}
-.stat-card.danger .stat-icon {
-  background: #d32f2f;
-}
-/* ===== DASHBOARD STATS ===== */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-}
-
-.stat-icon {
-  font-size: 32px;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #e8f5e9;
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: #6b7280;
-}
-
-.stat-value {
-  font-size: 26px;
-  font-weight: 700;
-  color: #111827;
-}
-
-/* MÀU TRẠNG THÁI */
-.stat-card.warning .stat-icon {
-  background: #fff7ed;
-}
-
-.stat-card.warning .stat-value {
-  color: #f97316;
-}
-
-.stat-card.danger .stat-icon {
-  background: #fee2e2;
-}
-
-.stat-card.danger .stat-value {
-  color: #dc2626;
-}
-
-/* MOBILE */
-@media (max-width: 640px) {
-  .stat-card {
-    padding: 14px;
-  }
-
-  .stat-value {
-    font-size: 22px;
-/* ====== GLOBAL HIDDEN (bắt buộc cho điều hướng sidebar) ====== */
 .hidden {
   display: none !important;
 }
+
 /* ===============================
-   DASHBOARD UPGRADE – V1
+   PAGE HEADER
    =============================== */
 
-/* ===== PAGE HEADER ===== */
 .page-head {
   margin-bottom: 20px;
 }
+
 .page-head h1 {
+  margin: 0;
   font-size: 26px;
   font-weight: 700;
-  margin: 0;
-}
-.page-head p {
-  margin: 4px 0 0;
-  color: var(--text-muted);
-  font-size: 14px;
+  color: var(--green-dark);
 }
 
-/* ===== STATS GRID ===== */
+.page-head p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ===============================
+   CARD
+   =============================== */
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 16px;
+}
+
+/* ===============================
+   STATS / KPI
+   =============================== */
+
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-  margin-bottom: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .stat-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px;
+  padding: 16px;
   border-radius: 16px;
   background: #fff;
-  border: 1px solid #e2efe4;
-  box-shadow: 0 8px 20px rgba(0,0,0,.06);
-  transition: transform .15s, box-shadow .15s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0,0,0,.10);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
 }
 
 .stat-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
-  font-size: 26px;
-  background: #e8f5ea;
-}
-
-.stat-card.warning .stat-icon {
-  background: #fff3e0;
-}
-
-.stat-card.danger .stat-icon {
-  background: #fdecea;
+  font-size: 24px;
+  background: var(--green-soft);
 }
 
 .stat-info {
@@ -615,188 +190,18 @@ input[type="number"] { -moz-appearance: textfield; }
 }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--green-main);
-}
-
-.stat-card.warning .stat-value { color: #ef6c00; }
-.stat-card.danger .stat-value { color: #d32f2f; }
-
-/* ===== VIETGAP CERT ===== */
-.farm-vietgap-card {
-  background: linear-gradient(135deg,#e6f9ea,#d1f2d9);
-  border: 1px solid #9fd6a6;
-  border-radius: 18px;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 26px;
-}
-
-.vietgap-logo-circle {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 2px solid #2e7d32;
-  font-weight: 800;
-  font-size: 18px;
-}
-
-.farm-vietgap-title {
-  font-size: 16px;
-}
-
-.farm-vietgap-status {
   font-size: 26px;
-}
-
-/* ===== TREE CARD PRO ===== */
-.tree-card {
-  border-radius: 14px;
-  background: #fff;
-  paddi
-<div class="page-head">
-  <h1>Quản lý vườn 🌱</h1>
-  <p>Tổng quan tình trạng vườn và cây trồng</p>
-</div>
-/* ===== COLLAPSIBLE FORM ===== */
-.collapsible form {
-  display: none;
-}
-
-.collapsible.open form {
-  display: block;
-}
-
-.clickable {
-  cursor: pointer;
-}
-/* ===============================
-   MOBILE APP EXPERIENCE
-   =============================== */
-
-@media (max-width: 768px) {
-
-  body {
-    font-size: 15px;
-  }
-
-  .section {
-    padding: 10px;
-  }
-
-  /* Header gọn hơn */
-  .app-header {
-    padding: 10px 12px;
-  }
-
-  .brand-name {
-    font-size: 15px;
-  }
-
-  .brand-subtitle {
-    font-size: 12px;
-  }
-
-  /* Stats card nằm ngang – dễ quét */
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .stat-card {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .stat-icon {
-    font-size: 26px;
-  }
-
-  /* Tree card như thẻ app */
-  .tree-card {
-    border-radius: 16px;
-    padding: 14px;
-  }
-
-  .tree-title {
-    font-size: 15px;
-  }
-
-  .tree-sub {
-    font-size: 13p
-/* ===============================
-   DASHBOARD PRO – FARM STYLE
-   =============================== */
-
-.dashboard-title {
-  font-size: 18px;
   font-weight: 700;
-  margin: 6px 0 14px;
-  color: #1b5e20;
+  color: var(--green-dark);
 }
 
-/* KPI GRID */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  margin-bottom: 18px;
-}
+.stat-card.warning .stat-icon { background: #fff3e0; }
+.stat-card.warning .stat-value { color: #ef6c00; }
+.stat-card.danger .stat-icon { background: #fdecea; }
+.stat-card.danger .stat-value { color: #c62828; }
 
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #e8f5e9, #ffffff);
-  border: 1px solid #c8e6c9;
-  box-shadow: 0 6px 18px rgba(46,125,50,.15);
-}
-
-.stat-icon {
-  font-size: 30px;
-}
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: #2e7d32;
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 800;
-  color: #1b5e20;
-}
-
-/* Cảnh báo */
-.stat-card.warning {
-  background: linear-gradient(135deg, #fff8e1, #ffffff);
-  border-color: #ffe082;
-}
-
-.stat-card.warning .stat-value {
-  color: #ef6c00;
-}
-
-.stat-card.danger {
-  background: linear-gradient(135deg, #ffebee, #ffffff);
-  border-color: #ffcdd2;
-}
-
-.stat-card.danger .stat-value {
-  color: #c62828;
-}
 /* ===============================
-   TREE CARD – ENTERPRISE STYLE
+   TREE LIST (PERFORMANCE SAFE)
    =============================== */
 
 .tree-list {
@@ -805,105 +210,11 @@ input[type="number"] { -moz-appearance: textfield; }
 }
 
 .tree-card {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 18px;
-  background: #ffffff;
-  border: 1px solid #e0ece1;
-  box-shadow: 0 6px 18px rgba(0,0,0,.08);
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-
-.tree-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(0,0,0,.12);
-}
-
-/* LEFT */
-.tree-main {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.tree-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1b5e20;
-}
-
-.tree-sub {
-  font-size: 13px;
-  color: #4b5563;
-}
-
-/* Health badge */
-.tree-health b {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.tree-health b:contains("Bình") {
-  background: #e8f5e9;
-  color: #1b5e20;
-}
-
-.tree-health b:contains("Cần") {
-  background: #fff8e1;
-  color: #ef6c00;
-}
-
-.tree-health b:contains("Bệnh") {
-  background: #fdecea;
-  color: #c62828;
-}
-
-/* VietGAP + acreage */
-.tree-vietgap,
-.tree-areaha,
-.tree-disease {
-  font-size: 12px;
-  color: #2e7d32;
-}
-
-/* RIGHT – ACTIONS */
-.tree-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(72px, 1fr));
-  gap: 6px;
-  align-content: start;
-}
-
-.tree-actions button {
-  font-size: 12px;
-  padding: 6px 8px;
-  border-radius: 10px;
-}
-
-/* Mobile */
-@media (max-width: 640px) {
-  .tree-card {
-    grid-template-columns: 1fr;
-  }
-  .tree-actions {
-    grid-template-columns: repeat(4, 1fr);
-    margin-top: 8px;
-  }
-}
-/* ===== TREE CARD CLEAN UI ===== */
-
-.tree-card {
   background: #fff;
   border-radius: 14px;
-  padding: 12px;
-  border: 1px solid #e3efe6;
+  padding: 14px;
+  border: 1px solid var(--border-soft);
   box-shadow: 0 6px 16px rgba(0,0,0,.06);
-  margin-bottom: 10px;
 }
 
 .tree-card-header {
@@ -915,11 +226,12 @@ input[type="number"] { -moz-appearance: textfield; }
 .tree-title {
   font-size: 15px;
   font-weight: 700;
+  color: var(--green-dark);
 }
 
 .tree-sub {
   font-size: 13px;
-  color: #555;
+  color: var(--text-muted);
   margin: 6px 0;
 }
 
@@ -928,54 +240,6 @@ input[type="number"] { -moz-appearance: textfield; }
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
-  white-space: nowrap;
-}
-
-.health-good {
-  background: #e8f6ec;
-  color: #1b5e20;
-}
-
-.health-warn {
-  background: #fff3e0;
-  color: #8a5200;
-}
-
-.health-bad {
-  background: #fdecea;
-  color: #b71c1c;
-}
-
-.tree-vietgap,
-.tree-areaha,
-.tree-disease {
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.tree-actions.compact {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.tree-actions.compact button {
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 8px;
-}
-
-.btn-qr {
-  background: #2e7d32;
-  color: #fff;
-  border: none;
-}
-.tree-health-badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
 .health-good {
@@ -992,11 +256,86 @@ input[type="number"] { -moz-appearance: textfield; }
   background: #fde8e8;
   color: #b42318;
 }
-/* ===== SECTION SHOW / HIDE (BẮT BUỘC) ===== */
-.section {
-  display: block;
+
+.tree-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
 }
 
-.section.hidden {
-  display: none !important;
+.tree-actions button {
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-qr {
+  background: var(--green-main);
+  color: #fff;
+}
+
+/* ===============================
+   ACTIVITY TIMELINE
+   =============================== */
+
+.activity-timeline {
+  border-left: 3px solid var(--border-soft);
+  margin-left: 12px;
+  padding-left: 16px;
+}
+
+.activity-item {
+  position: relative;
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  margin-bottom: 12px;
+}
+
+.activity-item::before {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 14px;
+  width: 12px;
+  height: 12px;
+  background: var(--green-main);
+  border-radius: 50%;
+}
+
+/* ===============================
+   EMPTY STATE
+   =============================== */
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state h3 {
+  margin-top: 12px;
+  font-size: 18px;
+  color: var(--text-main);
+}
+
+/* ===============================
+   RESPONSIVE
+   =============================== */
+
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .main-area {
+    margin-left: 0;
+    padding: 16px 4vw 32px;
+  }
 }
