@@ -67,6 +67,21 @@
 
      // Chuẩn hóa bỏ dấu, không phân biệt hoa/thường
     // ✅ Chọn địa chỉ theo khu — an toàn trên webview cũ (không dùng normalize)
+    // Chuẩn hóa tiếng Việt: bỏ dấu + lowercase (an toàn WebView cũ)
+  function normalizeVN(str){
+  return String(str || "")
+    .toLowerCase()
+    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g,"a")
+    .replace(/[èéẹẻẽêềếệểễ]/g,"e")
+    .replace(/[ìíịỉĩ]/g,"i")
+    .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g,"o")
+    .replace(/[ùúụủũưừứựửữ]/g,"u")
+    .replace(/[ỳýỵỷỹ]/g,"y")
+    .replace(/đ/g,"d")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
       function pickAddress(area, farmAddressFromServer) {
   const a = normalizeVN(area);
   // Khu C thì luôn dùng địa chỉ riêng
