@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -457,7 +457,10 @@
             }, { once: true });
           });
         }
-        showOnlySection("dashboard");
+        if (document.querySelector(".sidebar")) {
+            showOnlySection("dashboard");
+
+        }
       }
 
       // ====== Login ======
