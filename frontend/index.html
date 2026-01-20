@@ -579,106 +579,113 @@
       // ====== Tree list ======
       function renderTreeList() {
 
-        function getHealthClass(status) {
-            if (!status) return "health-normal";
-            if (status.includes("Bệnh")) return "health-bad";
-            if (status.includes("Cần")) return "health-warn";
-            return "health-good";
-          }
+  const container = document.getElementById("tree-list");
+  if (!container) return;
 
-        const container = document.getElementById("tree-list");
-        if (!container) return;
-        container.innerHTML = "";
-        if (!lastTrees.length) {
-          container.innerHTML = "<p>Chưa có cây nào. Hãy thêm cây mới.</p>";
-          updateFarmVietGapBadge(); 
-         } else {
-         
-        }
-        const term = (treeSearchTerm || "").trim().toLowerCase();
-        const filtered = lastTrees.filter((t) => {
-          if (treeStatusFilter === "need-care") {
-            if ((t.currentHealth || "").trim() !== "Cần chăm sóc") return false;
-          }
-          if (treeStatusFilter === "sick") {
-            if ((t.currentHealth || "").trim() !== "Bệnh nặng") return false;
-          }
-          if (!term) return true;
-          const combined = `
-            ${t.numericId || ""} ${t.name || ""} ${t.species || ""}
-            ${t.area || ""} ${t.location || ""} ${t.vietGapCode || ""}
-          `.toLowerCase().replace(/\s+/g, " ");
-          return combined.includes(term);
-        });
+  container.innerHTML = "";
 
-        if (!filtered.length) {
-          container.innerHTML = "<p>Không tìm thấy cây nào khớp với bộ lọc hiện tại.</p>";
-          updateFarmVietGapBadge(); 
-          }  else {
-        }
+  // ===== Trường hợp chưa có cây =====
+  if (!lastTrees.length) {
+    container.innerHTML = "<p>Chưa có cây nào. Hãy thêm cây mới.</p>";
+    updateFarmVietGapBadge();
+    updateStats();
+    return;
+  }
 
-        filtered.forEach((t) => {
-          const card = document.createElement("div");
-          card.className = "tree-card";
-          const diseasesText = (t.diseases || []).join(", ");
-          const vietgapHtml = t.vietGapCode ? `<div class="tree-vietgap">VietGAP: <b>${t.vietGapCode}</b></div>` : "";
-          const acreageHtml = (t.acreage && String(t.acreage).trim() !== "")
-            ? `<div class="tree-areaha">Diện tích: <b>${t.acreage}</b></div>` : "";
+  const term = (treeSearchTerm || "").trim().toLowerCase();
 
-      }
-card.innerHTML = `
-  <div class="tree-card-header">
-    <div class="tree-title">
-      🌳 #${t.numericId} – ${t.name}
-    </div>
+  const filtered = lastTrees.filter((t) => {
+    if (treeStatusFilter === "need-care") {
+      return (t.currentHealth || "").trim() === "Cần chăm sóc";
+    }
+    if (treeStatusFilter === "sick") {
+      return (t.currentHealth || "").trim() === "Bệnh nặng";
+    }
 
-    <div class="tree-health-badge ${getHealthClass(t.currentHealth)}">
-      ${t.currentHealth || "Chưa cập nhật"}
-    </div>
-  </div>
+    if (!term) return true;
 
-  <div class="tree-sub">
-    🌱 ${t.species || "Chưa rõ giống"}
-    • 📍 ${t.area || "Chưa rõ khu"}
-    ${t.location ? `• ${t.location}` : ""}
-  </div>
+    const combined = `
+      ${t.numericId || ""} ${t.name || ""} ${t.species || ""}
+      ${t.area || ""} ${t.location || ""} ${t.vietGapCode || ""}
+    `.toLowerCase();
 
-  ${vietgapHtml}
-  ${acreageHtml}
+    return combined.includes(term);
+  });
 
-  ${diseasesText ? `<div class="tree-disease">🦠 ${diseasesText}</div>` : ""}
+  // ===== Không có cây sau khi lọc =====
+  if (!filtered.length) {
+    container.innerHTML = "<p>Không tìm thấy cây nào khớp bộ lọc.</p>";
+    updateFarmVietGapBadge();
+    updateStats();
+    return;
+  }
 
-  <div class="tree-actions compact">
-    <button class="btn-qr" onclick="openQrModal('${t.qrCode}')">QR</button>
-    <button onclick="openStatusModal(
-      '${t._id}',
-      '${(t.currentHealth || "").replace(/'/g,"\\'").replace(/"/g,"&quot;")}',
-      '${(t.notes || "").replace(/'/g,"\\'").replace(/"/g,"&quot;")}'
-    )">Tình trạng</button>
-    <button onclick="openEditTree('${t._id}')">Sửa</button>
-  </div>
-`;
-container.appendChild(card);
+  // ===== Render từng cây =====
+  filtered.forEach((t) => {
+    const card = document.createElement("div");
+    card.className = "tree-card";
 
+    const diseasesText = (t.diseases || []).join(", ");
+    const vietgapHtml = t.vietGapCode
+      ? `<div class="tree-vietgap">VietGAP: <b>${t.vietGapCode}</b></div>`
+      : "";
+    const acreageHtml = t.acreage
+      ? `<div class="tree-areaha">Diện tích: <b>${t.acreage}</b></div>`
+      : "";
+
+    card.innerHTML = `
+      <div class="tree-card-header">
+        <div class="tree-title">🌳 #${t.numericId} – ${t.name}</div>
+        <div class="tree-health-badge">${t.currentHealth || "Chưa cập nhật"}</div>
+      </div>
+
+      <div class="tree-sub">
+        🌱 ${t.species || "Chưa rõ giống"}
+        • 📍 ${t.area || "Chưa rõ khu"}
+        ${t.location ? `• ${t.location}` : ""}
+      </div>
+
+      ${vietgapHtml}
+      ${acreageHtml}
+      ${diseasesText ? `<div class="tree-disease">🦠 ${diseasesText}</div>` : ""}
+
+      <div class="tree-actions compact">
+        <button class="btn-qr" onclick="openQrModal('${t.qrCode}')">QR</button>
+        <button onclick="openStatusModal(
+          '${t._id}',
+          '${(t.currentHealth || "").replace(/'/g,"\\'")}',
+          '${(t.notes || "").replace(/'/g,"\\'")}'
+        )">Tình trạng</button>
+        <button onclick="openEditTree('${t._id}')">Sửa</button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  updateFarmVietGapBadge();
+  updateStats();
+}
+function updateStats() {
+  const total = lastTrees.length;
+
+  const needCare = lastTrees.filter(
+    t => (t.currentHealth || "").trim() === "Cần chăm sóc"
+  ).length;
+
+  const sick = lastTrees.filter(
+    t => (t.currentHealth || "").trim() === "Bệnh nặng"
+  ).length;
+
+  const totalEl = document.getElementById("stat-total");
+  const careEl = document.getElementById("stat-care");
+  const sickEl = document.getElementById("stat-sick");
+
+  if (totalEl) totalEl.innerText = total;
+  if (careEl) careEl.innerText = needCare;
+  if (sickEl) sickEl.innerText = sick;
+}
         // ====== Update dashboard stats ======
-              const total = lastTrees.length;
-              const needCare = lastTrees.filter(
-                t => (t.currentHealth || "").trim() === "Cần chăm sóc"
-              ).length;
-              const sick = lastTrees.filter(
-                t => (t.currentHealth || "").trim() === "Bệnh nặng"
-              ).length;
-
-              const totalEl = document.getElementById("stat-total");
-              const careEl = document.getElementById("stat-care");
-              const sickEl = document.getElementById("stat-sick");
-
-              if (totalEl) totalEl.innerText = total;
-              if (careEl) careEl.innerText = needCare;
-              if (sickEl) sickEl.innerText = sick;
-
-      }
-
       async function loadTrees() {
         if (!token) return;
         try {
