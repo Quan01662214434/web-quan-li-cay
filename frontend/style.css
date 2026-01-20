@@ -538,4 +538,457 @@ input[type="number"] { -moz-appearance: textfield; }
 
   .stat-value {
     font-size: 22px;
+/* ====== GLOBAL HIDDEN (bắt buộc cho điều hướng sidebar) ====== */
+.hidden {
+  display: none !important;
+}
+/* ===============================
+   DASHBOARD UPGRADE – V1
+   =============================== */
 
+/* ===== PAGE HEADER ===== */
+.page-head {
+  margin-bottom: 20px;
+}
+.page-head h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+}
+.page-head p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e2efe4;
+  box-shadow: 0 8px 20px rgba(0,0,0,.06);
+  transition: transform .15s, box-shadow .15s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.10);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  background: #e8f5ea;
+}
+
+.stat-card.warning .stat-icon {
+  background: #fff3e0;
+}
+
+.stat-card.danger .stat-icon {
+  background: #fdecea;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--green-main);
+}
+
+.stat-card.warning .stat-value { color: #ef6c00; }
+.stat-card.danger .stat-value { color: #d32f2f; }
+
+/* ===== VIETGAP CERT ===== */
+.farm-vietgap-card {
+  background: linear-gradient(135deg,#e6f9ea,#d1f2d9);
+  border: 1px solid #9fd6a6;
+  border-radius: 18px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.vietgap-logo-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #2e7d32;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.farm-vietgap-title {
+  font-size: 16px;
+}
+
+.farm-vietgap-status {
+  font-size: 26px;
+}
+
+/* ===== TREE CARD PRO ===== */
+.tree-card {
+  border-radius: 14px;
+  background: #fff;
+  paddi
+<div class="page-head">
+  <h1>Quản lý vườn 🌱</h1>
+  <p>Tổng quan tình trạng vườn và cây trồng</p>
+</div>
+/* ===== COLLAPSIBLE FORM ===== */
+.collapsible form {
+  display: none;
+}
+
+.collapsible.open form {
+  display: block;
+}
+
+.clickable {
+  cursor: pointer;
+}
+/* ===============================
+   MOBILE APP EXPERIENCE
+   =============================== */
+
+@media (max-width: 768px) {
+
+  body {
+    font-size: 15px;
+  }
+
+  .section {
+    padding: 10px;
+  }
+
+  /* Header gọn hơn */
+  .app-header {
+    padding: 10px 12px;
+  }
+
+  .brand-name {
+    font-size: 15px;
+  }
+
+  .brand-subtitle {
+    font-size: 12px;
+  }
+
+  /* Stats card nằm ngang – dễ quét */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stat-card {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .stat-icon {
+    font-size: 26px;
+  }
+
+  /* Tree card như thẻ app */
+  .tree-card {
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .tree-title {
+    font-size: 15px;
+  }
+
+  .tree-sub {
+    font-size: 13p
+/* ===============================
+   DASHBOARD PRO – FARM STYLE
+   =============================== */
+
+.dashboard-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 6px 0 14px;
+  color: #1b5e20;
+}
+
+/* KPI GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e8f5e9, #ffffff);
+  border: 1px solid #c8e6c9;
+  box-shadow: 0 6px 18px rgba(46,125,50,.15);
+}
+
+.stat-icon {
+  font-size: 30px;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #2e7d32;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1b5e20;
+}
+
+/* Cảnh báo */
+.stat-card.warning {
+  background: linear-gradient(135deg, #fff8e1, #ffffff);
+  border-color: #ffe082;
+}
+
+.stat-card.warning .stat-value {
+  color: #ef6c00;
+}
+
+.stat-card.danger {
+  background: linear-gradient(135deg, #ffebee, #ffffff);
+  border-color: #ffcdd2;
+}
+
+.stat-card.danger .stat-value {
+  color: #c62828;
+}
+/* ===============================
+   TREE CARD – ENTERPRISE STYLE
+   =============================== */
+
+.tree-list {
+  display: grid;
+  gap: 14px;
+}
+
+.tree-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #e0ece1;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.tree-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.12);
+}
+
+/* LEFT */
+.tree-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tree-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1b5e20;
+}
+
+.tree-sub {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+/* Health badge */
+.tree-health b {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tree-health b:contains("Bình") {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.tree-health b:contains("Cần") {
+  background: #fff8e1;
+  color: #ef6c00;
+}
+
+.tree-health b:contains("Bệnh") {
+  background: #fdecea;
+  color: #c62828;
+}
+
+/* VietGAP + acreage */
+.tree-vietgap,
+.tree-areaha,
+.tree-disease {
+  font-size: 12px;
+  color: #2e7d32;
+}
+
+/* RIGHT – ACTIONS */
+.tree-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(72px, 1fr));
+  gap: 6px;
+  align-content: start;
+}
+
+.tree-actions button {
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .tree-card {
+    grid-template-columns: 1fr;
+  }
+  .tree-actions {
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 8px;
+  }
+}
+/* ===== TREE CARD CLEAN UI ===== */
+
+.tree-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+  border: 1px solid #e3efe6;
+  box-shadow: 0 6px 16px rgba(0,0,0,.06);
+  margin-bottom: 10px;
+}
+
+.tree-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tree-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.tree-sub {
+  font-size: 13px;
+  color: #555;
+  margin: 6px 0;
+}
+
+.tree-health-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.health-good {
+  background: #e8f6ec;
+  color: #1b5e20;
+}
+
+.health-warn {
+  background: #fff3e0;
+  color: #8a5200;
+}
+
+.health-bad {
+  background: #fdecea;
+  color: #b71c1c;
+}
+
+.tree-vietgap,
+.tree-areaha,
+.tree-disease {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.tree-actions.compact {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tree-actions.compact button {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.btn-qr {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+}
+.tree-health-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.health-good {
+  background: #e7f6ec;
+  color: #1b5e20;
+}
+
+.health-warn {
+  background: #fff4e5;
+  color: #9a5b00;
+}
+
+.health-bad {
+  background: #fde8e8;
+  color: #b42318;
+}

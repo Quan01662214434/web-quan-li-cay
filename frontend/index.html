@@ -83,6 +83,12 @@
 
       <!-- DASHBOARD -->
       <section id="dashboard" class="section hidden">
+        <h2 class="dashboard-title">📊 Tổng quan vườn</h2>
+        <div class="page-head">
+        <h1>Quản lý vườn 🌱</h1>
+        <p>Tổng quan tình trạng vườn và cây trồng</p>
+    </div>
+
          <div class="stats-grid" id="stats-grid">
   <div class="stat-card">
     <div class="stat-icon">🌳</div>
@@ -127,8 +133,10 @@
 
         <div class="dashboard-grid">
           <!-- TẠO CÂY MỚI -->
-          <section class="card">
-            <h2>Thêm cây mới</h2>
+          <section class="card collapsible">
+           <div class="card-header clickable" onclick="this.parentElement.classList.toggle('open')">
+             <h2>➕ Thêm cây mới</h2>
+        </div>
             <form id="create-tree-form" class="form-grid">
               <div class="form-row">
                 <label for="tree-name">Tên cây *</label>
@@ -570,6 +578,14 @@
 
       // ====== Tree list ======
       function renderTreeList() {
+
+        function getHealthClass(status) {
+            if (!status) return "health-normal";
+            if (status.includes("Bệnh")) return "health-bad";
+            if (status.includes("Cần")) return "health-warn";
+            return "health-good";
+          }
+
         const container = document.getElementById("tree-list");
         if (!container) return;
         container.innerHTML = "";
@@ -609,28 +625,41 @@
           const acreageHtml = (t.acreage && String(t.acreage).trim() !== "")
             ? `<div class="tree-areaha">Diện tích: <b>${t.acreage}</b></div>` : "";
 
-          card.innerHTML = `
-            <div class="tree-main">
-              <div class="tree-title">#${t.numericId} – ${t.name}</div>
-              <div class="tree-sub">${t.species || "Chưa rõ giống"} • Khu: ${t.area || "Chưa rõ"} • Vị trí: ${t.location || "—"}</div>
-              <div class="tree-health">Tình trạng: <b>${t.currentHealth || "Chưa cập nhật"}</b></div>
-              ${vietgapHtml}
-              ${acreageHtml}
-              ${diseasesText ? `<div class="tree-disease">Bệnh: ${diseasesText}</div>` : ""}
-            </div>
-            <div class="tree-actions">
-              <button class="btn-secondary small" onclick="openQrModal('${t.qrCode}')">QR</button>
-              <button class="btn-secondary small" onclick="openYield('${t._id}')">Năng suất</button>
-              <button class="btn-secondary small" onclick="openStatusModal('${t._id}','${(t.currentHealth || "").replace(/'/g,"\\'").replace(/"/g,"&quot;")}','${(t.notes || "").replace(/'/g,"\\'").replace(/"/g,"&quot;")}')">Tình trạng</button>
-              <button class="btn-secondary small" onclick="openDiseaseModal('${t._id}')">Bệnh</button>
-              <button class="btn-secondary small" onclick="openExtrasModal('${t._id}')">Trường</button>
-              <button class="btn-secondary small" onclick="openEditTree('${t._id}')">Sửa</button>
-              <button class="btn-danger small" onclick="deleteTree('${t._id}')">Xoá</button>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-        updateFarmVietGapBadge();
+      }
+card.innerHTML = `
+  <div class="tree-card-header">
+    <div class="tree-title">
+      🌳 #${t.numericId} – ${t.name}
+    </div>
+
+    <div class="tree-health-badge ${getHealthClass(t.currentHealth)}">
+      ${t.currentHealth || "Chưa cập nhật"}
+    </div>
+  </div>
+
+  <div class="tree-sub">
+    🌱 ${t.species || "Chưa rõ giống"}
+    • 📍 ${t.area || "Chưa rõ khu"}
+    ${t.location ? `• ${t.location}` : ""}
+  </div>
+
+  ${vietgapHtml}
+  ${acreageHtml}
+
+  ${diseasesText ? `<div class="tree-disease">🦠 ${diseasesText}</div>` : ""}
+
+  <div class="tree-actions compact">
+    <button class="btn-qr" onclick="openQrModal('${t.qrCode}')">QR</button>
+    <button onclick="openStatusModal(
+      '${t._id}',
+      '${(t.currentHealth || "").replace(/'/g,"\\'").replace(/"/g,"&quot;")}',
+      '${(t.notes || "").replace(/'/g,"\\'").replace(/"/g,"&quot;")}'
+    )">Tình trạng</button>
+    <button onclick="openEditTree('${t._id}')">Sửa</button>
+  </div>
+`;
+container.appendChild(card);
+
         // ====== Update dashboard stats ======
               const total = lastTrees.length;
               const needCare = lastTrees.filter(
