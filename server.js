@@ -1,62 +1,77 @@
-// ===============================
-// SERVER – FARM QR MANAGER
-// Safe upgrade – NO DATA LOSS
-// ===============================
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-
-dotenv.config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json());
 
-/* ===============================
-   MONGODB
-   =============================== */
-mongoose.connect(process.env.MONGO_URI, {
-  autoIndex: true,
-}).then(() => console.log("✅ MongoDB connected"));
+/* =====================
+   KẾT NỐI MONGODB
+===================== */
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB error:", err));
 
-/* ===============================
-   SCHEMAS (KHÔNG ĐỔI FIELD)
-   =============================== */
-const TreeSchema = new mongoose.Schema({}, { strict: false });
-const UserSchema = new mongoose.Schema({}, { strict: false });
-const DisplayConfigSchema = new mongoose.Schema({}, { strict: false });
-const ActivitySchema = new mongoose.Schema({}, { strict: false });
+/* =====================
+   SCHEMA
+===================== */
+const TreeSchema = new mongoose.Schema(
+  {
+    name: String,
+    species: String,
+    area: String,
+    location: String,
+    plantDate: Date,
+    imageURL: String,
+    qrCode: String,
+    currentHealth: String,
+    diseases: [String],
+    notes: String,
+    yieldHistory: Array,
+    extraFields: Array,
+
+    // multi farm (cây cũ có thể chưa có)
+    farmId: String,
+  },
+  { timestamps: true }
+);
+
+const UserSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+  role: String, // owner | staff
+  farmId: String,
+});
 
 const Tree = mongoose.model("Tree", TreeSchema);
 const User = mongoose.model("User", UserSchema);
-const DisplayConfig = mongoose.model("DisplayConfig", DisplayConfigSchema);
-const Activity = mongoose.model("Activity", ActivitySchema);
 
-/* ===============================
+/* =====================
    AUTH MIDDLEWARE
-   =============================== */
+===================== */
 function auth(req, res, next) {
-  const token = req.headers.authorization?.replace("Bearer ", "");
-  if (!token) return res.status(401).json({ error: "No token" });
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "No token" });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch {
-    return res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ message: "Invalid token" });
   }
 }
 
-/* ===============================
+/* =====================
    LOGIN
-   =============================== */
+===================== */
 app.post("/auth/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username, password });
-  if (!user) return res.status(401).json({ error: "Sai tài khoản hoặc mật khẩu" });
+  if (!user) return res.status(401).json({ message: "Sai tài khoản" });
 
   const token = jwt.sign(
     { id: user._id, role: user.role, farmId: user.farmId },
@@ -66,125 +81,73 @@ app.post("/auth/login", async (req, res) => {
 
   res.json({
     token,
-    user: {
-      username: user.username,
-      role: user.role,
-      farmName: user.farmName,
-    },
+    role: user.role,
+    farmId: user.farmId,
   });
 });
 
-/* ===============================
-   TREE CRUD (SAFE)
-   =============================== */
+/* =====================
+   🔧 FIX HIỂN THỊ CÂY CŨ
+===================== */
 app.get("/api/trees", auth, async (req, res) => {
-  const trees = await Tree.find({ farmId: req.user.farmId }).sort({ numericId: 1 });
-  res.json(trees);
+  try {
+    const trees = await Tree.find({
+      $or: [
+        { farmId: req.user.farmId },   // cây mới
+        { farmId: { $exists: false } } // 👈 CÂY CŨ KHÔNG BỊ MẤT
+      ],
+    }).sort({ createdAt: -1 });
+
+    res.json(trees);
+  } catch (e) {
+    res.status(500).json({ message: "Lỗi lấy cây" });
+  }
 });
 
+/* =====================
+   THÊM CÂY
+===================== */
 app.post("/api/trees", auth, async (req, res) => {
-  const count = await Tree.countDocuments({ farmId: req.user.farmId });
-  const tree = await Tree.create({
+  const tree = new Tree({
     ...req.body,
-    farmId: req.user.farmId,
-    numericId: count + 1,
-    createdAt: new Date(),
+    farmId: req.user.farmId, // cây mới gán farmId
   });
 
-  res.json(tree);
-});
-
-app.patch("/api/trees/:id", auth, async (req, res) => {
-  const tree = await Tree.findOneAndUpdate(
-    { _id: req.params.id, farmId: req.user.farmId },
-    req.body,
-    { new: true }
-  );
-  res.json(tree);
-});
-
-app.delete("/api/trees/:id", auth, async (req, res) => {
-  await Tree.deleteOne({ _id: req.params.id, farmId: req.user.farmId });
-  res.json({ ok: true });
-});
-
-/* ===============================
-   HEALTH / DISEASE / YIELD
-   =============================== */
-app.patch("/api/trees/:id/health", auth, async (req, res) => {
-  const tree = await Tree.findOneAndUpdate(
-    { _id: req.params.id, farmId: req.user.farmId },
-    {
-      currentHealth: req.body.currentHealth,
-      notes: req.body.notes,
-      updatedAt: new Date(),
-    },
-    { new: true }
-  );
-  res.json(tree);
-});
-
-app.patch("/api/trees/:id/diseases", auth, async (req, res) => {
-  const tree = await Tree.findOneAndUpdate(
-    { _id: req.params.id, farmId: req.user.farmId },
-    { diseases: req.body.diseases, updatedAt: new Date() },
-    { new: true }
-  );
-  res.json(tree);
-});
-
-app.post("/api/trees/:id/yield", auth, async (req, res) => {
-  const tree = await Tree.findOne({ _id: req.params.id, farmId: req.user.farmId });
-  tree.yieldHistory = tree.yieldHistory || [];
-  tree.yieldHistory.push({
-    year: req.body.year,
-    quantity: req.body.quantity,
-  });
-  tree.updatedAt = new Date();
   await tree.save();
   res.json(tree);
 });
 
-/* ===============================
-   DISPLAY CONFIG (PER FARM)
-   =============================== */
-app.get("/api/display-config", auth, async (req, res) => {
-  const cfg = await DisplayConfig.findOne({ farmId: req.user.farmId }) || {};
-  res.json(cfg);
+/* =====================
+   QR PUBLIC
+===================== */
+app.get("/public/tree/:id", async (req, res) => {
+  const tree = await Tree.findById(req.params.id);
+  if (!tree) return res.status(404).json({ message: "Không tìm thấy cây" });
+
+  res.json({ tree });
 });
 
-app.patch("/api/display-config", auth, async (req, res) => {
-  const cfg = await DisplayConfig.findOneAndUpdate(
-    { farmId: req.user.farmId },
-    req.body,
-    { upsert: true, new: true }
-  );
-  res.json(cfg);
-});
+/* =====================
+   NHÂN VIÊN
+===================== */
+app.post("/api/staff", auth, async (req, res) => {
+  if (req.user.role !== "owner")
+    return res.status(403).json({ message: "Không có quyền" });
 
-/* ===============================
-   PUBLIC QR – CỰC KỲ QUAN TRỌNG
-   =============================== */
-app.get("/public/tree/:treeId", async (req, res) => {
-  const tree = await Tree.findById(req.params.treeId);
-  if (!tree) return res.status(404).json({ error: "Tree not found" });
-
-  const cfg = await DisplayConfig.findOne({ farmId: tree.farmId }) || {};
-  const farmOwner = await User.findOne({ farmId: tree.farmId, role: "owner" });
-
-  res.json({
-    tree,
-    displayConfig: cfg,
-    farmName: farmOwner?.farmName || "Farm",
-    farmVietGapCode: tree.vietGapCode || "",
-    farmAddress: farmOwner?.farmAddress || "",
+  const staff = new User({
+    ...req.body,
+    role: "staff",
+    farmId: req.user.farmId,
   });
+
+  await staff.save();
+  res.json(staff);
 });
 
-/* ===============================
-   SERVER START
-   =============================== */
+/* =====================
+   START SERVER
+===================== */
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log("🚀 Server running on port", PORT);
-});
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
