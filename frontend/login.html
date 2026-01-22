@@ -2,19 +2,30 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Đăng nhập</title>
+  <title>Đăng nhập | Thanh Huyền Farm</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="login">
+<body class="login-page">
 
-<div class="login-box">
-  <h3>🌱 Thanh Huyền Farm</h3>
-  <input id="username" placeholder="Tên đăng nhập">
-  <input id="password" type="password" placeholder="Mật khẩu">
-  <button onclick="login()">Đăng nhập</button>
-  <p id="error"></p>
-</div>
+  <div class="login-container">
+    <div class="login-card">
+      <h1>🌿 Thanh Huyền Farm</h1>
+      <p class="sub">Hệ thống quản lý cây trồng</p>
 
-<script src="auth.js"></script>
+      <input id="username" placeholder="Tên đăng nhập">
+      <input id="password" type="password" placeholder="Mật khẩu">
+
+      <div id="error" class="error"></div>
+
+      <button onclick="login()">Đăng nhập</button>
+    </div>
+
+    <footer>
+      © Thanh Huyền Farm – VietGAP
+    </footer>
+  </div>
+
+  <script src="auth.js"></script>
 </body>
 </html>
