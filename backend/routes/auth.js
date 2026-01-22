@@ -8,17 +8,15 @@ router.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ message: "Thiếu username hoặc password" });
+      return res.status(400).json({ message: "Thiếu thông tin" });
     }
 
     const user = await User.findOne({ username });
-
     if (!user || !user.passwordHash) {
       return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
     }
 
     const ok = await bcrypt.compare(password, user.passwordHash);
-
     if (!ok) {
       return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
     }
@@ -37,7 +35,7 @@ router.post("/login", async (req, res) => {
 
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    res.status(500).json({ message: "Lỗi server" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
