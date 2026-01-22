@@ -1,43 +1,30 @@
-/* ================== CONFIG ================== */
 const API = "https://api.thefram.site";
 const token = localStorage.getItem("token");
 const role = localStorage.getItem("role");
-const name = localStorage.getItem("name");
 
-/* ================== AUTH CHECK ================== */
-if (!token) {
-  location.href = "login.html";
-}
+if (!token) location.href = "login.html";
 
-/* ================== UI INIT ================== */
-document.getElementById("welcome").innerText =
-  "👋 Xin chào " + (name || "");
-
-/* Ẩn menu owner nếu là staff */
+// Ẩn menu owner nếu là staff
 document.querySelectorAll(".owner-only").forEach(el => {
   if (role !== "owner") el.style.display = "none";
 });
 
-/* ================== MENU ================== */
-function toggleMenu() {
-  document.querySelector(".sidebar").classList.toggle("show");
-}
+// Welcome
+document.getElementById("welcome").innerText =
+  "👋 Xin chào " + (localStorage.getItem("name") || "");
 
-function logout() {
-  localStorage.clear();
-  location.href = "login.html";
-}
-
-/* ================== LOAD TREES ================== */
+// ===== LOAD CÂY =====
 async function loadTrees() {
+  const content = document.getElementById("content");
+  content.innerHTML = "⏳ Đang tải danh sách cây...";
+
   const res = await fetch(`${API}/api/trees`, {
     headers: { Authorization: "Bearer " + token }
   });
-
   const trees = await res.json();
 
-  document.getElementById("content").innerHTML = `
-    <h3>🌳 Danh sách cây trồng</h3>
+  content.innerHTML = `
+    <h3>🌳 Danh sách cây</h3>
 
     <table>
       <tr>
@@ -45,58 +32,35 @@ async function loadTrees() {
         <th>Tên</th>
         <th>Khu</th>
         <th>Vị trí</th>
-        <th>QR</th>
       </tr>
       ${trees.map(t => `
-        <tr>
+        <tr onclick="openTree('${t._id}')">
           <td>${t.numericId || ""}</td>
-          <td>${t.name || ""}</td>
-          <td>${t.area || ""}</td>
-          <td>${t.location || ""}</td>
-          <td>
-            <a href="public.html?id=${t._id}" target="_blank">🔍</a>
-          </td>
+          <td>${t.name}</td>
+          <td>${t.area}</td>
+          <td>${t.location}</td>
         </tr>
       `).join("")}
     </table>
 
     ${trees.map(t => `
-      <div class="tree-card">
+      <div class="tree-card" onclick="openTree('${t._id}')">
         <h4>${t.name}</h4>
-        <div><b>Khu:</b> ${t.area}</div>
-        <div><b>Vị trí:</b> ${t.location}</div>
-        <a href="public.html?id=${t._id}" target="_blank">🔍 Xem QR</a>
+        <div>Khu: ${t.area}</div>
+        <div>Vị trí: ${t.location}</div>
       </div>
     `).join("")}
   `;
 }
 
-/* ================== QR CHART ================== */
-async function loadChart() {
-  document.getElementById("content").innerHTML = `
-    <h3>📊 Thống kê lượt quét QR</h3>
-    <canvas id="qrChart" height="120"></canvas>
-  `;
-
-  drawQRChart();
+function openTree(id) {
+  location.href = `tree-edit.html?id=${id}`;
 }
 
-/* ================== USERS ================== */
-function loadUsers() {
-  if (role !== "owner") return;
-
-  document.getElementById("content").innerHTML = `
-    <h3>👷 Quản lý nhân viên</h3>
-    <iframe src="employees.html"
-      style="width:100%;height:80vh;border:none"></iframe>
-  `;
+function logout() {
+  localStorage.clear();
+  location.href = "login.html";
 }
 
-/* ================== REPORT ================== */
-function loadReport() {
-  if (role !== "owner") return;
-  location.href = "report.html";
-}
-
-/* ================== DEFAULT ================== */
+// Load mặc định
 loadTrees();

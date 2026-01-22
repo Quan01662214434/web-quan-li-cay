@@ -95,3 +95,41 @@ footer {
   font-size: 13px;
   color: #666;
 }
+body {
+  font-family: Arial;
+  background: #f4f6f8;
+  padding: 16px;
+}
+
+.qr-box {
+  background: #fff;
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+h2 {
+  color: #2e7d32;
+  text-align: center;
+}
+
+.vietgap {
+  background: #e8f5e9;
+  color: #2e7d32;
+  text-align: center;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 6px;
+}
+
+.contact a {
+  display: block;
+  margin-top: 8px;
+  text-align: center;
+  padding: 10px;
+  background: #2e7d32;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+}

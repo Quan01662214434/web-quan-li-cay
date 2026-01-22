@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard | Thanh Huyền Farm</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thanh Huyền Farm – Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,9 +15,10 @@
     <h2>🌿 Thanh Huyền Farm</h2>
     <nav>
       <a onclick="loadTrees()">🌳 Cây trồng</a>
-      <a onclick="loadChart()">📊 Thống kê QR</a>
-      <a class="owner-only" onclick="loadUsers()">👷 Nhân viên</a>
-      <a class="owner-only" onclick="loadReport()">🧾 VietGAP</a>
+      <a onclick="loadChart()">📊 Thống kê</a>
+      <a class="owner-only" onclick="loadAuditChart()">📋 Audit</a>
+      <a class="owner-only" onclick="loadEmployees()">👷 Nhân viên</a>
+      <a class="owner-only" href="report.html">🧾 VietGAP</a>
       <a onclick="logout()">🚪 Đăng xuất</a>
     </nav>
   </aside>
@@ -25,19 +26,21 @@
   <!-- MAIN -->
   <main class="main">
     <header class="topbar">
-      <button class="menu-btn" onclick="toggleMenu()">☰</button>
       <span id="welcome"></span>
+      <button onclick="toggleDark()">🌙</button>
     </header>
 
+    <!-- NỘI DUNG LOAD VÀO ĐÂY -->
     <section id="content"></section>
   </main>
 
 </div>
 
-<!-- MOBILE BOTTOM NAV -->
+<!-- MOBILE NAV -->
 <div class="bottom-nav">
   <button onclick="loadTrees()">🌳</button>
   <button onclick="loadChart()">📊</button>
+  <button class="owner-only" onclick="loadAuditChart()">📋</button>
   <button onclick="logout()">🚪</button>
 </div>
 
