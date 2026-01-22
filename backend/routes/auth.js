@@ -1,21 +1,44 @@
-const router = require("express").Router();
+﻿const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 router.post("/login", async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(401).json({});
+  try {
+    const { username, password } = req.body;
 
-  const ok = await bcrypt.compare(req.body.password, user.password);
-  if (!ok) return res.status(401).json({});
+    if (!username || !password) {
+      return res.status(400).json({ message: "Thiếu username hoặc password" });
+    }
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role, name: user.name },
-    process.env.JWT_SECRET
-  );
+    const user = await User.findOne({ username });
 
-  res.json({ token, role: user.role, name: user.name });
+    if (!user || !user.passwordHash) {
+      return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
+    }
+
+    const ok = await bcrypt.compare(password, user.passwordHash);
+
+    if (!ok) {
+      return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET || "secret123",
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      token,
+      role: user.role,
+      name: user.farmName || user.username
+    });
+
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    res.status(500).json({ message: "Lỗi server" });
+  }
 });
 
 module.exports = router;
