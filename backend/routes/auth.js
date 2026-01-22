@@ -1,14 +1,14 @@
-﻿const router = require("express").Router();
+const router = require("express").Router();
+const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ message: "Thiếu thông tin" });
+      return res.status(400).json({ message: "Thiếu username hoặc password" });
     }
 
     const user = await User.findOne({ username });
@@ -23,7 +23,7 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET || "secret123",
+      process.env.JWT_SECRET || "secret",
       { expiresIn: "7d" }
     );
 
@@ -32,10 +32,9 @@ router.post("/login", async (req, res) => {
       role: user.role,
       name: user.farmName || user.username
     });
-
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Lỗi server" });
   }
 });
 
