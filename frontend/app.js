@@ -1,16 +1,26 @@
+/* ================== CONFIG ================== */
 const API = "https://api.thefram.site";
 const token = localStorage.getItem("token");
 const role = localStorage.getItem("role");
+const name = localStorage.getItem("name");
 
-if (!token) location.href = "login.html";
+/* ================== AUTH CHECK ================== */
+if (!token) {
+  location.href = "login.html";
+}
 
-// Ẩn menu owner-only
+/* ================== UI INIT ================== */
+document.getElementById("welcome").innerText =
+  "👋 Xin chào " + (name || "");
+
+/* Ẩn menu owner nếu là staff */
 document.querySelectorAll(".owner-only").forEach(el => {
   if (role !== "owner") el.style.display = "none";
 });
 
+/* ================== MENU ================== */
 function toggleMenu() {
-  document.querySelector(".sidebar")?.classList.toggle("show");
+  document.querySelector(".sidebar").classList.toggle("show");
 }
 
 function logout() {
@@ -18,83 +28,75 @@ function logout() {
   location.href = "login.html";
 }
 
-/* =====================
-   LOAD CÂY – MOBILE FIRST
-===================== */
+/* ================== LOAD TREES ================== */
 async function loadTrees() {
-  hideAll();
-
-  const content = document.getElementById("content");
-  content.innerHTML = "<p>⏳ Đang tải...</p>";
-
-  const res = await fetch(`${API}/api/trees/dashboard/list`, {
+  const res = await fetch(`${API}/api/trees`, {
     headers: { Authorization: "Bearer " + token }
   });
+
   const trees = await res.json();
 
-  const isMobile = window.innerWidth < 768;
-  content.innerHTML = "";
+  document.getElementById("content").innerHTML = `
+    <h3>🌳 Danh sách cây trồng</h3>
 
-  // ===== MOBILE: CARD =====
-  if (isMobile) {
-    trees.forEach(t => {
-      content.innerHTML += `
-        <div class="card" onclick="openTree('${t._id}')">
-          <div style="font-weight:600">${t.name}</div>
-          <div style="font-size:14px;color:#666">
-            🌱 ${t.area || "-"} | QR: ${t.qrScans || 0}
-          </div>
-          <div style="margin-top:6px">
-            🩺 ${t.currentHealth || "—"}
-          </div>
-        </div>
-      `;
-    });
-  }
-
-  // ===== DESKTOP: TABLE =====
-  else {
-    content.innerHTML = `
-      <table class="table">
+    <table>
+      <tr>
+        <th>Mã</th>
+        <th>Tên</th>
+        <th>Khu</th>
+        <th>Vị trí</th>
+        <th>QR</th>
+      </tr>
+      ${trees.map(t => `
         <tr>
-          <th>Mã</th>
-          <th>Tên</th>
-          <th>Khu</th>
-          <th>Tình trạng</th>
+          <td>${t.numericId || ""}</td>
+          <td>${t.name || ""}</td>
+          <td>${t.area || ""}</td>
+          <td>${t.location || ""}</td>
+          <td>
+            <a href="public.html?id=${t._id}" target="_blank">🔍</a>
+          </td>
         </tr>
-        ${trees.map(t => `
-          <tr onclick="openTree('${t._id}')">
-            <td>${t.numericId || ""}</td>
-            <td>${t.name}</td>
-            <td>${t.area || "-"}</td>
-            <td>${t.currentHealth || "-"}</td>
-          </tr>
-        `).join("")}
-      </table>
-    `;
-  }
+      `).join("")}
+    </table>
+
+    ${trees.map(t => `
+      <div class="tree-card">
+        <h4>${t.name}</h4>
+        <div><b>Khu:</b> ${t.area}</div>
+        <div><b>Vị trí:</b> ${t.location}</div>
+        <a href="public.html?id=${t._id}" target="_blank">🔍 Xem QR</a>
+      </div>
+    `).join("")}
+  `;
 }
 
-/* =====================
-   HIDE ALL
-===================== */
-function hideAll() {
-  document.getElementById("content").innerHTML = "";
+/* ================== QR CHART ================== */
+async function loadChart() {
+  document.getElementById("content").innerHTML = `
+    <h3>📊 Thống kê lượt quét QR</h3>
+    <canvas id="qrChart" height="120"></canvas>
+  `;
+
+  drawQRChart();
 }
 
-/* =====================
-   OPEN TREE
-===================== */
-function openTree(id) {
-  location.href = `tree-edit.html?id=${id}`;
+/* ================== USERS ================== */
+function loadUsers() {
+  if (role !== "owner") return;
+
+  document.getElementById("content").innerHTML = `
+    <h3>👷 Quản lý nhân viên</h3>
+    <iframe src="employees.html"
+      style="width:100%;height:80vh;border:none"></iframe>
+  `;
 }
 
-/* =====================
-   INIT
-===================== */
+/* ================== REPORT ================== */
+function loadReport() {
+  if (role !== "owner") return;
+  location.href = "report.html";
+}
+
+/* ================== DEFAULT ================== */
 loadTrees();
-
-// Welcome
-const name = localStorage.getItem("name") || "";
-document.getElementById("welcome").innerText =
-  "👋 Xin chào " + name;

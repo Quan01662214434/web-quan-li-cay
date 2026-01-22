@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard</title>
+  <title>Thanh Huyền Farm – Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -12,25 +13,27 @@
 
   <!-- SIDEBAR (DESKTOP) -->
   <aside class="sidebar">
-    <h2>🌿 Thanh Huyền Farm</h2>
+    <div class="logo">🌿 Thanh Huyền Farm</div>
     <nav>
       <a onclick="loadTrees()">🌳 Cây trồng</a>
       <a onclick="loadChart()">📊 Thống kê QR</a>
-      <a class="owner-only" onclick="loadAuditChart()">📋 Audit</a>
-      <a class="owner-only" onclick="loadEmployees()">👷 Nhân viên</a>
+      <a class="owner-only" onclick="loadAuditChart()">📋 Nhật ký</a>
+      <a class="owner-only" onclick="loadUsers()">👷 Nhân viên</a>
       <a class="owner-only" onclick="loadReport()">🧾 VietGAP</a>
       <a onclick="logout()">🚪 Đăng xuất</a>
     </nav>
   </aside>
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
   <main class="main">
     <header class="topbar">
+      <button class="menu-btn" onclick="toggleMenu()">☰</button>
       <span id="welcome"></span>
-      <button onclick="toggleDark()">🌙</button>
     </header>
 
-    <section id="content"></section>
+    <section id="content">
+      <!-- Nội dung sẽ load bằng JS -->
+    </section>
   </main>
 
 </div>
@@ -39,14 +42,13 @@
 <div class="bottom-nav">
   <button onclick="loadTrees()">🌳</button>
   <button onclick="loadChart()">📊</button>
-  <button class="owner-only" onclick="loadAuditChart()">📋</button>
+  <button class="owner-only" onclick="loadUsers()">👷</button>
   <button onclick="logout()">🚪</button>
 </div>
 
+<!-- JS -->
 <script src="app.js"></script>
 <script src="charts.js"></script>
-<script src="employees.js"></script>
-<script src="report.js"></script>
 
 </body>
 </html>
