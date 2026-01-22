@@ -7,14 +7,25 @@ router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    console.log("LOGIN REQUEST:", username, password);
+
     const user = await User.findOne({ username });
-    if (!user || !user.passwordHash) {
-      return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
+    console.log("FOUND USER:", user);
+
+    if (!user) {
+      return res.status(401).json({ message: "User không tồn tại" });
+    }
+
+    if (!user.passwordHash) {
+      console.error("❌ USER KHÔNG CÓ passwordHash");
+      return res.status(500).json({
+        message: "User lỗi dữ liệu (passwordHash missing)"
+      });
     }
 
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
-      return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
+      return res.status(401).json({ message: "Sai mật khẩu" });
     }
 
     const token = jwt.sign(
@@ -29,8 +40,8 @@ router.post("/login", async (req, res) => {
       name: user.username
     });
 
-  } catch (e) {
-    console.error("LOGIN ERROR:", e);
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
     res.status(500).json({ message: "Lỗi server" });
   }
 });
