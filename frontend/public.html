@@ -2,55 +2,47 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Thông tin cây – Thanh Huyền Farm</title>
+  <title>Thông tin cây | Thanh Huyền Farm</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="public.css">
 </head>
 <body>
 
-<div class="page">
+<div class="qr-container">
+  <div class="qr-card">
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="brand">
-      <img src="assets/logo.png" class="logo">
-      <div>
-        <h2>Thanh Huyền Farm</h2>
-        <p>Vườn sầu riêng hữu cơ – thông tin cây</p>
+    <div class="header">
+      <h1>🌿 Thanh Huyền Farm</h1>
+      <p>Thông tin truy xuất nguồn gốc</p>
+    </div>
+
+    <img id="treeImage" class="tree-img" src="" alt="Ảnh cây">
+
+    <div class="info">
+      <div><b>Tên cây:</b> <span id="name"></span></div>
+      <div><b>Giống:</b> <span id="species"></span></div>
+      <div><b>Khu vực:</b> <span id="area"></span></div>
+      <div><b>Vị trí:</b> <span id="location"></span></div>
+      <div><b>Địa chỉ vườn:</b> <span id="gardenAddress"></span></div>
+      <div><b>Ngày trồng:</b> <span id="plantDate"></span></div>
+      <div><b>Tình trạng:</b> <span id="health"></span></div>
+      <div class="vietgap">
+        ✅ VietGAP: <span id="vietgap"></span>
       </div>
     </div>
-    <div class="updated" id="updated"></div>
-  </header>
 
-  <!-- IMAGE -->
-  <div class="image-box" id="imageBox">
-    <span>Không có ảnh cây</span>
+    <div class="contact">
+      <a id="zaloLink" target="_blank">💬 Zalo</a>
+      <a id="fbLink" target="_blank">📘 Facebook</a>
+    </div>
+
+    <footer>
+      © Thanh Huyền Farm – Truy xuất bằng QR
+    </footer>
+
   </div>
-
-  <!-- VIETGAP -->
-  <div class="vietgap" id="vietgap">
-    🌿 Vườn đạt chuẩn VietGAP
-    <div class="code" id="vietgapCode"></div>
-  </div>
-  <!-- META INFO -->
-<div class="meta">
-  <div id="manager"></div>
-  <div id="scanCount"></div>
-</div>
-
-  <!-- INFO GRID -->
-  <div class="grid" id="info"></div>
-
-  <!-- STATUS -->
-  <div class="status" id="status"></div>
-
 </div>
 
 <script src="public.js"></script>
-<!-- CONTACT FLOAT -->
-<div class="contact">
-  <a id="zaloLink" class="contact-btn zalo" target="_blank">Zalo</a>
-  <a id="fbLink" class="contact-btn fb" target="_blank">FB</a>
-</div>
 </body>
 </html>

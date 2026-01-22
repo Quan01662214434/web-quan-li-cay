@@ -1,66 +1,41 @@
 const API = "https://api.thefram.site";
+
+// lấy id từ QR
 const id = new URLSearchParams(location.search).get("id");
 
-// ===== GHI LOG LƯỢT QUÉT =====
-fetch(`${API}/api/trees/${id}/scan`, { method: "POST" });
+if (!id) {
+  alert("Thiếu ID cây");
+}
 
-// ===== LOAD DATA =====
-Promise.all([
-  fetch(`${API}/api/trees/${id}`).then(r => r.json()),
-  fetch(`${API}/api/qr-settings`).then(r => r.json())
-]).then(([tree, cfg]) => {
+// link liên hệ
+const ZALO_PHONE = "84901234567";
+const FB_PAGE = "https://www.facebook.com/thanhhuyenfarm";
 
-  // Updated time
-  updated.innerText =
-    "Cập nhật: " + new Date(tree.updatedAt).toLocaleString("vi-VN");
+zaloLink.href = `https://zalo.me/${ZALO_PHONE}`;
+fbLink.href = FB_PAGE;
 
-  // Image
-  if (tree.imageURL) {
-    imageBox.innerHTML = `<img src="${API}${tree.imageURL}">`;
-  }
+// load cây
+fetch(`${API}/api/trees/${id}`)
+  .then(res => res.json())
+  .then(t => {
+    name.innerText = t.name || "-";
+    species.innerText = t.species || "-";
+    area.innerText = t.area || "-";
+    location.innerText = t.location || "-";
+    gardenAddress.innerText = t.gardenAddress || "-";
+    health.innerText = t.currentHealth || "-";
+    vietgap.innerText = t.vietGapCode || "Đạt chuẩn";
 
-  // VietGAP
-  if (tree.vietGapCode) {
-    vietgapCode.innerText = "Mã số: " + tree.vietGapCode;
-  } else {
-    vietgap.style.display = "none";
-  }
+    plantDate.innerText = t.plantDate
+      ? new Date(t.plantDate).toLocaleDateString("vi-VN")
+      : "-";
 
-  // Người phụ trách
-  manager.innerText =
-    "👨‍🌾 Người phụ trách: " + (tree.managerName || "Đang cập nhật");
-
-  // Lượt quét
-  scanCount.innerText =
-    "🔍 Lượt quét QR: " + (tree.qrScans || 0);
-
-  // Label map
-  const labels = {
-    name: "Tên cây",
-    species: "Giống",
-    area: "Khu vực",
-    location: "Vị trí",
-    gardenAddress: "Địa chỉ vườn",
-    plantDate: "Ngày trồng"
-  };
-
-  // Render theo cấu hình QR
-  cfg.fields.forEach(f => {
-    if (!tree[f]) return;
-
-    info.innerHTML += `
-      <div class="card">
-        <div class="label">${labels[f] || f}</div>
-        <div class="value">${
-          f === "plantDate"
-            ? new Date(tree[f]).toLocaleDateString("vi-VN")
-            : tree[f]
-        }</div>
-      </div>
-    `;
+    treeImage.src = t.imageURL || "https://via.placeholder.com/400x220?text=Thanh+Huyen+Farm";
   });
 
-  // Status
-  status.innerText =
-    "Tình trạng: " + (tree.currentHealth || "—");
+// log lượt quét
+fetch(`${API}/api/audit/scan`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ treeId: id })
 });
