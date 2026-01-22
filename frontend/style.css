@@ -213,4 +213,44 @@ body {
   font-size: 13px;
   margin-top: 16px;
 }
+/* ===== DASHBOARD UPGRADE ===== */
+#content {
+  padding: 16px;
+}
+
+h3 {
+  margin-top: 0;
+  color: #1b5e20;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+  margin-bottom: 16px;
+}
+
+table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table tr:hover {
+  background: #f1f8f4;
+}
+
+/* Button */
+button {
+  border-radius: 8px;
+  border: none;
+  padding: 10px 14px;
+  background: #2e7d32;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #256628;
+}
 

@@ -2,15 +2,18 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Chi tiết cây</title>
+  <title>Chi tiết cây | Thanh Huyền Farm</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
+
   <style>
     .form-box {
-      max-width: 600px;
+      max-width: 680px;
       margin: 20px auto;
       background: #fff;
       padding: 20px;
-      border-radius: 8px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
     }
 
     .form-box h3 {
@@ -20,34 +23,49 @@
 
     label {
       display: block;
-      margin-top: 12px;
+      margin-top: 14px;
       font-size: 14px;
+      font-weight: 600;
     }
 
     input, select, textarea {
       width: 100%;
       padding: 12px;
-      margin-top: 4px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
     }
 
     textarea {
       resize: vertical;
+      min-height: 80px;
     }
 
     .actions {
-      margin-top: 20px;
+      margin-top: 22px;
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
 
     .actions button {
       flex: 1;
+      font-size: 15px;
+    }
+
+    .qr-box {
+      margin-top: 16px;
+      padding: 10px;
+      background: #f1f8f4;
+      border-radius: 8px;
+      font-size: 14px;
     }
 
     @media (max-width: 768px) {
       .form-box {
         margin: 0;
         border-radius: 0;
+        box-shadow: none;
       }
     }
   </style>
@@ -81,13 +99,23 @@
     <option>Bệnh nhẹ</option>
     <option>Bệnh nặng</option>
   </select>
+
   <label>Mã VietGAP</label>
   <input id="vietGapCode">
-<label class="owner-only">Người phụ trách</label>
-<input class="owner-only" id="managerName" placeholder="Ví dụ: Nguyễn Văn A">
+
+  <label class="owner-only">Người phụ trách</label>
+  <input class="owner-only" id="managerName" placeholder="Ví dụ: Nguyễn Văn A">
+
+  <label>Ảnh cây</label>
+  <input type="file" id="image" accept="image/*">
 
   <label>Ghi chú</label>
   <textarea id="notes"></textarea>
+
+  <div class="qr-box">
+    🔗 QR:
+    <a id="qrLink" target="_blank"></a>
+  </div>
 
   <div class="actions">
     <button onclick="save()">💾 Lưu</button>

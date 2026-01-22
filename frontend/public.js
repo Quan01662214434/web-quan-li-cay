@@ -1,22 +1,24 @@
 const API = "https://api.thefram.site";
-
-// lấy id từ QR
 const id = new URLSearchParams(location.search).get("id");
 
 if (!id) {
-  alert("Thiếu ID cây");
+  document.body.innerHTML = "<h3>❌ Thiếu ID cây</h3>";
+  throw new Error("Missing tree id");
 }
 
-// link liên hệ
+// Liên hệ
 const ZALO_PHONE = "84901234567";
 const FB_PAGE = "https://www.facebook.com/thanhhuyenfarm";
 
 zaloLink.href = `https://zalo.me/${ZALO_PHONE}`;
 fbLink.href = FB_PAGE;
 
-// load cây
+// Load cây
 fetch(`${API}/api/trees/${id}`)
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) throw new Error("Không tìm thấy cây");
+    return res.json();
+  })
   .then(t => {
     name.innerText = t.name || "-";
     species.innerText = t.species || "-";
@@ -24,18 +26,18 @@ fetch(`${API}/api/trees/${id}`)
     location.innerText = t.location || "-";
     gardenAddress.innerText = t.gardenAddress || "-";
     health.innerText = t.currentHealth || "-";
-    vietgap.innerText = t.vietGapCode || "Đạt chuẩn";
+    vietgap.innerText = t.vietGapCode || "Đạt chuẩn VietGAP";
 
     plantDate.innerText = t.plantDate
       ? new Date(t.plantDate).toLocaleDateString("vi-VN")
       : "-";
 
-    treeImage.src = t.imageURL || "https://via.placeholder.com/400x220?text=Thanh+Huyen+Farm";
+    treeImage.src =
+      t.imageURL && t.imageURL.trim() !== ""
+        ? t.imageURL
+        : "https://via.placeholder.com/400x220?text=Thanh+Huyen+Farm";
+  })
+  .catch(err => {
+    document.body.innerHTML = "<h3>❌ Không tải được thông tin cây</h3>";
+    console.error(err);
   });
-
-// log lượt quét
-fetch(`${API}/api/audit/scan`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ treeId: id })
-});
