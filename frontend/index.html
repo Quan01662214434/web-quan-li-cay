@@ -5,7 +5,7 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+
 <body>
 
 <div class="layout">
@@ -17,8 +17,8 @@
       <a onclick="loadTrees()">🌳 Cây trồng</a>
       <a onclick="loadChart()">📊 Thống kê QR</a>
       <a class="owner-only" onclick="loadAuditChart()">📋 Audit</a>
-      <a class="owner-only" href="users.html">👷 Nhân viên</a>
-      <a class="owner-only" href="report.html">🧾 VietGAP</a>
+      <a class="owner-only" onclick="loadEmployees()">👷 Nhân viên</a>
+      <a class="owner-only" onclick="loadReport()">🧾 VietGAP</a>
       <a onclick="logout()">🚪 Đăng xuất</a>
     </nav>
   </aside>
@@ -30,9 +30,7 @@
       <button onclick="toggleDark()">🌙</button>
     </header>
 
-    <section id="content">
-      <!-- load nội dung tại đây -->
-    </section>
+    <section id="content"></section>
   </main>
 
 </div>
@@ -47,6 +45,8 @@
 
 <script src="app.js"></script>
 <script src="charts.js"></script>
+<script src="employees.js"></script>
+<script src="report.js"></script>
+
 </body>
-<
 </html>
