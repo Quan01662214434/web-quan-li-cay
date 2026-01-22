@@ -16,6 +16,8 @@ app.use("/api/trees", require("./routes/trees"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/yield", require("./routes/yield"));
 app.use("/api/qr-settings", require("./routes/qrSettings"));
+app.use("/api/audit", require("./routes/audit"));
+
 
 app.use(express.static(path.join(__dirname, "../frontend")));
 app.get("*", (_, res) =>

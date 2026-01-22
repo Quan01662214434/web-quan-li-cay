@@ -1,78 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Thanh Huyền Farm</title>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<body>
 
 <div class="layout">
+
+  <!-- SIDEBAR (DESKTOP) -->
   <aside class="sidebar">
-    <h2>🌱 Thanh Huyền</h2>
-    <a class="active">🌳 Cây trồng</a>
+    <h2>🌿 Thanh Huyền Farm</h2>
+    <nav>
+      <a onclick="loadTrees()">🌳 Cây trồng</a>
+      <a onclick="loadChart()">📊 Thống kê QR</a>
+      <a class="owner-only" onclick="loadAuditChart()">📋 Audit</a>
+      <a class="owner-only" href="users.html">👷 Nhân viên</a>
+      <a class="owner-only" href="report.html">🧾 VietGAP</a>
+      <a onclick="logout()">🚪 Đăng xuất</a>
+    </nav>
   </aside>
 
+  <!-- MAIN -->
   <main class="main">
-    <div class="header">
-      <h1>Quản lý cây trồng</h1>
-      <p>Danh sách cây & mã QR</p>
-    </div>
+    <header class="topbar">
+      <span id="welcome"></span>
+      <button onclick="toggleDark()">🌙</button>
+    </header>
 
-    <div class="grid">
-      <div class="card">
-        <h3>Tổng số cây</h3>
-        <b id="total">0</b>
-      </div>
-      <div class="card">
-        <h3>Cây khỏe</h3>
-        <b id="healthy">0</b>
-      </div>
-      <div class="card">
-        <h3>Cây bệnh</h3>
-        <b id="sick">0</b>
-      </div>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Tên cây</th>
-          <th>Khu</th>
-          <th>Vị trí</th>
-          <th>Tình trạng</th>
-          <th>QR</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="trees"></tbody>
-    </table>
+    <section id="content">
+      <!-- load nội dung tại đây -->
+    </section>
   </main>
+
 </div>
 
-<script>
-fetch(`${API_BASE}/api/trees`)
-  .then(r => r.json())
-  .then(data => {
-    total.innerText = data.length;
-    healthy.innerText = data.filter(t => t.currentHealth === "Bình thường").length;
-    sick.innerText = data.length - healthy.innerText;
+<!-- BOTTOM NAV (MOBILE) -->
+<div class="bottom-nav">
+  <button onclick="loadTrees()">🌳</button>
+  <button onclick="loadChart()">📊</button>
+  <button class="owner-only" onclick="loadAuditChart()">📋</button>
+  <button onclick="logout()">🚪</button>
+</div>
 
-    trees.innerHTML = data.map(t => `
-      <tr>
-        <td>${t.name} (${t.species})</td>
-        <td>${t.area}</td>
-        <td>${t.location}</td>
-        <td>${t.currentHealth}</td>
-        <td><img src="${t.qrCode}" width="60"></td>
-        <td>
-          <a class="btn outline" href="tree-edit.html?id=${t._id}">
-            Quản lý
-          </a>
-        </td>
-      </tr>
-    `).join("");
-  });
-</script>
-
+<script src="app.js"></script>
+<script src="charts.js"></script>
 </body>
+<
 </html>

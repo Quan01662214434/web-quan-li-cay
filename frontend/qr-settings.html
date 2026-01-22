@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Cấu hình QR</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .box {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    h3 { margin-top: 0; color: #2e7d32; }
+    .field {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .field input {
+      margin-right: 10px;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+    }
+    @media (max-width: 768px) {
+      .box { margin: 0; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h3>🔲 Cấu hình hiển thị QR</h3>
+  <p>Chọn các thông tin sẽ hiển thị khi quét mã QR</p>
+
+  <div id="fields"></div>
+
+  <button onclick="save()">💾 Lưu cấu hình</button>
+</div>
+
+<script src="qr-settings.js"></script>
+</body>
+</html>

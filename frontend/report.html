@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Báo cáo VietGAP – Thanh Huyền Farm</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .report {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #2e7d32;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .tree {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+    .tree h3 {
+      margin-top: 0;
+      color: #2e7d32;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .qr {
+      margin-top: 10px;
+      text-align: right;
+    }
+    .qr img {
+      width: 120px;
+    }
+    @media print {
+      button { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="report">
+  <div class="header">
+    <h2>THANH HUYỀN FARM</h2>
+    <p>BÁO CÁO CÂY TRỒNG ĐẠT CHUẨN VIETGAP</p>
+  </div>
+
+  <button onclick="window.print()">🖨 In / Xuất PDF</button>
+
+  <div id="list"></div>
+</div>
+
+<script src="report.js"></script>
+</body>
+</html>

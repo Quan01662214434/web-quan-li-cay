@@ -1,33 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <title>Thông tin cây</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Thông tin cây – Thanh Huyền Farm</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="public.css">
 </head>
-<body style="padding:30px">
+<body>
 
-<div class="card">
-  <h2 id="name"></h2>
-  <p><b>Giống:</b> <span id="species"></span></p>
-  <p><b>Khu:</b> <span id="area"></span></p>
-  <p><b>Vị trí:</b> <span id="location"></span></p>
-  <p><b>Tình trạng:</b> <span id="health"></span></p>
-  <img id="qr" width="200">
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <img src="assets/logo.png" class="logo">
+      <div>
+        <h2>Thanh Huyền Farm</h2>
+        <p>Vườn sầu riêng hữu cơ – thông tin cây</p>
+      </div>
+    </div>
+    <div class="updated" id="updated"></div>
+  </header>
+
+  <!-- IMAGE -->
+  <div class="image-box" id="imageBox">
+    <span>Không có ảnh cây</span>
+  </div>
+
+  <!-- VIETGAP -->
+  <div class="vietgap" id="vietgap">
+    🌿 Vườn đạt chuẩn VietGAP
+    <div class="code" id="vietgapCode"></div>
+  </div>
+  <!-- META INFO -->
+<div class="meta">
+  <div id="manager"></div>
+  <div id="scanCount"></div>
 </div>
 
-<script>
-const id = location.pathname.split("/").pop();
-fetch("/api/trees/" + id)
-  .then(r => r.json())
-  .then(t => {
-    name.innerText = t.name;
-    species.innerText = t.species;
-    area.innerText = t.area;
-    location.innerText = t.location;
-    health.innerText = t.currentHealth;
-    qr.src = t.qrCode;
-  });
-</script>
+  <!-- INFO GRID -->
+  <div class="grid" id="info"></div>
 
+  <!-- STATUS -->
+  <div class="status" id="status"></div>
+
+</div>
+
+<script src="public.js"></script>
+<!-- CONTACT FLOAT -->
+<div class="contact">
+  <a id="zaloLink" class="contact-btn zalo" target="_blank">Zalo</a>
+  <a id="fbLink" class="contact-btn fb" target="_blank">FB</a>
+</div>
 </body>
 </html>

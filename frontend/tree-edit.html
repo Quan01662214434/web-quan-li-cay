@@ -1,93 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <title>Quản lý cây</title>
+  <meta charset="UTF-8">
+  <title>Chi tiết cây</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .form-box {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .form-box h3 {
+      margin-top: 0;
+      color: #2e7d32;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 4px;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .actions button {
+      flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      .form-box {
+        margin: 0;
+        border-radius: 0;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="layout">
-  <aside class="sidebar">
-    <h2>🌱 Thanh Huyền</h2>
-    <a href="/">⬅ Quay lại</a>
-  </aside>
+<div class="form-box">
+  <h3>🌱 Thông tin cây</h3>
 
-  <main class="main">
-    <h1>Quản lý cây</h1>
+  <label>Tên cây</label>
+  <input id="name">
 
-    <div class="card">
-      <h3>Cập nhật tình trạng</h3>
-      <input id="health" placeholder="Tình trạng">
-      <textarea id="notes" placeholder="Ghi chú"></textarea>
-      <button class="btn" onclick="updateHealth()">Cập nhật</button>
-    </div>
+  <label>Giống</label>
+  <input id="species">
 
-    <div class="card">
-      <h3>Ảnh cây</h3>
-      <input type="file" id="image">
-      <button class="btn outline" onclick="uploadImage()">Upload ảnh</button>
-    </div>
+  <label>Khu</label>
+  <input id="area">
 
-    <div class="card">
-      <h3>Gán nhân viên</h3>
-      <select id="staff"></select>
-      <button class="btn" onclick="assignStaff()">Gán</button>
-    </div>
+  <label>Vị trí</label>
+  <input id="location">
 
-    <div class="card">
-      <h3>Bệnh</h3>
-      <input id="disease" placeholder="Tên bệnh">
-      <input id="status" placeholder="Trạng thái">
-      <button class="btn outline" onclick="addDisease()">Thêm</button>
-    </div>
-  </main>
+  <label>Địa chỉ vườn</label>
+  <input id="gardenAddress">
+
+  <label>Ngày trồng</label>
+  <input type="date" id="plantDate">
+
+  <label>Tình trạng</label>
+  <select id="currentHealth">
+    <option>Bình thường</option>
+    <option>Bệnh nhẹ</option>
+    <option>Bệnh nặng</option>
+  </select>
+  <label>Mã VietGAP</label>
+  <input id="vietGapCode">
+<label class="owner-only">Người phụ trách</label>
+<input class="owner-only" id="managerName" placeholder="Ví dụ: Nguyễn Văn A">
+
+  <label>Ghi chú</label>
+  <textarea id="notes"></textarea>
+
+  <div class="actions">
+    <button onclick="save()">💾 Lưu</button>
+    <button onclick="history.back()">⬅ Quay lại</button>
+  </div>
 </div>
 
-<script>
-const id = new URLSearchParams(location.search).get("id");
-
-fetch("/api/users")
-  .then(r => r.json())
-  .then(d => staff.innerHTML =
-    d.map(s => `<option value="${s._id}">${s.name}</option>`).join("")
-  );
-
-function updateHealth() {
-  fetch(`/api/trees/${id}/health`, {
-    method:"PUT",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      currentHealth: health.value,
-      notes: notes.value
-    })
-  });
-}
-
-function uploadImage() {
-  const fd = new FormData();
-  fd.append("image", image.files[0]);
-  fetch(`/api/trees/${id}/image`, { method:"PUT", body: fd });
-}
-
-function assignStaff() {
-  fetch(`/api/trees/${id}/assign`, {
-    method:"PUT",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ staffId: staff.value })
-  });
-}
-
-function addDisease() {
-  fetch(`/api/trees/${id}/diseases`, {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      name: disease.value,
-      status: status.value
-    })
-  });
-}
-</script>
-
+<script src="tree-edit.js"></script>
 </body>
 </html>
