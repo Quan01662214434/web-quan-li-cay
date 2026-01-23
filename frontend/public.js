@@ -6,14 +6,14 @@ if (!id) {
   throw new Error("Missing tree id");
 }
 
-// Liên hệ
+// ===== LIÊN HỆ =====
 const ZALO_PHONE = "84901234567";
 const FB_PAGE = "https://www.facebook.com/thanhhuyenfarm";
 
 zaloLink.href = `https://zalo.me/${ZALO_PHONE}`;
 fbLink.href = FB_PAGE;
 
-// Load cây
+// ===== LOAD CÂY =====
 fetch(`${API}/api/trees/${id}`)
   .then(res => {
     if (!res.ok) throw new Error("Không tìm thấy cây");
@@ -26,7 +26,9 @@ fetch(`${API}/api/trees/${id}`)
     location.innerText = t.location || "-";
     gardenAddress.innerText = t.gardenAddress || "-";
     health.innerText = t.currentHealth || "-";
-    vietgap.innerText = t.vietGapCode || "Đạt chuẩn VietGAP";
+    vietgap.innerText = t.vietGapCode
+      ? `✔ VietGAP: ${t.vietGapCode}`
+      : "✔ Đạt chuẩn VietGAP";
 
     plantDate.innerText = t.plantDate
       ? new Date(t.plantDate).toLocaleDateString("vi-VN")
@@ -36,6 +38,9 @@ fetch(`${API}/api/trees/${id}`)
       t.imageURL && t.imageURL.trim() !== ""
         ? t.imageURL
         : "https://via.placeholder.com/400x220?text=Thanh+Huyen+Farm";
+
+    // ===== LOG QR SCAN =====
+    fetch(`${API}/api/trees/${id}/scan`, { method: "POST" });
   })
   .catch(err => {
     document.body.innerHTML = "<h3>❌ Không tải được thông tin cây</h3>";
