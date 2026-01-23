@@ -7,57 +7,42 @@ const auth = require("../middleware/auth");
    PUBLIC
 ===================== */
 
-/* Danh sách cây (public / dashboard) */
+/* Danh sách cây (dashboard / public) */
 router.get("/", async (_, res) => {
-  res.json(await Tree.find());
-});
-
-/* PUBLIC – QUÉT QR (KHÔNG CẦN LOGIN) */
-router.get("/:id/public", async (req, res) => {
-  const tree = await Tree.findById(req.params.id);
-  if (!tree) return res.status(404).json({ message: "Không tìm thấy cây" });
-
-  await Tree.findByIdAndUpdate(req.params.id, { $inc: { qrScans: 1 } });
-  res.json(tree);
-});
-
-/* GHI LOG LƯỢT QUÉT QR */
-router.post("/:id/scan", async (req, res) => {
-  try {
-    await Tree.findByIdAndUpdate(req.params.id, {
-      $inc: { qrScans: 1 }
-    });
-    res.json({ success: true });
-  } catch {
-    res.status(500).json({ message: "Scan log error" });
-  }
+  const trees = await Tree.find();
+  res.json(trees);
 });
 
 /* =====================
-   OWNER – THỐNG KÊ
+   PUBLIC – QUÉT QR (DUY NHẤT)
+   HỖ TRỢ: _id | numericId | vietGapCode
 ===================== */
+router.get("/public/:id", async (req, res) => {
+  const { id } = req.params;
 
-/* THỐNG KÊ QR */
-router.get("/stats/qr", auth, async (req, res) => {
-  if (req.user.role !== "owner") {
-    return res.status(403).json({ message: "Không có quyền" });
-  }
-
-  const trees = await Tree.find({}, {
-    name: 1,
-    numericId: 1,
-    qrScans: 1
+  const tree = await Tree.findOne({
+    $or: [
+      { _id: id },
+      { numericId: id },
+      { vietGapCode: id }
+    ]
   });
 
-  res.json(
-    trees.map(t => ({
-      label: `${t.name} (${t.numericId || "-"})`,
-      value: t.qrScans || 0
-    }))
-  );
+  if (!tree) {
+    return res.status(404).json({
+      message: "Không xác định được cây – vui lòng quét lại"
+    });
+  }
+
+  // tăng lượt quét QR
+  await Tree.findByIdAndUpdate(tree._id, { $inc: { qrScans: 1 } });
+
+  res.json(tree);
 });
 
-/* DASHBOARD – LOAD NHẸ */
+/* =====================
+   OWNER – DASHBOARD
+===================== */
 router.get("/dashboard/list", auth, async (req, res) => {
   const trees = await Tree.find({}, {
     name: 1,
@@ -66,6 +51,7 @@ router.get("/dashboard/list", auth, async (req, res) => {
     currentHealth: 1,
     qrScans: 1
   });
+
   res.json(trees);
 });
 
@@ -73,10 +59,12 @@ router.get("/dashboard/list", auth, async (req, res) => {
    AUTH REQUIRED
 ===================== */
 
-/* XEM CHI TIẾT CÂY (ID PHẢI ĐẶT CUỐI) */
-router.get("/:id", async (req, res) => {
+/* XEM CHI TIẾT CÂY (PHẢI ĐẶT CUỐI) */
+router.get("/:id", auth, async (req, res) => {
   const tree = await Tree.findById(req.params.id);
-  if (!tree) return res.status(404).json({ message: "Không tìm thấy cây" });
+  if (!tree) {
+    return res.status(404).json({ message: "Không tìm thấy cây" });
+  }
   res.json(tree);
 });
 
@@ -117,7 +105,7 @@ router.put("/:id/address", auth, async (req, res) => {
     action: "update_address",
     treeId: updated._id,
     treeName: updated.name,
-    changes: req.body
+    changes: { gardenAddress: req.body.gardenAddress }
   });
 
   res.json(updated);
