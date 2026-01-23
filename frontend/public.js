@@ -1,8 +1,19 @@
 const API = "https://api.thefram.site";
-const id = new URLSearchParams(location.search).get("id");
+let id = new URLSearchParams(location.search).get("id");
 
+// 🔥 FIX: fallback khi QR cũ không có ?id=
 if (!id) {
-  document.body.innerHTML = "<h3>❌ Thiếu ID cây</h3>";
+  const parts = window.location.pathname.split("/");
+  id = parts[parts.length - 1];
+}
+
+// 🔥 FIX lần cuối: nếu vẫn không có id → show lỗi nhẹ
+if (!id || id === "public.html") {
+  document.body.innerHTML = `
+    <h3 style="text-align:center">
+      ❌ Không xác định được cây<br>
+      Vui lòng quét lại mã QR
+    </h3>`;
   throw new Error("Missing tree id");
 }
 
