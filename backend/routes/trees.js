@@ -7,18 +7,26 @@ const auth = require("../middleware/auth");
    PUBLIC
 ===================== */
 
-/* Danh sách cây (dashboard) */
+/* Danh sách cây (public / dashboard) */
 router.get("/", async (_, res) => {
   res.json(await Tree.find());
+});
+
+/* PUBLIC – QUÉT QR (KHÔNG CẦN LOGIN) */
+router.get("/:id/public", async (req, res) => {
+  const tree = await Tree.findById(req.params.id);
+  if (!tree) return res.status(404).json({ message: "Không tìm thấy cây" });
+
+  await Tree.findByIdAndUpdate(req.params.id, { $inc: { qrScans: 1 } });
+  res.json(tree);
 });
 
 /* GHI LOG LƯỢT QUÉT QR */
 router.post("/:id/scan", async (req, res) => {
   try {
-    await Tree.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { qrScans: 1 } }
-    );
+    await Tree.findByIdAndUpdate(req.params.id, {
+      $inc: { qrScans: 1 }
+    });
     res.json({ success: true });
   } catch {
     res.status(500).json({ message: "Scan log error" });
@@ -29,16 +37,17 @@ router.post("/:id/scan", async (req, res) => {
    OWNER – THỐNG KÊ
 ===================== */
 
-/* THỐNG KÊ QR (PHẢI ĐẶT TRƯỚC /:id) */
+/* THỐNG KÊ QR */
 router.get("/stats/qr", auth, async (req, res) => {
   if (req.user.role !== "owner") {
     return res.status(403).json({ message: "Không có quyền" });
   }
 
-  const trees = await Tree.find(
-    {},
-    { name: 1, numericId: 1, qrScans: 1 }
-  );
+  const trees = await Tree.find({}, {
+    name: 1,
+    numericId: 1,
+    qrScans: 1
+  });
 
   res.json(
     trees.map(t => ({
@@ -48,16 +57,30 @@ router.get("/stats/qr", auth, async (req, res) => {
   );
 });
 
+/* DASHBOARD – LOAD NHẸ */
+router.get("/dashboard/list", auth, async (req, res) => {
+  const trees = await Tree.find({}, {
+    name: 1,
+    numericId: 1,
+    area: 1,
+    currentHealth: 1,
+    qrScans: 1
+  });
+  res.json(trees);
+});
+
 /* =====================
    AUTH REQUIRED
 ===================== */
 
-/* Xem chi tiết cây */
+/* XEM CHI TIẾT CÂY (ID PHẢI ĐẶT CUỐI) */
 router.get("/:id", async (req, res) => {
-  res.json(await Tree.findById(req.params.id));
+  const tree = await Tree.findById(req.params.id);
+  if (!tree) return res.status(404).json({ message: "Không tìm thấy cây" });
+  res.json(tree);
 });
 
-/* Cập nhật tình trạng */
+/* CẬP NHẬT TÌNH TRẠNG */
 router.put("/:id/health", auth, async (req, res) => {
   const updated = await Tree.findByIdAndUpdate(
     req.params.id,
@@ -74,16 +97,13 @@ router.put("/:id/health", auth, async (req, res) => {
     action: "update_health",
     treeId: updated._id,
     treeName: updated.name,
-    changes: {
-      currentHealth: req.body.currentHealth,
-      notes: req.body.notes
-    }
+    changes: req.body
   });
 
   res.json(updated);
 });
 
-/* Cập nhật địa chỉ vườn */
+/* CẬP NHẬT ĐỊA CHỈ */
 router.put("/:id/address", auth, async (req, res) => {
   const updated = await Tree.findByIdAndUpdate(
     req.params.id,
@@ -97,13 +117,13 @@ router.put("/:id/address", auth, async (req, res) => {
     action: "update_address",
     treeId: updated._id,
     treeName: updated.name,
-    changes: { gardenAddress: req.body.gardenAddress }
+    changes: req.body
   });
 
   res.json(updated);
 });
 
-/* Thêm bệnh */
+/* THÊM BỆNH */
 router.post("/:id/diseases", auth, async (req, res) => {
   const updated = await Tree.findByIdAndUpdate(
     req.params.id,
@@ -124,18 +144,3 @@ router.post("/:id/diseases", auth, async (req, res) => {
 });
 
 module.exports = router;
-// ===== DASHBOARD – LOAD NHẸ =====
-router.get("/dashboard/list", auth, async (req, res) => {
-  const trees = await Tree.find(
-    {},
-    {
-      name: 1,
-      numericId: 1,
-      area: 1,
-      currentHealth: 1,
-      qrScans: 1
-    }
-  );
-
-  res.json(trees);
-});
