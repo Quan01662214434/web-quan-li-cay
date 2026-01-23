@@ -1,22 +1,23 @@
 const API = "https://api.thefram.site";
 let id = new URLSearchParams(location.search).get("id");
 
-// 🔥 FIX: fallback khi QR cũ không có ?id=
+// ===== FIX CHO QR CŨ =====
 if (!id) {
-  const parts = window.location.pathname.split("/");
-  id = parts[parts.length - 1];
+  // 1️⃣ thử lấy numericId từ hash (#3, #5…)
+  if (location.hash) {
+    id = location.hash.replace("#", "");
+  }
 }
 
-// 🔥 FIX lần cuối: nếu vẫn không có id → show lỗi nhẹ
-if (!id || id === "public.html") {
+// ===== NẾU VẪN KHÔNG CÓ → DÙNG MẶC ĐỊNH =====
+if (!id) {
   document.body.innerHTML = `
     <h3 style="text-align:center">
-      ❌ Không xác định được cây<br>
-      Vui lòng quét lại mã QR
+      ❌ Mã QR cũ không chứa thông tin cây<br>
+      Vui lòng liên hệ Thanh Huyền Farm
     </h3>`;
-  throw new Error("Missing tree id");
+  throw new Error("Missing tree identifier");
 }
-
 // ===== LIÊN HỆ =====
 const ZALO_PHONE = "84901234567";
 const FB_PAGE = "https://www.facebook.com/thanhhuyenfarm";
@@ -25,7 +26,7 @@ zaloLink.href = `https://zalo.me/${ZALO_PHONE}`;
 fbLink.href = FB_PAGE;
 
 // ===== LOAD CÂY =====
-fetch(`${API}/api/trees/${id}`)
+fetch(`${API}/api/trees/public/${id}`)
   .then(res => {
     if (!res.ok) throw new Error("Không tìm thấy cây");
     return res.json();
