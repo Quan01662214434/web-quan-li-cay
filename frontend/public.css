@@ -1,100 +1,121 @@
-* {
-  box-sizing: border-box;
-  font-family: "Segoe UI", Arial;
-}
-
+/* Các kiểu CSS cơ bản */
 body {
-  background: #f2f6f3;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f6f8;
+  color: #333;
+  padding: 20px;
   margin: 0;
-  padding: 12px;
 }
 
-.certificate {
-  max-width: 420px;
+.container {
+  max-width: 800px;
   margin: auto;
   background: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.15);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.1);
 }
 
-.cert-header {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  border-bottom: 2px solid #2e7d32;
-  padding-bottom: 10px;
+header {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .logo {
-  width: 60px;
-  height: 60px;
+  width: 150px;
+  height: auto;
 }
 
-.cert-header h1 {
-  font-size: 18px;
-  margin: 0;
+h1 {
   color: #2e7d32;
+  font-size: 24px;
+  margin-top: 10px;
 }
 
-.farm {
-  font-size: 14px;
-  color: #555;
-}
-
-.tree-image {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin: 14px 0;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-td {
-  padding: 8px;
-  border-bottom: 1px dashed #ddd;
-}
-
-td:first-child {
-  color: #555;
-  width: 40%;
-}
-
-.cert-footer {
-  margin-top: 14px;
-  text-align: center;
-}
-
-.status {
-  background: #e8f5e9;
-  color: #2e7d32;
-  font-weight: bold;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-.contact {
+.info-box {
   display: flex;
-  justify-content: space-around;
-  margin: 12px 0;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 20px;
 }
 
-.contact a {
+.info-item {
+  flex: 1 1 45%;
+  margin: 10px;
+  padding: 15px;
+  background: #e8f5e9;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.info-item b {
+  color: #2e7d32;
+}
+
+.qr-code {
+  text-align: center;
+  margin-top: 40px;
+  background: #f1f8f4;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.qr-code img {
+  max-width: 250px;
+  max-height: 250px;
+  margin-top: 20px;
+}
+
+.qr-code a {
+  display: block;
+  margin-top: 15px;
+  color: #1b5e20;
+  font-weight: bold;
   text-decoration: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  background: #2e7d32;
-  color: #fff;
-  font-size: 14px;
+  font-size: 16px;
 }
 
-.note {
-  font-size: 12px;
-  color: #777;
+/* Nút liên hệ Zalo, Gọi điện và Facebook */
+.contact {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.contact-btn {
+  background-color: #2e7d32;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin: 5px;
+  font-size: 16px;
+  display: inline-block;
+}
+
+.contact-btn:hover {
+  background-color: #256628;
+}
+
+/* Responsive cho di động */
+@media (max-width: 768px) {
+  .info-item {
+    flex: 1 1 100%;
+  }
+
+  .qr-code img {
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  header {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .logo {
+    width: 120px;
+  }
 }

@@ -1,42 +1,34 @@
-const API = "https://api.thefram.site";
-const id = new URLSearchParams(location.search).get("id");
+const API = "https://api.thefram.site";  // Đảm bảo API đúng
+const id = new URLSearchParams(location.search).get("id");  // Lấy ID từ URL
 
 if (!id) {
-  document.body.innerHTML = "<h3>❌ Không xác định được cây</h3>";
-  throw new Error("Missing tree id");
+  alert("❌ Thiếu ID cây");
+  history.back();  // Quay lại trang trước nếu không có ID
 }
 
-// Liên hệ
-const ZALO_PHONE = "84901234567";
-const FB_PAGE = "https://www.facebook.com/thanhhuyenfarm";
-
-zaloLink.href = `https://zalo.me/${ZALO_PHONE}`;
-fbLink.href = FB_PAGE;
-
-// Load cây
 fetch(`${API}/api/trees/public/${id}`)
   .then(res => {
-    if (!res.ok) throw new Error("Không tìm thấy cây");
+    if (!res.ok) throw new Error("Không thể tải thông tin cây");
     return res.json();
   })
   .then(t => {
-    name.innerText = t.name || "-";
-    species.innerText = t.species || "-";
-    area.innerText = t.area || "-";
-    location.innerText = t.location || "-";
-    health.innerText = t.currentHealth || "-";
-    manager.innerText = t.managerName || "Thanh Huyền Farm";
-    vietgap.innerText = t.vietGapCode || "Đạt chuẩn VietGAP";
+    // Hiển thị thông tin cây từ API
+    document.getElementById("name").innerText = t.name || "-";
+    document.getElementById("species").innerText = t.species || "-";
+    document.getElementById("area").innerText = t.area || "-";
+    document.getElementById("location").innerText = t.location || "-";
+    document.getElementById("gardenAddress").innerText = t.gardenAddress || "-";
+    document.getElementById("plantDate").innerText = t.plantDate ? new Date(t.plantDate).toLocaleDateString() : "-";
+    document.getElementById("health").innerText = t.currentHealth || "-";
 
-    plantDate.innerText = t.plantDate
-      ? new Date(t.plantDate).toLocaleDateString("vi-VN")
-      : "-";
-
-    treeImage.src = t.imageURL && t.imageURL.trim()
-      ? t.imageURL
-      : "https://via.placeholder.com/400x220?text=Thanh+Huyen+Farm";
+    // Hiển thị ảnh QR từ base64
+    const qrImage = document.createElement("img");
+    qrImage.src = t.qrCode;  // ảnh base64 từ API
+    document.getElementById("qrImage").src = qrImage.src;
+    document.getElementById("qrImage").style.display = "block";  // Hiển thị ảnh QR
+    document.getElementById("qrLink").innerText = "Tải QR Code: " + qrImage.src; // Hiển thị URL QR
   })
-  .catch(() => {
-    document.body.innerHTML =
-      "<h3>❌ Không xác định được cây – vui lòng quét lại</h3>";
+  .catch(error => {
+    alert(`❌ ${error.message}`);
+    history.back();  // Quay lại nếu không tải được thông tin cây
   });

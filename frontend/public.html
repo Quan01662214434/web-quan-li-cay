@@ -3,46 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <title>Thông tin cây | Thanh Huyền Farm</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="public.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="public.css"> <!-- Liên kết với file public.css -->
 </head>
 <body>
 
-<div class="qr-container">
-  <div class="qr-card">
+<div class="container">
+  <!-- Header with logo and title -->
+  <header>
+    <img src="logo.png" alt="Thanh Huyền Farm" class="logo"> <!-- Logo thương hiệu -->
+    <h1>🌱 Thông tin cây trồng</h1>
+  </header>
 
-    <div class="header">
-      <h1>🌿 Thanh Huyền Farm</h1>
-      <p>Thông tin truy xuất nguồn gốc</p>
+  <!-- Info section -->
+  <div class="info-box">
+    <div class="info-item">
+      <b>Tên cây:</b> <span id="name">-</span>
     </div>
-
-    <img id="treeImage" class="tree-img" src="" alt="Ảnh cây">
-
-    <div class="info">
-      <div><b>Tên cây:</b> <span id="name"></span></div>
-      <div><b>Giống:</b> <span id="species"></span></div>
-      <div><b>Khu vực:</b> <span id="area"></span></div>
-      <div><b>Vị trí:</b> <span id="location"></span></div>
-      <div><b>Địa chỉ vườn:</b> <span id="gardenAddress"></span></div>
-      <div><b>Ngày trồng:</b> <span id="plantDate"></span></div>
-      <div><b>Tình trạng:</b> <span id="health"></span></div>
-      <div class="vietgap">
-        ✅ VietGAP: <span id="vietgap"></span>
-      </div>
+    <div class="info-item">
+      <b>Giống:</b> <span id="species">-</span>
     </div>
-
-    <div class="contact">
-      <a id="zaloLink" target="_blank">💬 Zalo</a>
-      <a id="fbLink" target="_blank">📘 Facebook</a>
+    <div class="info-item">
+      <b>Khu:</b> <span id="area">-</span>
     </div>
+    <div class="info-item">
+      <b>Vị trí:</b> <span id="location">-</span>
+    </div>
+    <div class="info-item">
+      <b>Địa chỉ vườn:</b> <span id="gardenAddress">-</span>
+    </div>
+    <div class="info-item">
+      <b>Ngày trồng:</b> <span id="plantDate">-</span>
+    </div>
+    <div class="info-item">
+      <b>Tình trạng:</b> <span id="health">-</span>
+    </div>
+  </div>
 
-    <footer>
-      © Thanh Huyền Farm – Truy xuất bằng QR
-    </footer>
+  <!-- QR code section -->
+  <div class="qr-code">
+    <b>🔗 QR Code:</b>
+    <div id="qrLink"></div>
+    <img id="qrImage" src="" alt="QR Code" style="display:none;">
+  </div>
 
+  <!-- Contact links (Zalo, Call) -->
+  <div class="contact">
+    <a href="https://zalo.me/84901234567" target="_blank" class="contact-btn">Zalo</a> <!-- Thêm số điện thoại Zalo -->
+    <a href="tel:+84901234567" class="contact-btn">Gọi điện</a> <!-- Nút gọi điện trực tiếp -->
+    <a href="https://www.facebook.com/thanhhuyenfarm" target="_blank" class="contact-btn">Facebook</a>
   </div>
 </div>
 
-<script src="public.js"></script>
+<script src="public.js"></script> <!-- Liên kết với file public.js -->
 </body>
 </html>
