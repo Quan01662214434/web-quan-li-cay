@@ -1,46 +1,82 @@
 const API = "https://api.thefram.site";
 
-// hỗ trợ cả ?id= và ?code=
-const params = new URLSearchParams(location.search);
-const id = (params.get("id") || params.get("code") || "").trim();
+function getTreeCode() {
+  const params = new URLSearchParams(location.search);
 
-if (!id) {
-  alert("❌ Thiếu ID/mã cây");
-} else {
-  fetch(`${API}/api/trees/public/${encodeURIComponent(id)}`)
-    .then(async (res) => {
-      if (!res.ok) {
-        const txt = await res.text().catch(() => "");
-        throw new Error(`Không thể tải thông tin cây (${res.status}) ${txt}`);
-      }
-      return res.json();
-    })
-    .then((t) => {
-      document.getElementById("name").innerText = t.name || "-";
-      document.getElementById("species").innerText = t.species || "-";
-      document.getElementById("area").innerText = t.area || "-";
-      document.getElementById("location").innerText = t.location || "-";
-      document.getElementById("gardenAddress").innerText = t.gardenAddress || "-";
-      document.getElementById("plantDate").innerText = t.plantDate
-        ? new Date(t.plantDate).toLocaleDateString("vi-VN")
-        : "-";
-      document.getElementById("health").innerText = t.currentHealth || "-";
+  // Hỗ trợ nhiều key (tương thích QR cũ/mới)
+  let code =
+    params.get("id") ||
+    params.get("code") ||
+    params.get("treeId") ||
+    params.get("_id") ||
+    params.get("numericId") ||
+    params.get("vietGapCode") ||
+    params.get("yieldGapCode");
 
-      // Hiển thị QR nếu có (base64 hoặc link)
-      const qrImg = document.getElementById("qrImage");
-      const qrLink = document.getElementById("qrLink");
+  if (code && code.trim()) return code.trim();
 
-      if (t.qrCode) {
-        qrImg.src = t.qrCode;
-        qrImg.style.display = "block";
-        // Đừng in full base64 ra màn hình; chỉ để nút tải
-        qrLink.innerHTML = `<a href="${t.qrCode}" download="qr-${t.numericId || t.vietGapCode || "tree"}.png">Tải QR Code</a>`;
-      } else {
-        qrImg.style.display = "none";
-        qrLink.innerText = "(Không có QR để hiển thị)";
-      }
-    })
-    .catch((error) => {
-      alert(`❌ ${error.message}`);
-    });
+  // Hỗ trợ dạng hash: public.html#<code>
+  if (location.hash && location.hash.length > 1) {
+    const h = location.hash.replace(/^#/, "").trim();
+    if (h) return h;
+  }
+
+  // Hỗ trợ dạng đường dẫn: /t/<code>
+  const m = location.pathname.match(/\/t\/([^\/?#]+)/);
+  if (m && m[1]) return decodeURIComponent(m[1]).trim();
+
+  return "";
 }
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = value ?? "-";
+}
+
+function showError(msg) {
+  // Nếu bạn không có vùng hiển thị lỗi thì dùng alert
+  alert("❌ " + msg + "\n\nURL hiện tại:\n" + location.href);
+}
+
+(async function main() {
+  const code = getTreeCode();
+
+  if (!code) {
+    showError("Thiếu ID/mã cây. QR phải mở link có ?id=... hoặc ?code=... hoặc /t/<code>.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/api/trees/public/${encodeURIComponent(code)}`);
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      throw new Error(`Không thể tải thông tin cây (${res.status}) ${txt}`);
+    }
+
+    const t = await res.json();
+
+    // Hiển thị thông tin cây
+    setText("name", t.name);
+    setText("species", t.species);
+    setText("area", t.area);
+    setText("location", t.location);
+    setText("gardenAddress", t.gardenAddress);
+    setText("plantDate", t.plantDate ? new Date(t.plantDate).toLocaleDateString("vi-VN") : "-");
+    setText("health", t.currentHealth);
+
+    // QR hiển thị (nếu vẫn muốn show lại QR)
+    const qrImg = document.getElementById("qrImage");
+    const qrLink = document.getElementById("qrLink");
+
+    if (t.qrCode && qrImg && qrLink) {
+      qrImg.src = t.qrCode;
+      qrImg.style.display = "block";
+      qrLink.innerHTML = `<a href="${t.qrCode}" download="qr-${t.numericId || t.vietGapCode || "tree"}.png">Tải QR Code</a>`;
+    } else if (qrImg && qrLink) {
+      qrImg.style.display = "none";
+      qrLink.innerText = "(Không có QR để hiển thị)";
+    }
+  } catch (e) {
+    showError(e.message);
+  }
+})();
