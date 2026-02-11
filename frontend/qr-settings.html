@@ -1,47 +1,52 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
   <title>Cấu hình QR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css">
   <style>
-    .box {
-      max-width: 600px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-    }
-    h3 { margin-top: 0; color: #2e7d32; }
-    .field {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-    .field input {
-      margin-right: 10px;
-    }
-    button {
-      margin-top: 15px;
-      width: 100%;
-    }
-    @media (max-width: 768px) {
-      .box { margin: 0; border-radius: 0; }
-    }
+    .box{max-width:720px;margin:16px auto;background:#fff;padding:18px;border-radius:12px}
+    h3{margin:0 0 6px;color:#2e7d32}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .field{border:1px solid rgba(0,0,0,.08);border-radius:10px;padding:10px}
+    .row{display:flex;gap:10px}
+    .row input{flex:1;padding:10px;border:1px solid rgba(0,0,0,.12);border-radius:10px}
+    button{margin-top:14px;width:100%;padding:12px;border-radius:10px;border:none;background:#2e7d32;color:#fff;font-weight:800}
+    @media (max-width:768px){.box{margin:0;border-radius:0}.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
 
 <div class="box">
   <h3>🔲 Cấu hình hiển thị QR</h3>
-  <p>Chọn các thông tin sẽ hiển thị khi quét mã QR</p>
+  <p>Tick các thông tin sẽ hiển thị khi quét QR</p>
 
-  <div id="fields"></div>
+  <div id="fields" class="grid"></div>
+
+  <hr style="margin:14px 0; border:none; border-top:1px solid rgba(0,0,0,.08);" />
+
+  <h4 style="margin:0 0 8px;">📞 Liên hệ</h4>
+  <div class="row">
+    <input id="zalo" placeholder="Link Zalo (vd: https://zalo.me/84...)" />
+  </div>
+  <div class="row" style="margin-top:8px;">
+    <input id="phone" placeholder="Số điện thoại (vd: 0901xxxxxx)" />
+  </div>
+  <div class="row" style="margin-top:8px;">
+    <input id="facebook" placeholder="Link Facebook (vd: https://facebook.com/...)" />
+  </div>
+
+  <div class="field" style="margin-top:10px;">
+    <label style="display:flex;gap:8px;align-items:center;">
+      <input type="checkbox" id="showQrImage">
+      <span>Hiển thị lại ảnh QR trên trang public</span>
+    </label>
+  </div>
 
   <button onclick="save()">💾 Lưu cấu hình</button>
 </div>
 
-<script src="qr-settings.js"></script>
+<script src="qr-settings.js?v=20260211"></script>
 </body>
 </html>

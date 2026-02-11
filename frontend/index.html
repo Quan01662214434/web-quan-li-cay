@@ -1,50 +1,226 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Thanh Huyền Farm – Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard | Thanh Huyền Farm</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="index.css" />
 </head>
-<body>
 
-<div class="layout">
+<body class="bg-soft">
+  <!-- Topbar -->
+  <nav class="navbar navbar-expand bg-white border-bottom sticky-top">
+    <div class="container-fluid px-3 px-lg-4">
+      <div class="d-flex align-items-center gap-2">
+        <img src="logo.png" class="brand-logo" alt="logo">
+        <div class="lh-sm">
+          <div class="fw-semibold">Thanh Huyền Farm</div>
+          <div class="text-muted small">Dashboard quản lý cây</div>
+        </div>
+      </div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <h2>🌿 Thanh Huyền Farm</h2>
-    <nav>
-      <a onclick="loadTrees()">🌳 Cây trồng</a>
-      <a onclick="loadChart()">📊 Thống kê</a>
-      <a class="owner-only" onclick="loadAuditChart()">📋 Audit</a>
-      <a class="owner-only" onclick="loadEmployees()">👷 Nhân viên</a>
-      <a class="owner-only" href="report.html">🧾 VietGAP</a>
-      <a onclick="logout()">🚪 Đăng xuất</a>
-    </nav>
-  </aside>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge text-bg-light border" id="badgeRole">-</span>
+        <span class="text-muted small d-none d-md-inline" id="hello">-</span>
 
-  <!-- MAIN -->
-  <main class="main">
-    <header class="topbar">
-      <span id="welcome"></span>
-      <button onclick="toggleDark()">🌙</button>
-    </header>
+        <a class="btn btn-outline-secondary btn-sm d-none" id="btnQrSettings" href="qr-settings.html">
+          <i class="bi bi-qr-code me-1"></i> QR
+        </a>
 
-    <!-- NỘI DUNG LOAD VÀO ĐÂY -->
-    <section id="content"></section>
+        <a class="btn btn-outline-secondary btn-sm d-none" id="btnUsers" href="users.html">
+          <i class="bi bi-people me-1"></i> Nhân viên
+        </a>
+
+        <a class="btn btn-primary btn-sm d-none" id="btnAddTree" href="tree-edit.html">
+          <i class="bi bi-plus-lg me-1"></i> Thêm cây
+        </a>
+
+        <button class="btn btn-outline-danger btn-sm" id="btnLogout">
+          <i class="bi bi-box-arrow-right me-1"></i> Thoát
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4" style="max-width: 1180px;">
+    <div id="error" class="alert alert-danger d-none"></div>
+
+    <!-- KPI -->
+    <div class="row g-3 mb-3">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm kpi">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="text-muted small">Tổng cây</div>
+                <div class="fs-3 fw-bold" id="kpiTotal">-</div>
+              </div>
+              <div class="kpi-icon bg-success-subtle text-success"><i class="bi bi-tree-fill"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm kpi">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="text-muted small">Tổng lượt quét</div>
+                <div class="fs-3 fw-bold" id="kpiScans">-</div>
+              </div>
+              <div class="kpi-icon bg-primary-subtle text-primary"><i class="bi bi-qr-code-scan"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm kpi">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="text-muted small">Số khu</div>
+                <div class="fs-3 fw-bold" id="kpiAreas">-</div>
+              </div>
+              <div class="kpi-icon bg-warning-subtle text-warning"><i class="bi bi-geo-alt-fill"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm kpi">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <div class="text-muted small">Tình trạng phổ biến</div>
+                <div class="fw-semibold" id="kpiHealth">-</div>
+              </div>
+              <div class="kpi-icon bg-info-subtle text-info"><i class="bi bi-activity"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label text-muted small">Tìm kiếm</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input id="search" class="form-control" placeholder="Tên / mã / khu / tình trạng...">
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label text-muted small">Lọc theo khu</label>
+            <select id="filterArea" class="form-select">
+              <option value="">Tất cả</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label text-muted small">Sắp xếp</label>
+            <select id="sort" class="form-select">
+              <option value="numericId-asc">Mã tăng dần</option>
+              <option value="numericId-desc">Mã giảm dần</option>
+              <option value="qrScans-desc">Quét nhiều</option>
+              <option value="name-asc">Tên A→Z</option>
+            </select>
+          </div>
+
+          <div class="col-md-2 d-grid">
+            <button id="btnExport" class="btn btn-outline-secondary">
+              <i class="bi bi-download me-1"></i> Xuất CSV
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="fw-semibold">Danh sách cây</div>
+          <div class="text-muted small" id="countHint">-</div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr class="text-muted small">
+                <th style="width: 90px;">Mã</th>
+                <th>Tên</th>
+                <th style="width: 120px;">Khu</th>
+                <th style="width: 170px;">Tình trạng</th>
+                <th style="width: 110px;">Lượt quét</th>
+                <th style="width: 320px;">Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="6" class="text-muted">Đang tải...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <div class="text-muted small" id="pageHint">-</div>
+          <div class="btn-group">
+            <button id="btnPrev" class="btn btn-outline-secondary btn-sm">← Trước</button>
+            <button id="btnNext" class="btn btn-outline-secondary btn-sm">Sau →</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
-</div>
+  <!-- Modal cập nhật nhanh -->
+  <div class="modal fade" id="modalHealth" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header">
+          <div>
+            <div class="fw-semibold">Cập nhật tình trạng</div>
+            <div class="text-muted small" id="mSub">-</div>
+          </div>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
 
-<!-- MOBILE NAV -->
-<div class="bottom-nav">
-  <button onclick="loadTrees()">🌳</button>
-  <button onclick="loadChart()">📊</button>
-  <button class="owner-only" onclick="loadAuditChart()">📋</button>
-  <button onclick="logout()">🚪</button>
-</div>
+        <div class="modal-body">
+          <label class="form-label text-muted small">Tình trạng</label>
+          <select id="mHealth" class="form-select mb-3">
+            <option value="Tốt">Tốt</option>
+            <option value="Theo dõi">Theo dõi</option>
+            <option value="Bệnh">Bệnh</option>
+            <option value="Khác">Khác</option>
+          </select>
 
-<script src="app.js"></script>
-<script src="charts.js"></script>
+          <label class="form-label text-muted small">Ghi chú</label>
+          <textarea id="mNotes" class="form-control" rows="3" placeholder="VD: tưới nước, bón phân, sâu bệnh..."></textarea>
+
+          <div id="mErr" class="alert alert-danger mt-3 d-none"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Huỷ</button>
+          <button class="btn btn-success" id="mSave">
+            <span class="spinner-border spinner-border-sm me-2 d-none" id="mSpin"></span>
+            Lưu
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="index.js?v=20260211"></script>
 </body>
 </html>

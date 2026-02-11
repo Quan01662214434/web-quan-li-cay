@@ -4,54 +4,82 @@
   <meta charset="UTF-8">
   <title>Thông tin cây | Thanh Huyền Farm</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <!-- Font Awesome icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <link rel="stylesheet" href="public.css">
 </head>
 <body>
 
 <div class="container">
-  <header>
-    <img src="logo.png" alt="Thanh Huyền Farm" class="logo">
-    <h1>🌱 Thông tin cây trồng</h1>
+  <header class="header">
+    <div class="brand">
+      <img src="logo.png" alt="Thanh Huyền Farm" class="logo">
+      <div>
+        <div class="brand-sub">Thanh Huyền Farm</div>
+        <h1>🌱 Thông tin cây trồng</h1>
+      </div>
+    </div>
   </header>
 
   <div class="info-box">
-    <div class="info-item">
+    <div class="info-item" id="row-name">
       <b>Tên cây:</b> <span id="name">-</span>
     </div>
-    <div class="info-item">
+
+    <div class="info-item" id="row-species">
       <b>Giống:</b> <span id="species">-</span>
     </div>
-    <div class="info-item">
+
+    <div class="info-item" id="row-area">
       <b>Khu:</b> <span id="area">-</span>
     </div>
-    <div class="info-item">
+
+    <div class="info-item" id="row-location">
       <b>Vị trí:</b> <span id="location">-</span>
     </div>
-    <div class="info-item">
+
+    <div class="info-item" id="row-gardenAddress">
       <b>Địa chỉ vườn:</b> <span id="gardenAddress">-</span>
     </div>
-    <div class="info-item">
+
+    <div class="info-item" id="row-plantDate">
       <b>Ngày trồng:</b> <span id="plantDate">-</span>
     </div>
-    <div class="info-item">
+
+    <div class="info-item" id="row-vietGapCode">
+      <b>Mã VietGAP:</b> <span id="vietGapCode">-</span>
+    </div>
+
+    <div class="info-item" id="row-currentHealth">
       <b>Tình trạng:</b> <span id="health">-</span>
+    </div>
+
+    <div class="info-item" id="row-yieldSummary">
+      <b>Năng suất:</b> <span id="yieldSummary">-</span>
     </div>
   </div>
 
-  <div class="qr-code">
-    <b>🔗 QR Code:</b>
+  <div class="qr-code" id="qrBlock">
+    <b>QR:</b>
     <div id="qrLink"></div>
     <img id="qrImage" src="" alt="QR Code" style="display:none;">
   </div>
 
-  <div class="contact">
-    <a href="https://zalo.me/84901234567" target="_blank" class="contact-btn">Zalo</a>
-    <a href="tel:+84901234567" class="contact-btn">Gọi điện</a>
-    <a href="https://www.facebook.com/thanhhuyenfarm" target="_blank" class="contact-btn">Facebook</a>
+  <div class="contact" id="contactBlock">
+    <a id="btnZalo" href="#" target="_blank" class="contact-btn zalo">
+      <i class="fa-solid fa-comment-dots"></i> Zalo
+    </a>
+    <a id="btnCall" href="#" class="contact-btn call">
+      <i class="fa-solid fa-phone"></i> Gọi
+    </a>
+    <a id="btnFb" href="#" target="_blank" class="contact-btn fb">
+      <i class="fa-brands fa-facebook"></i> Facebook
+    </a>
   </div>
 </div>
 
-<!-- ✅ cache-bust để chắc chắn tải public.js mới -->
 <script src="public.js?v=20260211"></script>
 </body>
 </html>
