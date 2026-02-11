@@ -3,11 +3,11 @@ const API = "https://api.thefram.site";
 function getTreeCode() {
   const params = new URLSearchParams(location.search);
 
-  // Hỗ trợ nhiều key (tương thích QR cũ/mới)
+  // ✅ QR của bạn đang dùng treeId=...
   let code =
+    params.get("treeId") ||
     params.get("id") ||
     params.get("code") ||
-    params.get("treeId") ||
     params.get("_id") ||
     params.get("numericId") ||
     params.get("vietGapCode") ||
@@ -34,7 +34,6 @@ function setText(id, value) {
 }
 
 function showError(msg) {
-  // Nếu bạn không có vùng hiển thị lỗi thì dùng alert
   alert("❌ " + msg + "\n\nURL hiện tại:\n" + location.href);
 }
 
@@ -42,12 +41,13 @@ function showError(msg) {
   const code = getTreeCode();
 
   if (!code) {
-    showError("Thiếu ID/mã cây. QR phải mở link có ?id=... hoặc ?code=... hoặc /t/<code>.");
+    showError("Thiếu ID/mã cây. Link QR phải có ?treeId=... (hoặc ?id=..., ?code=...).");
     return;
   }
 
   try {
     const res = await fetch(`${API}/api/trees/public/${encodeURIComponent(code)}`);
+
     if (!res.ok) {
       const txt = await res.text().catch(() => "");
       throw new Error(`Không thể tải thông tin cây (${res.status}) ${txt}`);
@@ -55,7 +55,6 @@ function showError(msg) {
 
     const t = await res.json();
 
-    // Hiển thị thông tin cây
     setText("name", t.name);
     setText("species", t.species);
     setText("area", t.area);
@@ -64,7 +63,7 @@ function showError(msg) {
     setText("plantDate", t.plantDate ? new Date(t.plantDate).toLocaleDateString("vi-VN") : "-");
     setText("health", t.currentHealth);
 
-    // QR hiển thị (nếu vẫn muốn show lại QR)
+    // QR hiển thị (nếu muốn show lại QR)
     const qrImg = document.getElementById("qrImage");
     const qrLink = document.getElementById("qrLink");
 

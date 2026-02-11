@@ -4,18 +4,16 @@
   <meta charset="UTF-8">
   <title>Thông tin cây | Thanh Huyền Farm</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <link rel="stylesheet" href="public.css"> <!-- Liên kết với file public.css -->
+  <link rel="stylesheet" href="public.css">
 </head>
 <body>
 
 <div class="container">
-  <!-- Header with logo and title -->
   <header>
-    <img src="logo.png" alt="Thanh Huyền Farm" class="logo"> <!-- Logo thương hiệu -->
+    <img src="logo.png" alt="Thanh Huyền Farm" class="logo">
     <h1>🌱 Thông tin cây trồng</h1>
   </header>
 
-  <!-- Info section -->
   <div class="info-box">
     <div class="info-item">
       <b>Tên cây:</b> <span id="name">-</span>
@@ -40,21 +38,20 @@
     </div>
   </div>
 
-  <!-- QR code section -->
   <div class="qr-code">
     <b>🔗 QR Code:</b>
     <div id="qrLink"></div>
     <img id="qrImage" src="" alt="QR Code" style="display:none;">
   </div>
 
-  <!-- Contact links (Zalo, Call) -->
   <div class="contact">
-    <a href="https://zalo.me/84901234567" target="_blank" class="contact-btn">Zalo</a> <!-- Thêm số điện thoại Zalo -->
-    <a href="tel:+84901234567" class="contact-btn">Gọi điện</a> <!-- Nút gọi điện trực tiếp -->
+    <a href="https://zalo.me/84901234567" target="_blank" class="contact-btn">Zalo</a>
+    <a href="tel:+84901234567" class="contact-btn">Gọi điện</a>
     <a href="https://www.facebook.com/thanhhuyenfarm" target="_blank" class="contact-btn">Facebook</a>
   </div>
 </div>
 
-<script src="public.js"></script> <!-- Liên kết với file public.js -->
+<!-- ✅ cache-bust để chắc chắn tải public.js mới -->
+<script src="public.js?v=20260211"></script>
 </body>
 </html>
